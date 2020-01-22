@@ -1,0 +1,46 @@
+<clr-modal [(clrModalOpen)]="isOpen"
+           [clrModalClosable]="false">
+    <h3 class="modal-title">Close TGP</h3>
+
+    <div class="modal-body">
+        <p>Are you sure want to close batch?</p>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button"
+                class="btn btn-outline"
+                (click)="closeModal($event)">No
+        </button>
+        <button type="button"
+                class="btn btn-primary"
+                data-dismiss="modal"
+                (click)="doClose($event)">Yes
+        </button>
+    </div>
+
+</clr-modal>
+
+<clr-modal [(clrModalOpen)]="isOpenSuccess"
+           [clrModalClosable]="false">
+
+    <h3 class="modal-title">Data has been uploaded</h3>
+
+    <div class="modal-footer">
+
+        <button type="button"
+                *ngIf="returnLink"
+                class="btn btn-outline"
+                [routerLink]="[returnLink]">
+            OK
+        </button>
+
+        <button type="button"
+                class="btn btn-outline"
+                *ngIf="!returnLink"
+                (click)="isOpenSuccess = false">
+            OK
+        </button>
+
+    </div>
+
+</clr-modal>

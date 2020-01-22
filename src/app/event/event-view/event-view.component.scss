@@ -1,0 +1,9 @@
+.checkbox input[type=checkbox]:checked+label:before {
+  background: #dde3e6;
+  border: #737373;  
+}
+
+.btn-right{
+  justify-content: flex-end;
+  float: right;
+}

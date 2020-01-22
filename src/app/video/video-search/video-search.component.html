@@ -1,0 +1,233 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+            #clrContentArea>
+
+            <h1>Search Video</h1>
+
+            <form [formGroup]="videoForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label>Title</label>
+
+                        <datalist id="videoSuggestions">
+
+                            <option *ngFor="let videoSuggestion of videoSuggestions"
+                                    [value]="videoSuggestion?.title">
+                                {{videoSuggestion?.title}}
+                            </option>
+
+                        </datalist>
+
+
+                        <input type="text"
+                               id="titleField"
+                               maxlength="50"
+                               placeholder="Title"
+                               formControlName="title"
+                               [attr.list]="titleDatalist"
+                               size="58"/>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="category">Category</label>
+
+                        <div class="select">
+
+                            <select id="category"
+                                    [formControlName]="'category'">
+
+                                <option *ngFor="let category of categories"
+                                        [value]="category?.value">
+                                    {{category?.label}}
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                            <div class="form-group">
+
+                                <label>Upload Date From</label>
+
+                                <input type="text"
+                                       (click)="uiState.uploadDateFromIsOpen = true"
+                                       [matDatepicker]="domUploadDateFrom"
+                                       [max]="videoForm?.get('uploadDateTo')?.value"
+                                       onkeydown="return false"
+                                       placeholder="DD-MMM-YYYY"
+                                       formControlName="uploadDateFrom"
+                                       size="30"/>
+
+                                <clr-icon *ngIf="videoForm?.get('uploadDateFrom')?.value"
+                                          shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar($event, 'uploadDateFrom')"></clr-icon>
+
+                                <mat-datepicker #domUploadDateFrom
+                                                [opened]="uiState?.uploadDateFromIsOpen"
+                                                (closed)="uiState.uploadDateFromIsOpen = false"
+                                                disabled="false"></mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                            <div class="form-group">
+
+                                <label>Upload Date To</label>
+
+                                <input type="text"
+                                       (click)="uiState.uploadDateToIsOpen = true"
+                                       [matDatepicker]="domUploadDateTo"
+                                       [min]="videoForm?.get('uploadDateFrom')?.value"
+                                       onkeydown="return false"
+                                       placeholder="DD-MMM-YYYY"
+                                       formControlName="uploadDateTo"
+                                       size="30"/>
+
+                                <clr-icon *ngIf="videoForm?.get('uploadDateTo')?.value"
+                                          shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar($event, 'uploadDateTo')"></clr-icon>
+
+                                <mat-datepicker #domUploadDateTo
+                                                [opened]="uiState?.uploadDateToIsOpen"
+                                                (closed)="uiState.uploadDateToIsOpen = false"
+                                                disabled="false"></mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon btn-primary">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon btn-primary"
+                            routerLink="/video/create">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column>Video</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'title'">Title</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'category'">Category</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'uploadDate'">Uploaded Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedDate'">Last Updated Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let video of videoSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/video', video?.id]">View</a>
+
+                        |
+
+                        <a [routerLink]="['/video/edit', video?.id]">Edit</a>
+
+                    </clr-dg-cell>
+                    <clr-dg-cell>
+
+                        <img [src]="video?.thumbPath | safeUrl"
+                             width="100%"/>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{video?.title | slice: [0, 35]}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{video?.fiftubeCategory}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{video?.uploadedDate | date :'dd-MMM-yyyy hh:mm'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{video?.lastUpdateDate | date :'dd-MMM-yyyy hh:mm'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{video?.lastUpdateBy}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+                    {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of {{videoSearchList?.totalCount}}
+                    videos
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPage]="videoSearchList?.currentPage"
+                                       [clrDgPageSize]="videoSearchList?.pageSize"
+                                       [clrDgTotalItems]="videoSearchList?.totalCount">
+                    </clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <button type="button"
+                    class="btn btn-icon btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+            <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()"></fema-cms-modal-search>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

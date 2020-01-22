@@ -1,0 +1,364 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Create New Content</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!formOptions && !resourcesPath"
+                                      [isFailed]="!formOptions || !resourcesPath"
+                                      (retry)="initContentSetup()"
+                                      (close)="responseOnAction = $event; uiState.saveIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form *ngIf="formOptions && resourcesPath"
+                  [formGroup]="contentForm"
+                  (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label class="required">Title</label>
+
+                        <label for="titleField"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('title')">
+
+                            <input type="text"
+                                   id="titleField"
+                                   placeholder="Content title"
+                                   maxlength="150"
+                                   formControlName="title"
+                                   size="70"/>
+
+                            <span class="tooltip-content"
+                                  *ngIf="invalidField('title', 'required')">
+                                Title must be filled
+                            </span>
+
+                            <span class="tooltip-content"
+                                  *ngIf="invalidField('title', 'unique')">
+                                Title must be unique
+                            </span>
+
+                        </label>
+                    </div>
+                </section>
+
+                <hr/>
+
+                <fema-cms-content-create-news (formEmitter)="setNewsControl = $event"
+                                              [newsCategories]="formOptions?.newsCategories"
+                                              [resourcePath]="resourcesPath?.news"
+                                              [formDisabled]="disableNews"
+                                              [saveIsPressed]="uiState?.saveIsPressed"></fema-cms-content-create-news>
+
+                <hr/>
+
+                <fema-cms-content-create-banner (formEmitter)="setBannerControl = $event"
+                                                [contentLookup]="contentLookup"
+                                                [linkMenu]="formOptions?.linkMenu"
+                                                [resourcePath]="resourcesPath?.banner"
+                                                [formDisabled]="disableBannerOrPopup"
+                                                [saveIsPressed]="uiState?.saveIsPressed"></fema-cms-content-create-banner>
+
+                <hr/>
+
+                <fema-cms-content-create-popup (formEmitter)="setPopupControl = $event"
+                                               [contentLookup]="contentLookup"
+                                               [linkMenu]="formOptions?.linkMenu"
+                                               [resourcePath]="resourcesPath?.popup"
+                                               [formDisabled]="disableBannerOrPopup"
+                                               [saveIsPressed]="uiState?.saveIsPressed"></fema-cms-content-create-popup>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Receiver</label>
+
+                    <div class="form-group">
+
+                        <label class="required">Content Receiver</label>
+
+                        <label for="contentReceiverTypeSelect"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('contentReceiverType')">
+
+                                    <span class="select">
+                                        <select id="contentReceiverTypeSelect"
+                                                [formControlName]="'contentReceiverType'">
+                                            <option *ngFor="let receiver of formOptions?.contentReceivers"
+                                                    [value]="receiver?.value">
+                                                {{receiver?.label}}
+                                            </option>
+                                        </select>
+                                    </span>
+
+                            <span *ngIf="invalidField('contentReceiverType', 'required')"
+                                  class="tooltip-content tooltip-content--show">
+                                Content Receiver must be filled
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <ng-template [ngIf]="enableUploadReceiver">
+
+                        <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                                <div class="form-group">
+
+                                    <label class="required">Upload File (*.xls)</label>
+
+                                    <label for="receiverFile"
+                                           aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField('receiverFile')">
+
+                                        <input type="file"
+                                               id="receiverFile"
+                                               multiple="multiple"
+                                               size="50"
+                                               accept="application/vnd.ms-excel"
+                                               (change)="selectFile($event)"/>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField('receiverFile', 'required')">
+                                            File upload must be filled
+                                        </span>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField('receiverFile', 'fileTypes')">
+                                                Format file invalid
+                                        </span>
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6"
+                                 style="text-align: right;">
+
+                                <button class="btn btn-outline"
+                                        (click)="getTargetTemplate($event)"
+                                        [clrLoading]="uiState?.templateIsDownloading">
+                                    <clr-icon shape="download"></clr-icon>
+                                    Download Template
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-primary"
+                                style="width: fit-content;"
+                                (click)="processFile($event)"
+                                [clrLoading]="uiState?.receiverIsProcessing">
+                            Process
+                        </button>
+
+                        <button *ngIf="contentReceiverSummary?.countError > 0"
+                                type="button"
+                                class="btn btn-icon btn-warning"
+                                style=""
+                                (click)="getFailedReceiver($event)"
+                                [clrLoading]="uiState?.failedRecordIsDownloading">
+
+                            <clr-icon shape="warning-standard" class="is-solid"></clr-icon>
+
+                            {{contentReceiverSummary?.countError}} failed record(s)
+
+                        </button>
+
+                        <clr-alert *ngIf="failedReceiverUrl"
+                                   [clrAlertType]="'warning'"
+                                   [clrAlertClosable]="false">
+
+                            <div class="alert-item">
+
+                                <span class="alert-text">
+
+                                <a [href]="failedReceiverUrl | safeUrl"
+                                   [download]="'FEMA-CONTENT-RECEIVER-FAILED-RECORD-(' + contentReceiverSummary?.uploadId + ').xls'">
+                                    {{contentReceiverSummary?.countError}} failed record(s)
+                                </a>
+
+                            </span>
+
+                            </div>
+
+                        </clr-alert>
+
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td width="50%"
+                                    style="text-align: right;">Total Success Record
+                                </td>
+                                <td width="50%"
+                                    style="text-align: left;">{{contentReceiverSummary?.countSuccess || 0}} Row(s)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%"
+                                    style="text-align: right;">Total Failed Record
+                                </td>
+                                <td width="50%"
+                                    style="text-align: left;">{{contentReceiverSummary?.countError || 0}} Row(s)
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <br/>
+
+                        <clr-datagrid>
+                            <clr-dg-column>Company</clr-dg-column>
+                            <clr-dg-column>People Type</clr-dg-column>
+                            <clr-dg-column>Branch</clr-dg-column>
+                            <clr-dg-column>Organization</clr-dg-column>
+                            <clr-dg-column>Job Group</clr-dg-column>
+                            <clr-dg-column>Job</clr-dg-column>
+                            <clr-dg-column>Username</clr-dg-column>
+
+                            <clr-dg-placeholder>No data!</clr-dg-placeholder>
+
+                            <clr-dg-row *clrDgItems="let item of contentReceiverSummary?.successItems">
+                                <clr-dg-cell>{{item?.company || '-'}}</clr-dg-cell>
+                                <clr-dg-cell>{{item?.peopleType || '-'}}</clr-dg-cell>
+                                <clr-dg-cell>{{item?.branch || '-'}}</clr-dg-cell>
+                                <clr-dg-cell>{{item?.organization || '-'}}</clr-dg-cell>
+                                <clr-dg-cell>{{item?.jobGroup || '-'}}</clr-dg-cell>
+                                <clr-dg-cell>{{item?.job || '-'}}</clr-dg-cell>
+                                <clr-dg-cell>{{item?.username || '-'}}</clr-dg-cell>
+                            </clr-dg-row>
+
+                            <clr-dg-footer>
+                                <ng-template [ngIf]="pagination?.totalItems > 0">
+                                    {{+pagination?.firstItem + 1}}
+                                    -
+                                    {{+pagination?.lastItem + 1}}
+                                    of
+                                </ng-template>
+
+                                {{pagination?.totalItems}} success entries
+
+                                <clr-dg-pagination #pagination
+                                                   [clrDgPageSize]="20"></clr-dg-pagination>
+                            </clr-dg-footer>
+                        </clr-datagrid>
+
+                    </ng-template>
+
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Notification</label>
+
+                    <div class="form-group">
+
+                        <label>Send via</label>
+
+                        <div class="row">
+
+                            <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <clr-checkbox [formControlName]="'viaPushNotification'">
+                                    Push Notification
+                                </clr-checkbox>
+                            </div>
+
+                            <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <label for="publishDate"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('publishDate')">
+
+                                    <input type="text"
+                                           id="publishDate"
+                                           (click)="$event.preventDefault(); uiState.publishDateIsOpen = true;"
+                                           [matDatepicker]="domPublishDate"
+                                           [min]="contentLookup?.minPublishDate"
+                                           onkeydown="return false"
+                                           placeholder="Publish date (DD-MMM-YYYY)"
+                                           formControlName="publishDate"/>
+
+                                    <mat-datepicker #domPublishDate
+                                                    [opened]="uiState?.publishDateIsOpen"
+                                                    (closed)="uiState.publishDateIsOpen = false"
+                                                    disabled="false">
+                                    </mat-datepicker>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="invalidField('publishDate', 'required')">
+                                        Publish date must be filled
+                                    </span>
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <clr-checkbox [formControlName]="'viaEmail'">
+                            E-mail
+                        </clr-checkbox>
+                    </div>
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            (click)="$event.preventDefault(); this.uiState.cancelModalIsOpen = true;">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="uiState.cancelModalIsOpen"
+                [returnLink]="'/content/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 (save)="save()"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 [returnLink]="'/content/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+</clr-main-container>

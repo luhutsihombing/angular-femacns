@@ -1,0 +1,177 @@
+<form [formGroup]="qcpForm">
+
+    <div class="form-group" [hidden]="qcp?.detailQCP?.categoryQCP === ''">
+
+        <label for="subCategoryQCP">Kategori Quality Control Production</label>
+            
+        <clr-checkbox *ngFor="let sub of subCategory; let i = index" [attr.data-index]="i"      
+            [clrChecked]="check[i]"
+            (clrCheckedChange)="categorySelected(sub, $event)"  
+            [clrDisabled]="true"                                         
+            >   
+            {{sub?.name}}
+        </clr-checkbox>
+                         
+    </div>    
+    
+  <div class="form-group">
+    <label>Problem Statement</label>
+    <textarea formControlName="problem"></textarea>
+  </div>                    
+  
+  <div class="form-group">
+    <label>Goal Statement</label>
+    <textarea formControlName="goalStatement"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Project Scope</label>
+    <textarea formControlName="projectScope"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Pemetaan Proses</label>
+    <textarea formControlName="processMapping"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Pemetaan Performance</label>
+    <textarea formControlName="performanceMapping"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Analisa Penyebab</label>
+    <textarea formControlName="causeAnalysis"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Alternatif Solusi</label>
+    <textarea formControlName="alternativeSolution"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Solusi yang dipilih</label>
+    <textarea formControlName="solution"></textarea>
+  </div>
+  
+  <div class="form-group">
+    <label>Deskripsi Solusi</label>
+    <textarea formControlName="solutionDescription"></textarea>
+  </div>
+  
+  <div *ngFor="let tipeAttachment of tipe" >
+    <div class="form-group" *ngIf="attachment.get('attachment'+toTitleCase(tipeAttachment)).value.length > 0">
+        <label for="attach">Attachment {{toTitleCase(tipeAttachment)}} (*.{{tipeAttachment}})</label>
+    </div>
+
+    <div class="form-group"
+         id="attach"
+         *ngFor="let apalah of attachment.get('attachment'+toTitleCase(tipeAttachment)).controls; let i = index" [attr.data-index]="i">
+        
+        <div class="attach">
+            <a [href]="attachment.get('attachment'+toTitleCase(tipeAttachment)).value[i].fullPath"
+                target="_blank"
+                rel="noopener noreferrer">
+
+                <b>{{attachment.get('attachment'+toTitleCase(tipeAttachment)).value[i].fileName}}</b>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+  <!-- <div class="form-group" *ngIf="resultPdf.length > 0">
+      <label for="attach">Attachment Pdf</label>
+  </div>
+
+  <div>
+          <div
+          class="form-group"
+          id="attach"
+          *ngFor="let test1 of resultPdf; let i = index" [attr.data-index]="i">
+              <div class="attach">
+          
+                  <a [href]="fullPathPdf[i]"
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      <b>{{test1}}</b>
+                  </a>
+
+              </div>
+
+          </div>
+  </div>
+
+  <div class="form-group" *ngIf="resultXls.length > 0">
+      <label for="attach">Attachment Xls</label>
+  </div>
+
+  <div>
+      <div
+      class="form-group"
+      id="attach"
+      *ngFor="let test1 of resultXls; let i = index" [attr.data-index]="i">
+          <div class="attach">
+          
+              <a [href]="fullPathXls[i]"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <b>{{test1}}</b>
+              </a>
+
+          </div>
+
+      </div>
+
+  </div>
+
+  <div class="form-group" *ngIf="resultMp4.length > 0">
+      <label for="attach">Attachment mp4</label>
+  </div>
+
+  <div>
+      <div
+      class="form-group"
+      id="attach"
+      *ngFor="let test1 of resultMp4; let i = index" [attr.data-index]="i">
+          <div class="attach">
+          
+              <a [href]="fullPathMp4[i]"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <b>{{test1}}</b>
+              </a>
+
+          </div>
+
+      </div>
+
+  </div>
+
+  <div class="form-group" *ngIf="resultMov.length > 0">
+      <label for="attach">Attachment Mov</label>
+  </div>
+
+  <div>
+      <div
+      class="form-group"
+      id="attach"
+      *ngFor="let test1 of resultMov; let i = index" [attr.data-index]="i">
+          <div class="attach">
+
+              <a [href]="fullPathMov[i]"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <b>{{test1}}</b>
+              </a>
+
+          </div>
+
+      </div>
+
+  </div> -->
+  
+</form>

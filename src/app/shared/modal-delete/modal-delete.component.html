@@ -1,0 +1,63 @@
+<div name="indonesia" *ngIf="bahasa==='indonesia'; else elseBlock">
+
+    <clr-modal [(clrModalOpen)]="isOpen" [clrModalClosable]="false">
+
+        <h3 class="modal-title">Menghapus</h3>
+        
+        <div class="modal-body">
+            <p>Apakah anda yakin menghapus?</p>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn btn-outline" type="button" (click)="closeModal($event)">No</button>
+            <button class="btn btn-danger" type="button" (click)="deleteAction($event)">
+                <clr-icon shape="trash"></clr-icon>
+                Ya, Hapus
+            </button>
+        </div>
+
+    </clr-modal>
+
+    <clr-modal [(clrModalOpen)]="isOpenSuccess" [clrModalClosable]="false">
+    
+        <h3 class="modal-title">Data telah dihapus</h3>
+            
+        <div class="modal-footer">
+            <button class="btn btn-outline" type="button" [routerLink]="[returnLink]">OK</button>
+        </div>
+        
+    </clr-modal>
+
+</div>
+
+<ng-template #elseBlock>
+
+    <clr-modal [(clrModalOpen)]="isOpen" [clrModalClosable]="false">
+
+        <h3 class="modal-title">Proceed to Delete</h3>
+                
+        <div class="modal-body">
+            <p>Are you sure want to delete this setup?</p>
+        </div>
+                
+        <div class="modal-footer">
+            <button class="btn btn-outline" type="button" (click)="closeModal($event)">No</button>
+            <button class="btn btn-danger" type="button" (click)="deleteAction($event)">
+                <clr-icon shape="trash"></clr-icon>
+                    Yes, Delete
+            </button>
+        </div>
+        
+    </clr-modal>
+        
+    <clr-modal [(clrModalOpen)]="isOpenSuccess" [clrModalClosable]="false">
+            
+        <h3 class="modal-title">Data has been deleted</h3>
+                    
+        <div class="modal-footer">
+            <button class="btn btn-outline" type="button" [routerLink]="[returnLink]">OK</button>
+        </div>
+                
+    </clr-modal>
+
+</ng-template>

@@ -1,0 +1,21 @@
+<clr-modal [(clrModalOpen)]="isOpen"
+           [clrModalClosable]="false">
+    <h3 class="modal-title">Process TGP</h3>
+
+    <div class="modal-body">
+        <p>Are you sure want to upload this file?</p>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button"
+                class="btn btn-outline"
+                (click)="closeModal($event)">No
+        </button>
+        <button type="button"
+                class="btn btn-primary"
+                data-dismiss="modal"
+                (click)="doProcess($event)">Yes
+        </button>
+    </div>
+
+</clr-modal>

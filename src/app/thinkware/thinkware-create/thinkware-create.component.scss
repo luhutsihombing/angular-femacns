@@ -1,0 +1,31 @@
+.text-area{
+  overflow: hidden; 
+  resize:none; 
+  background-color: transparent; 
+  border-top: black;
+  border-left: black;
+  border-right: black; 
+}
+
+.btn-right{
+  justify-content: flex-end;
+  float: right;
+}
+.wrap{
+  position: relative;
+}
+
+.elementToFadeInAndOut {
+  -webkit-animation: fadein 2s;
+  animation: fadein 2s;
+}
+
+@-webkit-keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

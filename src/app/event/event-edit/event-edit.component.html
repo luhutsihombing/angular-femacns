@@ -1,0 +1,899 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+
+            <h1>Edit Event: {{eventForm?.get('eventName')?.value}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="suggestion?.feedbacks?.length === 0"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form [formGroup]="eventForm"
+                  (ngSubmit)="checkFormValidity($event)"
+                  *ngIf="(suggestion?.feedbacks?.length > 0) && !errorOnInit">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label class="required">Event Name</label>
+
+                        <label for="eventName"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('eventName')">
+
+                            <input type="text"
+                                   id="eventName"
+                                   placeholder="Event name"
+                                   formControlName="eventName"
+                                   maxlength="150"/>
+
+                            <span class="tooltip-content tooltip-content--show"
+                                  style="margin-left:1.5cm"
+                                  *ngIf="invalidField('eventName', 'required')">
+                                Event Name must be filled
+                            </span>
+
+                            <span class="tooltip-content tooltip-content--show"
+                                  style="margin-left:1.5cm"
+                                  *ngIf="invalidField('eventName', 'unique')">
+                                Event Name must be unique
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Event Start Date</label>
+
+                                <label for="startDate"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('startDate') || invalidField('startTime') || invalidPeriod">
+
+                                    <input type="text"
+                                           id="startDate"
+                                           (click)="uiState.startDateIsOpen = true"
+                                           [matDatepicker]="domStartDate"
+                                           [min]="currentDateTime | async"
+                                           [max]="eventForm?.get('endDate')?.value"
+                                           onkeydown="return false"
+                                           placeholder="DD-MMM-YYYY"
+                                           formControlName="startDate"/>
+
+                                    <mat-datepicker #domStartDate
+                                                    [opened]="uiState?.startDateIsOpen"
+                                                    (closed)="uiState.startDateIsOpen = false"
+                                                    disabled="false"></mat-datepicker>
+
+                                    <input type="time"
+                                           size="35"
+                                           formControlName="startTime"/>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="invalidField('startDate', 'required') || invalidField('startTime', 'required')">
+                                        Event Start Date must be filled
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="(!invalidField('startDate', 'required') && !invalidField('startTime', 'required')) && invalidPeriod">
+                                        Event start date must be lesser or equal to event end date
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Event End Date</label>
+
+                                <label for="endDate"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('endDate') || invalidField('endTime') || invalidPeriod">
+
+                                    <input type="text"
+                                           id="endDate"
+                                           (click)="uiState.endDateIsOpen = true"
+                                           [matDatepicker]="domEndDate"
+                                           [min]="eventForm?.get('startDate')?.value"
+                                           onkeydown="return false"
+                                           placeholder="DD-MMM-YYYY"
+                                           formControlName="endDate"/>
+
+                                    <mat-datepicker #domEndDate
+                                                    [opened]="uiState?.endDateIsOpen"
+                                                    (closed)="uiState.endDateIsOpen = false"
+                                                    disabled="false"></mat-datepicker>
+
+                                    <input type="time"
+                                           size="35"
+                                           formControlName="endTime"/>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="invalidField('endDate', 'required') || invalidField('endTime', 'required')">
+                                        Event End Date must be filled
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="(!invalidField('endDate', 'required') && !invalidField('endTime', 'required')) && invalidPeriod">
+                                        Event end date must be greater or equal to event start date
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <br/>
+
+                    <div class="form-group">
+
+                        <label class="required">Event Category</label>
+
+                        <div class="radio-inline"
+                             *ngFor="let cat of option?.eventCategories">
+
+                            <input type="radio"
+                                   [id]="'category~' + cat?.value"
+                                   [formControlName]="'category'"
+                                   [value]="cat?.value">
+
+                            <label [for]="'category~' + cat?.value">{{cat?.label}}</label>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Event Type</label>
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('type')">
+
+                                    <span class="select">
+
+                                        <select id="typeField"
+                                                [formControlName]="'type'">
+
+                                            <option *ngFor="let eventType of option?.eventTypes"
+                                                    [value]="eventType?.value">
+                                                    {{eventType?.label}}
+                                            </option>
+
+                                        </select>
+
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="invalidField('type', 'required')">
+                                        Event Type must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('type', 'maxlength')">
+                                        {{showError('type', 'maxlength')['actualLength']}} of max. {{showError('type', 'maxlength')['requiredLength']}} characters
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <div class="toggle-switch">
+
+                                    <input type="checkbox"
+                                           id="mandatory"
+                                           formControlName="mandatory"/>
+
+                                    <label for="mandatory">Set as Mandatory Event</label>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Event Location</label>
+
+                        <label for="place"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('place')">
+
+                            <input type="text"
+                                   id="place"
+                                   placeholder="Event Location"
+                                   formControlName="place"
+                                   maxlength="150"/>
+
+                            <span class="tooltip-content"
+                                  *ngIf="invalidField('place', 'maxlength')">
+                                {{showError('place', 'maxlength')['actualLength']}}
+                                of max.
+                                {{showError('place', 'maxlength')['requiredLength']}}
+                                characters
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Need Feedback</label>
+
+                        <div class="toggle-switch">
+
+                            <input type="checkbox" id="feedbackToggle"
+                                   formControlName="needFeedback"/>
+
+                            <label for="feedbackToggle"></label>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Material Speaker
+                            <br/>
+                            (Feedback)
+                        </label>
+
+                        <table class="table table-compact">
+
+                            <thead>
+
+                            <tr>
+
+                                <th>
+                                    <clr-checkbox [formControlName]="'selectAllSpeaker'"></clr-checkbox>
+                                </th>
+
+                                <th>Material</th>
+
+                                <th>Speaker Type</th>
+
+                                <th>Speaker Name</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody formArrayName="listSpeaker">
+
+                            <tr *ngFor="let speakerCtrl of listSpeakerForm?.controls; let i = index;"
+                                [formGroupName]="i">
+
+                                <td>
+
+                                    <clr-checkbox [formControlName]="'selected'"></clr-checkbox>
+
+                                </td>
+
+                                <td>
+
+                                    <label
+                                        [for]="'materialField' + i"
+                                        aria-haspopup="true"
+                                        role="tooltip"
+                                        class="tooltip tooltip-validation tooltip-md"
+                                        [class.invalid]="invalidField(speakerCtrl?.get('material'))">
+
+                                        <input
+                                            type="text"
+                                            [id]="'materialField' + i"
+                                            formControlName="material"
+                                            maxlength="150"/>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField(speakerCtrl?.get('material'), 'required')">
+                                            Material must be filled
+                                        </span>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              style="margin-left:1.5cm"
+                                              *ngIf="invalidField(speakerCtrl?.get('material'), 'maxlength')">
+                                            {{showError(speakerCtrl?.get('material'), 'maxlength')['actualLength']}}
+                                            of max.
+                                            {{showError(speakerCtrl?.get('material'), 'maxlength')['requiredLength']}}
+                                            characters
+                                        </span>
+
+                                    </label>
+
+                                </td>
+
+                                <td>
+
+                                    <label [for]="'speakerTypeField' + i"
+                                           aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField(speakerCtrl?.get('speakerType'))">
+
+                                        <span class="select">
+
+                                            <select [id]="'speakerTypeField' + i"
+                                                    [formControlName]="'speakerType'">
+
+                                                <option *ngFor="let speakerType of option?.speakerTypes"
+                                                        [value]="speakerType?.value">
+                                                    {{speakerType?.label}}
+                                                </option>
+
+                                            </select>
+
+                                        </span>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              style="margin-left:1.5cm"
+                                              *ngIf="invalidField(speakerCtrl?.get('speakerType'), 'required')">
+                                            Speaker Type must be filled
+                                        </span>
+
+                                    </label>
+
+                                </td>
+
+                                <td hidden="hidden">
+
+                                    <input type="text"
+                                           id="speakerNameField"
+                                           list="speakerNameSelection"
+                                           formControlName="speakerId"/>
+
+                                </td>
+
+                                <td>
+
+                                    <label [for]="'speakerNameField' + i"
+                                           aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField(speakerCtrl?.get('speakerName'))">
+
+                                        <input type="text"
+                                               [id]="'speakerNameField' + i"
+                                               list="speakerNameSelection"
+                                               formControlName="speakerName"
+                                               (blur)="checkSpeakerName(speakerCtrl?.get('speakerType')?.value, speakerCtrl?.get('speakerName'), $event)"/>
+
+                                        <datalist id="speakerNameSelection">
+
+                                            <option *ngFor="let employee of suggestion?.employees"
+                                                    [value]="employee?.value">
+                                                {{employee?.label}}
+                                            </option>
+
+                                        </datalist>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              style="margin-left:1.5cm"
+                                              *ngIf="invalidField(speakerCtrl?.get('speakerName'), 'required')">
+                                            Speaker Name must be filled
+                                        </span>
+
+                                    </label>
+
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                        <div class="btn-group">
+
+                            <button type="button"
+                                    class="btn btn-icon"
+                                    (click)="addSpeaker($event)"
+                                    [disabled]="addSpeakerIsDisabled">
+
+                                <clr-icon shape="add"></clr-icon>
+
+                                Add Row
+
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-icon"
+                                    (click)="removeSpeaker($event)"
+                                    [disabled]="removeSpeakerIsDisabled">
+
+                                <clr-icon shape="remove"></clr-icon>
+
+                                Remove Selected
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <datalist id="feedbackSuggestion">
+
+                        <option *ngFor="let feedback of suggestion?.feedbacks"
+                                [value]="feedback?.templateName">
+                            {{feedback?.templateName}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+
+                        <label for="formTemplateField"
+                               [class.required]="eventForm?.get('template')?.validator">
+                            Form Template
+                        </label>
+
+                        <label
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('template')">
+
+                            <input type="text"
+                                   id="formTemplateField"
+                                   placeholder="Form template"
+                                   size="30"
+                                   formControlName="template"
+                                   (change)="checkTemplate($event)"
+                                   [attr.list]="templateDatalist"/>
+
+                            <span
+                                class="tooltip-content"
+                                *ngIf="invalidField('template', 'required')">
+                                    Form Template must be filled
+                                </span>
+
+                        </label>
+
+                    </div>
+
+                    <hr/>
+
+                    <section class="form-block">
+
+                        <label>Participant</label>
+
+                        <div class="form-group">
+
+                            <label class="required">Targeted Participant</label>
+
+                            <label for="targetParticipant"
+                                   aria-haspopup="true"
+                                   role="tooltip"
+                                   class="tooltip tooltip-validation tooltip-md"
+                                   [class.invalid]="invalidField('targetParticipant')">
+
+                                <span class="tooltip-content"
+                                      *ngIf="invalidField('targetParticipant', 'required')">
+                                    Targeted Participant must be filled
+                                </span>
+
+                                <span class="select">
+
+                                    <select id="targetParticipant"
+                                            [formControlName]="'targetParticipant'">
+
+                                        <option *ngFor="let participant of option?.participants"
+                                                [value]="participant?.value">
+                                            {{participant?.label}}
+                                        </option>
+
+                                    </select>
+
+                                </span>
+
+                            </label>
+
+                        </div>
+
+                        <ng-template [ngIf]="enableUploadParticipant">
+
+                            <div class="row">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                                    <div class="form-group">
+
+                                        <label class="required">Upload File (*.xls)</label>
+
+                                        <label for="participantFile"
+                                               aria-haspopup="true"
+                                               role="tooltip"
+                                               class="tooltip tooltip-validation tooltip-md"
+                                               [class.invalid]="invalidField('participantFile') || invalidField('uploadId')">
+
+                                            <input type="file"
+                                                   id="participantFile"
+                                                   multiple="multiple"
+                                                   size="50"
+                                                   accept="application/vnd.ms-excel"
+                                                   (change)="selectFile($event)"/>
+
+                                            <span class="tooltip-content tooltip-content--show"
+                                                  *ngIf="invalidField('participantFile', 'required')">
+                                                File upload must be filled
+                                            </span>
+
+                                            <span class="tooltip-content tooltip-content--show"
+                                                  *ngIf="invalidField('participantFile', 'fileTypes')">
+                                                Format file invalid
+                                            </span>
+
+                                            <span class="tooltip-content tooltip-content--show"
+                                                  *ngIf="!invalidField('participantFile', 'required') && !invalidField('participantFile', 'fileTypes') && invalidField('uploadId', 'required')">
+                                                File must be processed
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6"
+                                     style="text-align: right;">
+
+                                    <button class="btn btn-icon btn-outline"
+                                            (click)="getTargetTemplate($event)"
+                                            [clrLoading]="uiState?.templateIsDownloading"
+                                            [disabled]="startDateHasPassed">
+
+                                        <clr-icon shape="download"></clr-icon>
+
+                                        Download Template
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    style="width: fit-content;"
+                                    (click)="processFile($event)"
+                                    [clrLoading]="uiState?.participantIsProcessing"
+                                    [disabled]="startDateHasPassed">
+                                Process
+                            </button>
+
+                            <button *ngIf="participant?.countError > 0"
+                                    type="button"
+                                    class="btn btn-icon btn-warning"
+                                    style=""
+                                    (click)="getFailedParticipant($event)"
+                                    [clrLoading]="uiState?.failedRecordIsDownloading">
+
+                                <clr-icon shape="warning-standard" class="is-solid"></clr-icon>
+
+                                {{participant?.countError}} failed record(s)
+
+                            </button>
+
+                            <table class="table">
+                                <tbody>
+                                <tr>
+                                    <td width="50%"
+                                        style="text-align: right;">Total Success Record
+                                    </td>
+                                    <td width="50%"
+                                        style="text-align: left;">{{participant?.countSuccess || 0}} Row(s)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="50%"
+                                        style="text-align: right;">Total Failed Record
+                                    </td>
+                                    <td width="50%"
+                                        style="text-align: left;">{{participant?.countError || 0}} Row(s)
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <br/>
+
+                            <clr-datagrid [clrDgLoading]="uiState?.participantIsProcessing">
+
+                                <th>Company</th>
+                                <th>People Type</th>
+                                <th>Branch</th>
+                                <th>Organization</th>
+                                <th>Job Group</th>
+                                <th>Job</th>
+                                <th>Username</th>
+
+                                <clr-dg-column [clrDgSortBy]="'company'">Company</clr-dg-column>
+                                <clr-dg-column [clrDgSortBy]="'peopleType'">People Type</clr-dg-column>
+                                <clr-dg-column [clrDgSortBy]="'branch'">Branch</clr-dg-column>
+                                <clr-dg-column [clrDgSortBy]="'organization'">Organization</clr-dg-column>
+                                <clr-dg-column [clrDgSortBy]="'jobGroup'">Job Group</clr-dg-column>
+                                <clr-dg-column [clrDgSortBy]="'job'">Job</clr-dg-column>
+                                <clr-dg-column [clrDgSortBy]="'username'">Username</clr-dg-column>
+
+                                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                                <clr-dg-row *clrDgItems="let item of participant?.successItems">
+
+                                    <clr-dg-cell>{{item?.company || '-'}}</clr-dg-cell>
+                                    <clr-dg-cell>{{item?.peopleType || '-'}}</clr-dg-cell>
+                                    <clr-dg-cell>{{item?.branch || '-'}}</clr-dg-cell>
+                                    <clr-dg-cell>{{item?.organization || '-'}}</clr-dg-cell>
+                                    <clr-dg-cell>{{item?.jobGroup || '-'}}</clr-dg-cell>
+                                    <clr-dg-cell>{{item?.job || '-'}}</clr-dg-cell>
+                                    <clr-dg-cell>{{item?.username || '-'}}</clr-dg-cell>
+
+                                </clr-dg-row>
+
+                                <clr-dg-footer>
+
+                                    <ng-template [ngIf]="pagination?.totalItems > 0">
+
+                                        <ng-template [ngIf]="participant?.successItems?.length > 0">
+                                            {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                                        </ng-template>
+
+                                        {{pagination?.totalItems}} participants
+
+                                    </ng-template>
+
+                                    <clr-dg-pagination #pagination
+                                                       [clrDgPageSize]="lookup?.pageSize"></clr-dg-pagination>
+
+                                </clr-dg-footer>
+
+                            </clr-datagrid>
+
+                        </ng-template>
+
+                    </section>
+
+                    <hr/>
+
+                    <div class="form-group">
+
+                        <label>Event Notification</label>
+
+                        <div class="checkbox">
+
+                            <input type="checkbox"
+                                   id="emailCheck"
+                                   formControlName="email"/>
+
+                            <label for="emailCheck">E-mail</label>
+
+                        </div>
+
+                        <div class="checkbox">
+
+                            <input type="checkbox"
+                                   id="pushNotif"
+                                   formControlName="pushNotification"/>
+
+                            <label for="pushNotif">Push Notification</label>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-3">
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidReminder">
+
+                                    <span class="checkbox">
+
+                                        <input type="checkbox"
+                                               id="reminder"
+                                               formControlName="reminder"/>
+
+                                        <label for="reminder">Reminder</label>
+
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          style="margin-left:1.5cm"
+                                          *ngIf="invalidReminder">
+                                        Reminder must be filled at least 1
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                            <ng-template [ngIf]="enableRemainderSelections">
+
+                                <ng-container formGroupName="listReminder">
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                                        <div class="checkbox">
+
+                                            <input type="checkbox"
+                                                   id="TENMINUTES_BEFORE"
+                                                   formControlName="TENMINUTES_BEFORE"/>
+
+                                            <label for="TENMINUTES_BEFORE">10 minutes before</label>
+
+                                        </div>
+
+                                        <div class="checkbox">
+
+                                            <input type="checkbox"
+                                                   id="ONEHOURS_BEFORE"
+                                                   formControlName="ONEHOURS_BEFORE"/>
+
+                                            <label for="ONEHOURS_BEFORE">1 hour before</label>
+
+                                        </div>
+
+                                        <div class="checkbox">
+
+                                            <input type="checkbox"
+                                                   id="EVERYHOUR"
+                                                   formControlName="EVERYHOUR"/>
+
+                                            <label for="EVERYHOUR">Every hour</label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-4">
+
+                                    <span class="checkbox">
+
+                                        <input type="checkbox"
+                                               id="ONEDAY_BEFORE"
+                                               formControlName="ONEDAY_BEFORE"/>
+
+                                        <label for="ONEDAY_BEFORE">1 day before</label>
+
+                                    </span>
+
+                                        <span class="checkbox">
+
+                                        <input type="checkbox"
+                                               id="TWODAY_BEFORE"
+                                               formControlName="TWODAY_BEFORE"/>
+
+                                        <label for="TWODAY_BEFORE">2 day before</label>
+
+                                    </span>
+
+                                        <span class="checkbox">
+
+                                            <input type="checkbox"
+                                                   id="EVERYDAY"
+                                                   formControlName="EVERYDAY"/>
+
+                                            <label for="EVERYDAY">Everyday</label>
+
+                                        </span>
+
+                                    </div>
+
+                                </ng-container>
+
+                            </ng-template>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon btn-danger"
+                            [disabled]="uiState?.deleteIsDisabled"
+                            (click)="$event.preventDefault(); uiState.deleteModalIsOpen = true;">
+
+                        <clr-icon shape="trash"></clr-icon>
+
+                        Delete
+
+                    </button>
+
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            (click)="$event.preventDefault(); uiState.cancelModalIsOpen = true;">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel [(isOpen)]="uiState.cancelModalIsOpen"
+                                   [returnLink]="'/event/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-delete [(isOpen)]="uiState.deleteModalIsOpen"
+                                   (delete)="delete()"
+                                   [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                                   [returnLink]="'/event/search'"></fema-cms-modal-delete>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 (save)="save()"
+                                 [returnLink]="'/event/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

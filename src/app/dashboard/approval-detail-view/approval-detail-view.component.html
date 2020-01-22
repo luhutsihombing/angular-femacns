@@ -1,0 +1,140 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+
+            <h1>Approval Message Detail</h1>
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="false"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+            <form [formGroup]="detailForm" *ngIf="approvalDetail && !errorOnInit">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label>Subject</label>
+
+                        <label>{{approvalDetail?.subject}}</label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>From</label>
+
+                        <label>{{approvalDetail?.requestor}}</label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Received Time</label>
+
+                        <label>{{approvalDetail?.avmTimestamp | date:'dd-MMM-yyyy HH:mm:ss'}}</label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>To</label>
+
+                        <label>{{approvalDetail?.currentMessage.toId}}</label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Message Content</label>
+                        
+                           <div [innerHTML] = "approvalDetail?.currentMessage.contentMessage"> </div>
+                          
+                        
+
+                    </div>
+                
+                    <label>* Please <a [routerLink]="['/thinkware', approvalDetail?.id]">Click Here </a> to see detail information</label>
+                    <div class="form-group"><label>Information Approval History</label></div>
+
+                    <clr-datagrid (clrDgRefresh)="clrPage?.next($event)">                           
+                        <clr-dg-column>No</clr-dg-column>
+                        <clr-dg-column>Approver Name</clr-dg-column>
+                        <clr-dg-column>Remarks</clr-dg-column>
+                        <clr-dg-column>Approved Time</clr-dg-column>
+                        <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                        <clr-dg-row *ngFor="let DashboardOutgoing of outgoingList?.content">
+                            <clr-dg-cell></clr-dg-cell>
+                            <clr-dg-cell>{{approvalDetail?.approverName}}</clr-dg-cell>
+                            <clr-dg-cell>{{approvalDetail?.remarks}}</clr-dg-cell>
+                            <clr-dg-cell>{{approvalDetail?.currentApprovalApproverType}}</clr-dg-cell>
+                        </clr-dg-row>
+                    </clr-datagrid>
+                    <div class="form-group">
+                        <label for="remarkField">Remarks</label>
+                        
+                            <textarea
+                                id="remarkField"
+                                rows="3"
+                                formControlName="remark"
+                                maxlength="150"></textarea>
+                            
+                       
+                    </div>
+                </section>
+                <div class="btn-group btn-primary btn-right">
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isApprove">
+
+                            Approve
+
+                    </button>
+    
+                    <button type="button"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isReject">
+                            
+                            Reject
+
+                    </button>
+
+    
+                    <button type="button"
+                            class="btn btn-icon btn-primary btn-right"
+                            (click)="back($event)">
+
+                            <clr-icon shape="undo"></clr-icon>
+
+                            Cancel
+
+                    </button>
+                </div>
+                
+            </form>
+            
+
+                
+        <fema-cms-modal-save
+                [(isOpen)]="uiState.saveModalIsOpen"
+                [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                (save)="save()"
+                [returnLink]="' '"></fema-cms-modal-save>
+        <!-- <fema-cms-modal-cancel
+                [(isOpen)]="uiState.rejectModalIsOpen"
+                [(isOpenSuccess)]="uiState.rejectSuccessModalIsOpen"
+                (reject)="reject()"
+                [returnLink]="' '"></fema-cms-modal-cancel> -->
+        </main>
+
+    </div>
+
+</clr-main-container>

@@ -1,0 +1,301 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+            <h1>Lookup: {{lookupForm?.get('name')?.value}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!lookup && !errorOnInit"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form [formGroup]="lookupForm"
+                  (ngSubmit)="checkFormValidity($event)"
+                  *ngIf="lookup && !errorOnInit">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label class="required">Lookup Name</label>
+
+                        <label aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-sm"
+                               [class.invalid]="invalidField('name')">
+
+                            {{lookupForm?.get('name')?.value}}
+
+                            <span class="tooltip-content"
+                                  *ngIf="invalidField('name', 'required')">
+                                Lookup name must be filled
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="required">Description</label>
+
+                        <label for="description"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-sm"
+                               [class.invalid]="invalidField('description')"
+                               style="width: 70%">
+
+                            <textarea
+                                id="description"
+                                placeholder="Description"
+                                rows="3 "
+                                formControlName="description"
+                                maxlength="250"></textarea>
+
+                            <span class="tooltip-content tooltip-content--show"
+                                  *ngIf="invalidField('description', 'required')">
+                                Description must be filled
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+
+                    <div class="form-group">
+
+                        <label for="dataType" class="required">Data Type</label>
+
+                        <div class="select">
+
+                            <select id="dataType"
+                                    [formControlName]="'dataType'">
+
+                                <option *ngFor="let dataType of dataTypes"
+                                        [value]="dataType?.value">
+                                    {{dataType?.label}}
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <br/>
+
+                <section class="form-block">
+
+                    <table class="table table-compact">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                <clr-checkbox [formControlName]="'selectAllDetails'"></clr-checkbox>
+                            </th>
+
+                            <th>Detail Code</th>
+
+                            <th>Meaning</th>
+
+                            <th>Description</th>
+
+                            <th>Is Active</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody formArrayName="details">
+
+                        <tr *ngFor="let detailForm of detailsForm?.controls; let i = index;"
+                            [formGroupName]="i">
+
+                            <td>
+                                <clr-checkbox [formControlName]="'selected'"
+                                              [clrDisabled]="detailForm?.get('selected')?.disabled"></clr-checkbox>
+                            </td>
+
+                            <td>
+
+                                <label [for]="'detailCodeField' + i"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-sm"
+                                       [class.invalid]="invalidField(['details', i.toString(), 'detailCode'])"
+                                       style="width: 100%;">
+
+                                    <input type="text"
+                                           formControlName="detailCode"
+                                           (blur)="checkDetailCode($event, ['details', i.toString(), 'detailCode'])"
+                                           maxlength="30"
+                                           style="width: 100%;"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(['details', i.toString(), 'detailCode'], 'required')">
+                                        Detail Code must be filled & can not be a duplicate
+                                    </span>
+
+                                </label>
+
+                            </td>
+
+                            <td>
+
+                                <label [for]="'meaningField' + i"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-sm"
+                                       [class.invalid]="invalidField(['details', i, 'meaning'])">
+
+                                    <input type="text" formControlName="meaning" maxlength="50"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(['details', i, 'meaning'], 'required')">
+                                        Meaning must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(['details', i, 'meaning'], 'minMeaning')">
+                                        {{showError(['details', i, 'meaning'], 'minMeaning')['detailCode']}} must be greater than {{showError(['details', i, 'meaning'], 'minMeaning')['minMeaning']}}
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(['details', i, 'meaning'], 'pattern')">
+
+                                        <ng-container [ngSwitch]="validatorsType">
+
+                                            <ng-template [ngSwitchCase]="'NUMERIC'">
+                                                Only numbers are accepted
+                                            </ng-template>
+
+                                            <ng-template [ngSwitchCase]="'TEXT'">
+                                                Only uppercase and/or lowercase alpahabets are accepted
+                                            </ng-template>
+
+                                            <ng-template [ngSwitchCase]="'DATE'">
+                                                Date format should be DD-MM-YYYY
+                                            </ng-template>
+
+                                        </ng-container>
+
+                                    </span>
+
+                                </label>
+
+                            </td>
+
+                            <td>
+
+                                <label [for]="'descriptionField' + i"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-sm"
+                                       [class.invalid]="invalidField(['details', i.toString(), 'description'])">
+
+                                    <input type="text" formControlName="description" maxlength="250"/>
+
+                                    <span
+                                        class="tooltip-content"
+                                        *ngIf="invalidField(['details', i, 'description'], 'required')">
+                                            Description must be filled
+                                        </span>
+
+                                </label>
+
+                            </td>
+
+                            <td>
+                                <clr-checkbox [formControlName]="'active'"></clr-checkbox>
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <br/>
+
+                    <div class="btn-group">
+
+                        <button
+                            type="button"
+                            class="btn"
+                            (click)="$event?.preventDefault(); addChild();">
+
+                            <clr-icon shape="add"></clr-icon>
+
+                            Add Row
+
+                        </button>
+
+                        <button type="button"
+                                class="btn"
+                                (click)="removeSelected($event)">
+
+                            <clr-icon shape="remove"></clr-icon>
+
+                            Delete Row
+
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="submit"
+                            class="btn"
+                            [clrLoading]="uiState?.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            (click)="$event?.preventDefault(); uiState.cancelModalIsOpen = true;">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="uiState.cancelModalIsOpen"
+                [returnLink]="'/lookup/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save
+                [(isOpen)]="uiState.saveModalIsOpen"
+                [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                (save)="save()"
+                [returnLink]="'/lookup/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

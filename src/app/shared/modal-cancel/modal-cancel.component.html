@@ -1,0 +1,37 @@
+<clr-modal [(clrModalOpen)]="isOpen" [clrModalClosable]="false" 
+    *ngIf="bahasa==='indonesia';else elseBlock">
+
+    <h3 class="modal-title">Membatalkan</h3>
+    
+    <div class="modal-body">
+        <p *ngIf="modul==='view';else create">Apakah anda yakin?</p>
+        <ng-template #create>        
+        <p>Data tidak akan tersimpan. Apakah anda yakin?</p>
+        </ng-template>
+    </div>
+    
+    <div class="modal-footer">
+        <button class="btn btn-outline" type="button" (click)="closeModal($event)">Tidak</button>
+        <button class="btn btn-primary" type="button" (click)="back($event)">Ya</button>
+    </div>
+
+</clr-modal>
+
+<ng-template #elseBlock>
+
+    <clr-modal [(clrModalOpen)]="isOpen" [clrModalClosable]="false">
+
+        <h3 class="modal-title">Cancel Setup</h3>
+            
+        <div class="modal-body">
+            <p>Are you sure want to cancel this setup?</p>
+        </div>
+            
+        <div class="modal-footer">
+            <button class="btn btn-outline" type="button" (click)="closeModal($event)">No</button>
+            <button class="btn btn-primary" type="button" (click)="back($event)">Yes</button>
+        </div>
+        
+    </clr-modal>
+
+</ng-template>

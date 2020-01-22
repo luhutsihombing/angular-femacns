@@ -1,0 +1,113 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" >
+
+            <h1>Mapping Area : {{area?.data?.areaName}}</h1>
+
+            <form>
+
+                <section class="form-block">
+
+                    <div class="form-group">
+                        <label>Area Name</label>
+                        <label>{{area?.data?.areaName}}</label>
+
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-5">
+
+                            <label>Cell</label>
+
+                            <br/>
+
+                            <div class="row">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-9">
+                                    <input
+                                        disabled
+                                        type="text"
+                                        id="cellField"
+                                        size="29"/>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-2">
+                                    <button class="btn" disabled>
+                                        <clr-icon shape="search" ></clr-icon>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <select disabled
+                                multiple="multiple"
+
+                                style="width: 350px; height: 600px;">
+                                <option *ngFor="let branch of branch" >
+                                    {{branch?.branchName}}
+                                </option>
+                            </select>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-1">
+
+                            <br/><br/><br/><br/><br/><br/><br/><br/>
+
+                            <button type="button" class="btn btn-outline btn-block" disabled>
+                                {{'>'}}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-block"
+                                disabled>
+                                {{'<'}}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-block"
+                                disabled>
+                                {{'>>'}}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-block"
+                                disabled>
+                                {{'<<'}}</button>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-5">
+                            <label>List of Cell</label>
+                            <br/>
+                            <select disabled
+                                multiple="multiple"
+
+                                style="width: 350px; height: 600px;">
+                                <option *ngFor="let branchList of area?.data?.branches">
+                                    {{branchList?.branchName}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                </section>
+
+                <button type="button" class="btn btn-primary btn-right" (click)="back($event)">
+                    <clr-icon shape="undo"></clr-icon>
+                    Cancel
+                </button>
+
+            </form>
+
+
+
+
+        </main>
+
+    </div>
+
+</clr-main-container>

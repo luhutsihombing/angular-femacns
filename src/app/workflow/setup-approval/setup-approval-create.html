@@ -1,0 +1,288 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+
+            <h1>Create New Approval</h1>
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="false"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            
+            <form [formGroup]="approvalForm"
+            (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="row">
+                    <!-- input Field Workflow Name-->
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                    
+                        <div class="form-group">    
+
+                        <label for="workflowNameField" class="required">Workflow Name</label>
+                        
+                            <label for="workflowNameField"
+                                   aria-haspopup="true"
+                                   role="tooltip"
+                                   class="tooltip tooltip-validation tooltip-md"
+                                   [class.invalid]="invalidField('avmName')"> 
+
+                            <input
+                                type="text"
+                                id="workflowNameField"
+                                placeholder="Workflow Name"
+                                formControlName="avmName"  />
+                        
+                            <span class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="invalidField('avmName', 'required')">
+                                Workflow Name harus diisi
+                            </span>
+                        </label>  
+                        </div>             
+                    </div>
+                    <!-- Akhir input Field Workflow Name-->
+
+                    <!-- input Field Start Date-->
+                    <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                        <div class="form-group">
+                            <label class="required">Start Date</label>
+
+                            <input type="text"
+                                   (click)="uiState.startDateIsOpen = true"
+                                   [matDatepicker]="domStartDate"
+                                   [max]="approvalForm?.get('endDate')?.value"
+                                   onkeydown="return false"
+                                   placeholder="DD-MMM-YYYY"
+                                   formControlName="startDate"
+                                   size="15"/>
+
+                            <clr-icon *ngIf="approvalForm?.get('startDate')?.value"
+                                      shape="times"
+                                      style="height: auto"
+                                      (click)="resetCalendar ='startDate'"></clr-icon>
+
+                            <mat-datepicker #domStartDate
+                                            [opened]="uiState.startDateIsOpen"
+                                            (closed)="uiState.startDateIsOpen = false"
+                                            disabled="false"></mat-datepicker>
+
+                        </div>
+                        <!-- <div class="form-group">
+                        <label for="versionField">Version</label>
+                        <span class="select">
+                            <select
+                                id="versionField"
+                                formControlName="versionType"> 
+                                <option value=""selected="selected">- Please Select -</option>      
+                            </select>   
+                        </span>
+                    </div>  -->
+                    </div>
+                    </div>
+
+                    <div class="row"> 
+                    <!-- input Field Transaction Type-->
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                    <div class="form-group">
+                        <label for="transactionTypeField" class="required">Transaction Type</label>
+                        
+                        <span class="tooltip-content tooltip-content--show"
+                            style="margin-left:1.5cm"
+                            *ngIf="invalidtransactionType()">
+                            Transaction Type harus dipilih terlebih dahulu
+                            
+                            <label for="transactionType"
+                                aria-haspopup="true"
+                                role="tooltip"
+                                class="tooltip tooltip-validation tooltip-md"
+                                [class.invalid]="invalidtransactionType()"></label>
+
+                            <select id="transactionTypeField"
+                                    [formControlName]="'transactionType'">
+
+                                <option *ngFor="let transaction of option?.transactions"
+                                        [value]="transaction?.value">
+                                    {{transaction?.label}}
+                                </option>
+
+                            </select>
+                            
+                        </span>
+                        </div>
+                    </div> 
+
+                    <!-- input Field End Date-->
+                    <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                        <div class="form-group">
+        
+                            <label class="required">End Date</label>
+
+                            <input type="text"
+                                   (click)="uiState.endDateIsOpen = true"
+                                   [matDatepicker]="domEndDate"
+                                   [min]="approvalForm?.get('startDate')?.value"
+                                   onkeydown="return false"
+                                   placeholder="DD-MMM-YYYY"
+                                   formControlName="endDate"
+                                   size="15"/>
+
+                            <clr-icon *ngIf="approvalForm?.get('endDate')?.value"
+                                      shape="times"
+                                      style="height: auto"
+                                      (click)="resetCalendar = 'endDate'"></clr-icon>
+
+                            <mat-datepicker #domEndDate
+                                            [opened]="uiState?.endDateIsOpen"
+                                            (closed)="uiState.endDateIsOpen = false"
+                                            disabled="false"></mat-datepicker>
+
+                        </div>
+        
+                                    </div>
+                    </div>
+                    <!-- <div class="row">  
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                        </div>
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">              
+                                        
+                                    </div>
+                                </div> -->
+                                    
+        
+          </section>
+          <hr/>   
+          <div class="form-block">
+            
+            <label>Level Approval</label>
+            
+        <div formArrayName="approverForm" id="arrayForm">
+
+            <!-- div dinamis member -->
+            <div  
+                *ngFor="let ngmember of approverForms.controls; let i=index"
+                [formGroupName]="i">
+                <div class="level-approval">
+
+                <div class="level-approval-border">
+        
+                    <div class="form-group">
+                    <label for="approverTypeField" class="required">Approver Type</label>
+                    <span class="select">
+    
+                        <select id="approverTypeField"
+                                [formControlName]="'approverType'">
+    
+                            <option *ngFor="let approverType of option?.approverTypes"
+                                    [value]="approverType?.value">{{approverType?.label}}
+                            </option>
+    
+                        </select>
+    
+                    </span>
+                </div> 
+                 
+    
+                <div class="form-group">
+                    <label for="approverField" class="required">Approver</label>
+            
+                    <span class="select">
+    
+                        <select id="approverField"
+                                [formControlName]="'approver'">
+    
+                            <option *ngFor="let approver of option?.approvers"
+                                    [value]="approver?.value"> {{approver?.label}}
+                            </option>
+    
+                        </select>
+    
+                    </span>
+                     
+                </div>
+    
+                <div class="form-group">
+                    <label for="approverRequireField">Require approval from </label>
+                    
+                            <span class="select">
+            
+                                <select
+                                    id="approverRequireField"
+                                    [formControlName]="'approverRequireField'">
+                                    <option *ngFor="let approve of approveRequires"
+                                            [value]="approve?.value">{{approve?.label}}
+                                    </option>       
+                                </select>
+        
+                            </span>
+                            <label for="approveField">Approval </label>
+                            <button
+                                type="button"
+                                class="btn btn-delete"
+                                (click)="deleteMember(i)">
+                                <clr-icon shape="trash"></clr-icon>
+                            </button>
+                </div>
+                </div>
+                </div>
+
+             </div> 
+        <label for="tmbltambah">  </label>
+
+            <button type="button" class="btn" 
+                id="tmbltambah"
+                [disabled]="uiState?.approverBtnIsDisable" 
+                (click)="addMember()">Add Another Level
+            </button>
+
+            <label for="tmbltambah"
+            aria-haspopup="true"
+            role="tooltip"
+            class="tooltip tooltip-validation tooltip-md">
+
+            <!-- <span class="tooltip-content tooltip-content--show"
+                style="margin-left:1.5cm"
+                *ngIf="memberForms.length === 0">
+                Nama project member harus diisi
+            </span> -->
+
+            </label>
+    </div> 
+          </div>       
+        <div class="btn-group btn-primary btn-right">
+            <button type="submit" class="btn btn-icon" [clrLoading]="uiState?.isSaving">
+                <clr-icon shape="floppy"></clr-icon>
+                Save
+            </button>
+
+            <button type="button" class="btn" (click)="openCancelModal($event)">
+                <clr-icon shape="undo"></clr-icon>
+                Cancel
+            </button>
+        </div>
+        
+        </form>
+        <fema-cms-modal-cancel 
+                [(isOpen)]="cancelModalIsOpen"
+                [returnLink]="'/workflow/search'"></fema-cms-modal-cancel> 
+        
+        <fema-cms-modal-save
+                [(isOpen)]="uiState.saveModalIsOpen"
+                [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                (save)="save()"
+                [returnLink]="'/workflow/search'"></fema-cms-modal-save>
+        </main>
+        
+    </div> 
+
+</clr-main-container> 

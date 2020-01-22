@@ -1,0 +1,688 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Dashboard</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="uiState?.isRetrieving"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <br/>
+
+            <clr-tabs>
+
+                <clr-tab>
+
+                    <a clrTabLink="clrTabLink">Notification Message</a>
+
+                    <clr-tab-content *clrIfActive>
+
+                        <clr-datagrid (clrDgRefresh)="clrPage?.next($event)">
+
+                            <clr-dg-column>Subject</clr-dg-column>
+                            <clr-dg-column>From</clr-dg-column>
+                            <clr-dg-column>Received Time</clr-dg-column>
+
+                            <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                            <clr-dg-row *ngFor="let notification of notificationList?.dataList">
+                                <clr-dg-cell>
+                                    <a [routerLink]="['/dashboard/notification/', notification?.id]">{{notification.title}}</a>
+                                </clr-dg-cell>
+                                <clr-dg-cell>System</clr-dg-cell>
+                                <clr-dg-cell>{{notification?.createdDate | date:'dd-MMM-yyyy HH:mm:ss'}}</clr-dg-cell>
+                            </clr-dg-row>
+
+                            <clr-dg-footer>
+                                {{pagination?.firstItem + 1}}
+                                -
+                                {{pagination?.lastItem + 1}}
+                                of
+                                {{notificationList?.totalCount}} notifications
+
+                                <clr-dg-pagination
+                                    #pagination
+                                    [clrDgPage]="notificationList?.currentPage"
+                                    [clrDgPageSize]="notificationList?.pageSize"
+                                    [clrDgTotalItems]="notificationList?.totalCount">
+                                </clr-dg-pagination>
+
+                            </clr-dg-footer>
+
+                        </clr-datagrid>
+
+                    </clr-tab-content>
+
+                </clr-tab>
+
+                <clr-tab>
+
+                    <a clrTabLink="clrTabLink">CMS Dashboard</a>
+
+                    <clr-tab-content *clrIfActive>
+
+                        <br/>
+
+                        <button class="btn btn-icon btn-secondary"
+                                (click)="initialSetup()"
+                                [clrLoading]="uiState?.isRetrieving">
+
+                            <clr-icon shape="refresh"></clr-icon>
+
+                            Refresh
+
+                        </button>
+
+                        <br/>
+
+
+                        <section class="dashboard-summaries">
+
+                            <div class="dashboard-summaries-container row">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-2"></div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                    <div class="dashboard-card card"
+                                         style="background-color: #6DDBEB;">
+
+                                        <div class="dashboard-card-header card-header"
+                                             style="text-align: center; color: #FFFFFF;">
+
+                                            <h1 style="color: #FFFFFF;">{{cms?.totalUserAccess}}</h1>
+
+                                            Total User Access
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                    <div class="dashboard-card card"
+                                         style="background-color: #FF681C;">
+
+                                        <div class="dashboard-card-header card-header"
+                                             style="text-align: center; color: #FFFFFF;">
+
+                                            <h1 style="color: #FFFFFF;">{{cms?.activeBanners?.dataList?.length}}</h1>
+
+                                            Active Banner
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-2"></div>
+
+                            </div>
+
+                            <div class="dashboard-summaries-container row">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                    <div class="dashboard-card card"
+                                         style="background-color: #FFDC0B;">
+
+                                        <div class="dashboard-card-header card-header"
+                                             style="text-align: center; color: #FFFFFF;">
+
+                                            <h1 style="color: #FFFFFF;">{{cms?.activeEvents?.totalCount}}</h1>
+
+                                            Active Event
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                    <div class="dashboard-card card"
+                                         style="background-color: #85C81A;">
+
+                                        <div class="dashboard-card-header card-header"
+                                             style="text-align: center; color: #FFFFFF;">
+
+                                            <h1 style="color: #FFFFFF;">{{cms?.mostLikedNews?.length}}</h1>
+
+                                            Most Like - News
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                    <div class="dashboard-card card"
+                                         style="background-color: #007CBB;">
+
+                                        <div class="dashboard-card-header card-header"
+                                             style="text-align: center; color:#FFFFFF;">
+
+                                            <h1 style="color: #FFFFFF;">{{cms?.mostViewedNews?.length}}</h1>
+
+                                            Most Viewed - News
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <br/>
+                        <br/>
+
+                        <hr/>
+
+                        <section class="dashboard-userchart">
+
+                            <div class="dashboard-userchart-container clearfix">
+
+                                <h1>FEMA Total User Access Chart</h1>
+
+                                <br/>
+
+                                <div style="width: 50%;"
+                                     *ngIf="cms?.yearlyUserAccessChart">
+
+                                    <canvas baseChart
+                                            [chartType]="'bar'"
+                                            [datasets]="cms?.yearlyUserAccessChart?.datasets"
+                                            [labels]="cms?.yearlyUserAccessChart?.labels"
+                                            [options]="barChartConfig"
+                                            [legend]="true"></canvas>
+
+                                </div>
+
+                            </div>
+
+                            <br/>
+
+                            <button
+                                class="btn btn-icon btn-primary"
+                                (click)="saveChart($event)"
+                                [clrLoading]="uiState?.chartIsDownloading">
+
+                                <clr-icon shape="download"></clr-icon>
+
+                                Download Chart
+
+                            </button>
+
+                        </section>
+
+                        <br/>
+
+                        <table class="table table-compact"
+                               style="width: 50%;">
+
+                            <thead>
+
+                            <tr>
+
+                                <th *ngFor="let label of cms?.yearlyUserAccessChart?.labels">{{label}}</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            <tr *ngFor="let user of cms?.yearlyUserAccess">
+
+                                <td>{{user?.peopleTypeDesc}}</td>
+                                <td>{{user?.jan}}</td>
+                                <td>{{user?.feb}}</td>
+                                <td>{{user?.mar}}</td>
+                                <td>{{user?.apr}}</td>
+                                <td>{{user?.may}}</td>
+                                <td>{{user?.jun}}</td>
+                                <td>{{user?.jul}}</td>
+                                <td>{{user?.aug}}</td>
+                                <td>{{user?.sep}}</td>
+                                <td>{{user?.oct}}</td>
+                                <td>{{user?.nov}}</td>
+                                <td>{{user?.dec}}</td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                        <br/>
+
+                        <hr/>
+
+                        <section class="dashboard-section-wrapper">
+
+                            <div class="dashboard-section clearfix">
+
+                                <h1>News/Info Dashboard</h1>
+
+                                <div class="dashboard-section-content row">
+
+                                    <div
+                                        class="dashboard-card-wrapper col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                        <div class="dashboard-card card">
+
+                                            <div class="dashboard-card-header card-header"
+                                                 style="background-color: #FF681C; color: #FFFFFF;">
+                                                Active Banner
+                                            </div>
+
+                                            <div class="card-block">
+
+                                                <table class="table table-noborder">
+
+                                                    <tbody>
+
+                                                    <tr *ngFor="let activeBanner of cms?.activeBanners?.dataList">
+
+                                                        <td class="left">{{activeBanner?.eventName}}</td>
+
+                                                    </tr>
+
+                                                    </tbody>
+
+                                                </table>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                        <div class="card">
+
+                                            <div class="card-header"
+                                                 style="background-color: #85C81A; color: #FFFFFF;">
+                                                Top 10 Most-Liked News
+                                            </div>
+
+                                            <div class="card-block">
+
+                                                <table class="table table-noborder">
+
+                                                    <tbody>
+
+                                                    <tr *ngFor="let news of cms?.mostLikedNews">
+
+                                                        <td class="left">{{news?.title}}</td>
+
+                                                        <td class="right">
+
+                                                            <clr-icon shape="thumbs-up"
+                                                                      class="is-highlight"></clr-icon>
+
+                                                            <br/>
+
+                                                            {{news?.count}}
+
+                                                        </td>
+
+                                                    </tr>
+
+                                                    </tbody>
+
+                                                </table>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                        <div class="card">
+
+                                            <div class="card-header"
+                                                 style="background-color: #007CBB; color: #FFFFFF;">
+                                                Top 10 Most-Viewed News
+                                            </div>
+
+                                            <div class="card-block">
+
+                                                <table class="table table-noborder">
+
+                                                    <tbody>
+
+                                                    <tr *ngFor="let news of cms?.mostViewedNews">
+
+                                                        <td class="left">{{news?.title}}</td>
+
+                                                        <td class="right">
+
+                                                            <clr-icon shape="eye"
+                                                                      class="is-highlight"></clr-icon>
+
+                                                            <br/>
+
+                                                            {{news?.count}}
+
+                                                        </td>
+
+                                                    </tr>
+
+                                                    </tbody>
+
+                                                </table>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <br/>
+                        <br/>
+
+                        <hr/>
+
+                        <section class="dashboard-events">
+
+                            <div class="dashboard-events-container clearfix">
+
+                                <h1>Event Dashboard</h1>
+
+                                <div class="row">
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                        <table class="table">
+
+                                            <thead>
+
+                                            <tr>
+
+                                                <th style="background-color: yellow;">Active Events</th>
+
+                                                <th style="background-color: yellow;">Period</th>
+
+                                            </tr>
+
+                                            </thead>
+
+                                            <tbody>
+
+                                            <tr *ngFor="let event of cms?.activeEvents?.dataList; trackBy: ngForTracker">
+
+                                                <td class="left">{{event?.eventName}}</td>
+
+                                                <td class="left">
+                                                    {{event?.startDate | date :'dd-MMM-yyyy'}} to
+                                                    {{event?.endDate | date :'dd-MMM-yyyy'}}
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td colspan="2"
+                                                    *ngIf="cms?.activeEvents?.dataList?.length === 0">
+
+                                                    <span style="color: gray;">No Upcoming Events</span>
+
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td colspan="2">
+
+                                                    <button class="btn btn-sm btn-link"
+                                                            (click)="getActiveEvents($event)"
+                                                            [clrLoading]="uiState?.activeEventsIsLoading">
+
+                                                        <clr-icon shape="refresh"></clr-icon>
+
+                                                        Load more results
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                        <table class="table">
+
+                                            <thead>
+
+                                            <tr>
+
+                                                <th style="background-color: yellow;">Upcoming Events</th>
+
+                                                <th style="background-color: yellow;">Period</th>
+
+                                            </tr>
+
+                                            </thead>
+
+                                            <tbody>
+
+                                            <tr *ngFor="let event of cms?.upcomingEvents?.dataList; trackBy: ngForTracker">
+
+                                                <td class="left">{{event?.eventName}}</td>
+
+                                                <td class="left">
+                                                    {{event?.startDate | date :'dd-MMM-yyyy'}} to
+                                                    {{event?.endDate | date :'dd-MMM-yyyy'}}
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td colspan="2"
+                                                    *ngIf="cms?.upcomingEvents?.dataList?.length === 0">
+
+                                                    <span style="color: gray;">No Upcoming Events</span>
+
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td colspan="2">
+
+                                                    <button class="btn btn-sm btn-link"
+                                                            (click)="getUpcomingEvents($event)"
+                                                            [clrLoading]="uiState?.upcomingEventsIsLoading">
+
+                                                        <clr-icon shape="refresh"></clr-icon>
+
+                                                        Load more results
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <br/>
+                        <br/>
+
+                        <hr/>
+
+                        <section class="dashboard-feedbacks">
+
+                            <div class="dashboard-feedbacks-container clearfix">
+
+                                <h1>Feedback Dashboard</h1>
+
+                                <div class="row">
+
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-4">
+
+                                        <form>
+
+                                            <section class="form-block">
+
+                                                <div class="form-group">
+
+                                                    <label for="eventPeriod">Event Period</label>
+
+                                                    <div class="select">
+
+                                                        <select id="eventPeriod"
+                                                                [ngModel]="feedback?.selection"
+                                                                (ngModelChange)="getNewFeedbacks($event)"
+                                                                [ngModelOptions]="{standalone: true}">
+
+                                                            <option *ngFor="let feedbackOption of feedback?.options"
+                                                                    [value]="feedbackOption?.value">
+                                                                {{feedbackOption?.label}}
+                                                            </option>
+
+                                                        </select>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </section>
+
+                                        </form>
+
+                                        <table class="table">
+
+                                            <thead>
+
+                                            <tr>
+
+                                                <th style="background-color: orange;">Event</th>
+
+                                                <th style="background-color: orange;">Target Respondents</th>
+
+                                                <th style="background-color: orange;">Total Respondents</th>
+
+                                                <th style="background-color: orange;">Percentage (%)</th>
+
+                                            </tr>
+
+                                            </thead>
+
+                                            <tbody>
+
+                                            <tr *ngFor="let feedbackEvent of cms?.feedbackEvents?.dataList; trackBy: ngForTracker">
+
+                                                <td class="left">{{feedbackEvent?.eventName}}</td>
+
+                                                <td>{{feedbackEvent?.totalTarget}}</td>
+
+                                                <td>{{feedbackEvent?.totalRespondents}}</td>
+
+                                                <td>{{feedbackEvent?.totalTarget === 0 ? '-' :
+                                                    feedbackEvent?.respondentsPercentage}}
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td colspan="4"
+                                                    *ngIf="cms?.feedbackEvents?.dataList?.length === 0">
+
+                                                    <span style="color: gray;">No Upcoming Feedback</span>
+
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+
+                                                <td colspan="4">
+
+                                                    <button class="btn btn-sm btn-link"
+                                                            (click)="extendFeedbacks($event)"
+                                                            [clrLoading]="uiState?.feedbacksIsLoading">
+
+                                                        <clr-icon shape="refresh"></clr-icon>
+
+                                                        Load more results
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                    </clr-tab-content>
+
+                </clr-tab>
+
+            </clr-tabs>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

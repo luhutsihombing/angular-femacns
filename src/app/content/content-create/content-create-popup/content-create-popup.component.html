@@ -1,0 +1,302 @@
+<section class="form-block"
+         [formGroup]="popupForm">
+
+    <label>
+
+        <clr-checkbox
+            [formControlName]="'selected'"
+            [clrDisabled]="popupForm?.get('selected')?.disabled">
+            Popup Notification Setup
+        </clr-checkbox>
+
+    </label>
+
+    <div class="row">
+
+        <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <span class="label label-info">
+                <i>Note: Use *.jpg and *.png with max. file size of {{+contentLookup?.maxPopupSize / 1000}} MB</i>
+            </span>
+
+            <div class="form-group">
+
+                <label class="required">Upload Image</label>
+
+                <label for="popupImgFile"
+                       aria-haspopup="true"
+                       role="tooltip"
+                       class="tooltip tooltip-validation tooltip-md"
+                       [class.invalid]="invalidField('imgFile')">
+
+                    <ng-template [ngIf]="popupForm?.get('imgLocation')?.value">
+
+                        <span class="label label-info">
+                            <i>Existing popup: {{popupForm?.get('imgLocation')?.value | fileName}}</i>
+                        </span>
+
+                        <br/>
+
+                    </ng-template>
+
+                    <input type="file"
+                           id="popupImgFile"
+                           multiple="multiple"
+                           size="50"
+                           accept="image/png, image/jpeg"
+                           (change)="selectPopupImage($event)"
+                           [disabled]="!popupForm?.get('selected')?.value"/>
+
+                    <span class="tooltip-content tooltip-content--show"
+                          *ngIf="invalidField('imgFile', 'maxFileSize')">
+                        Maximum size allowed is {{+showError('imgFile', 'maxFileSize')['maxFileSize'] / 1000}} MB
+                    </span>
+
+                    <span class="tooltip-content tooltip-content--show"
+                          *ngIf="invalidField('imgFile', 'fileTypes')">
+                        Format file invalid
+                    </span>
+
+                    <span class="tooltip-content"
+                          *ngIf="invalidField('imgFile', 'required')">
+                        Banner must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label class="required">Active</label>
+
+                <div class="toggle-switch">
+
+                    <input type="checkbox"
+                           id="popupActiveToggle"
+                           formControlName="active"/>
+
+                    <label for="popupActiveToggle">{{popupForm?.get('active')?.value ? 'Yes' : 'No'}}</label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="required">Description</label>
+
+        <label
+            for="descriptionField"
+            aria-haspopup="true"
+            role="tooltip"
+            class="tooltip tooltip-validation tooltip-md"
+            [class.invalid]="invalidField('description')"
+            style="width: 100%">
+
+                <textarea
+                    id="descriptionField"
+                    placeholder="Description"
+                    rows="3"
+                    formControlName="description"
+                    [maxlength]="contentLookup?.maxPopupDesc"></textarea>
+
+            <span
+                class="tooltip-content tooltip-content--show"
+                style="margin-left:1.5cm"
+                *ngIf="invalidField('description', 'required')">
+                Description must be filled
+            </span>
+
+        </label>
+
+    </div>
+
+    <br/><br/><br/>
+
+    <div class="row">
+
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label class="required">Notification Period Start</label>
+
+                <label
+                    for="periodStart"
+                    aria-haspopup="true"
+                    role="tooltip"
+                    class="tooltip tooltip-validation tooltip-md"
+                    [class.invalid]="invalidField('periodStart')">
+
+                    <input
+                        type="text"
+                        id="periodStart"
+                        (click)="uiState.periodStartIsOpen = true"
+                        [matDatepicker]="domPeriodStart"
+                        [max]="popupForm?.get('periodEnd')?.value"
+                        [min]="currentDate"
+                        onkeydown="return false"
+                        placeholder="DD-MMM-YYYY"
+                        formControlName="periodStart"/>
+
+                    <clr-icon
+                        *ngIf="popupForm?.get('periodStart')?.value"
+                        shape="times"
+                        style="height: auto"
+                        (click)="resetCalendar('periodStart')"></clr-icon>
+
+                    <mat-datepicker
+                        #domPeriodStart
+                        [opened]="uiState?.periodStartIsOpen"
+                        (closed)="uiState.periodStartIsOpen = false"
+                        disabled="false">
+                    </mat-datepicker>
+
+                    <span
+                        class="tooltip-content tooltip-content--show"
+                        style="margin-left:1.5cm"
+                        *ngIf="invalidField('periodStart', 'required')">
+                        Notification Period Start must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label class="required">Notification Period End</label>
+
+                <label
+                    for="periodEnd"
+                    aria-haspopup="true"
+                    role="tooltip"
+                    class="tooltip tooltip-validation tooltip-md"
+                    [class.invalid]="invalidField('periodEnd')">
+
+                    <input
+                        type="text"
+                        id="periodEnd"
+                        (click)="uiState.periodEndIsOpen = true"
+                        [matDatepicker]="domPeriodEnd"
+                        [min]="popupForm?.get('periodStart')?.value"
+                        onkeydown="return false"
+                        placeholder="DD-MMM-YYYY"
+                        formControlName="periodEnd"/>
+
+                    <clr-icon
+                        *ngIf="popupForm?.get('periodEnd')?.value"
+                        shape="times"
+                        style="height: auto"
+                        (click)="resetCalendar('periodEnd')"></clr-icon>
+
+                    <mat-datepicker #domPeriodEnd
+                                    [opened]="uiState?.periodEndIsOpen"
+                                    (closed)="uiState.periodEndIsOpen = false"
+                                    disabled="false">
+                    </mat-datepicker>
+
+                    <span
+                        class="tooltip-content tooltip-content--show"
+                        style="margin-left:1.5cm"
+                        *ngIf="invalidField('periodEnd', 'required')">
+                        Notification Period End must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label [class.required]="popupForm?.get('idLinkedMenu')?.validator">Linked to Menu</label>
+
+                <label for="linkMenuSelect"
+                       aria-haspopup="true"
+                       role="tooltip"
+                       class="tooltip tooltip-validation tooltip-md"
+                       [class.invalid]="invalidField('idLinkedMenu')">
+
+                    <span class="select">
+
+                        <select id="linkMenuSelect"
+                                [formControlName]="'idLinkedMenu'">
+
+                            <option *ngFor="let link of linkMenu"
+                                    [value]="link?.id">{{link?.detailCode | titlecase}}
+                            </option>
+
+                        </select>
+
+                    </span>
+
+                    <span class="tooltip-content">
+                        Linked to Menu must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="titleField"
+               [class.required]="popupForm?.get('title')?.validator">Title</label>
+
+        <label for="titleField"
+               aria-haspopup="true"
+               role="tooltip"
+               class="tooltip tooltip-validation tooltip-md"
+               [class.invalid]="invalidField('title')">
+
+            <input size="55"
+                   type="text"
+                   id="titleField"
+                   placeholder="Title"
+                   [attr.list]="titleDatalist"
+                   formControlName="title"
+                   (blur)="checkTemplate($event)"/>
+
+            <span class="tooltip-content">
+                Title must be filled
+            </span>
+
+            <datalist id="popUpTitleSelection">
+
+                <option *ngFor="let title of suggestion?.titles; trackBy: ngForTracker"
+                        [value]="title?.title || title?.templateName">
+                    {{title?.title || title?.templateName}}
+                </option>
+
+            </datalist>
+
+        </label>
+
+    </div>
+
+</section>

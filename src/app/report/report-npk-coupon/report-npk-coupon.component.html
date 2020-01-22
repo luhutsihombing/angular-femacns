@@ -1,0 +1,260 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+            <h1>Coupon Per NPK/NPO Report</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form [formGroup]="reportForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label class="required">Year</label>
+
+                        <label for="yearField"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('year')">
+
+                            <input type="text"
+                                   id="yearField"
+                                   placeholder="Search by Year"
+                                   formControlName="year"/>
+
+                            <span class="tooltip-content tooltip-content--show"
+                                  *ngIf="invalidField('year', 'required')">
+                                Parameter Year must be filled
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+                                <label for="startMonthField"
+                                       class="required">Month From</label>
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('startMonth')">
+
+                                    <span class="select">
+                                        <select id="startMonthField"
+                                                [formControlName]="'startMonth'">
+                                            <option *ngFor="let monthSelection of monthSelections"
+                                                    [value]="monthSelection?.value">
+                                                {{monthSelection?.label}}
+                                            </option>
+                                        </select>
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          *ngIf="invalidField('startMonth', 'required')">
+                                        Parameter Month From must be filled
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+                                <label for="endMonthField"
+                                       class="required">Month To</label>
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('endMonth')">
+
+                                    <span class="select">
+                                        <select id="endMonthField"
+                                                [formControlName]="'endMonth'">
+                                            <option *ngFor="let monthSelection of monthSelections"
+                                                    [value]="monthSelection?.value">
+                                                {{monthSelection?.label}}
+                                            </option>
+                                        </select>
+                                    </span>
+                                    <span class="tooltip-content tooltip-content--show"
+                                          *ngIf="invalidField('endMonth', 'required')">
+                                       Parameter Month To must be filled
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <datalist id="branchSuggestion">
+                        <option *ngFor="let branch of suggestion?.branches"
+                                [value]="branch">
+                            {{branch}}
+                        </option>
+                    </datalist>
+                    <div class="form-group">
+                        <label for="branchField">Branch</label>
+                        <input type="text"
+                               id="branchField"
+                               placeholder="Search by Branch"
+                               size="70"
+                               formControlName="branch"
+                               [attr.list]="branchDatalist"
+                        />
+
+                    </div>
+
+                    <datalist id="jobSuggestion">
+
+                        <option *ngFor="let job of suggestion?.jobs"
+                                [value]="job">
+                            {{job}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+                        <label for="jobField">Job</label>
+
+                        <input type="text"
+                               id="jobField"
+                               placeholder="Search by Job"
+                               formControlName="job"
+                               size="70"
+                               [attr.list]="jobDatalist"/>
+
+                    </div>
+
+                    <datalist id="speakerNameSelection">
+
+                        <option *ngFor="let employee of suggestion?.employees"
+                                [value]="employee">
+                            {{employee}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+                        <label for="employeeField">Employee</label>
+
+                        <input type="text"
+                               id="employeeField"
+                               size="70"
+                               list="speakerNameSelection"
+                               [attr.list]="speakerDatalist"
+                               placeholder="Search by Employee"
+                               formControlName="employee"/>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSearching">
+                        <clr-icon shape="search"></clr-icon>
+                        Search
+                    </button>
+
+                    <button class="btn"
+                            [clrLoading]="uiState?.reportIsDownloading"
+                            [disabled]="downloadIsDisabled"
+                            (click)="downloadReport($event)"> 
+                        <clr-icon shape="download"></clr-icon>
+                        Download
+                    </button>
+
+                </div>
+
+            </form>
+
+            <br/>
+
+            <div class="app-report-border">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                        <img [src]="srcImage | safeUrl"
+                             style="height: 100px; max-height: 100%;">
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 text-right">
+                        COUPON PER NPK/NPO
+                        <br/> PT. Federal International Finance
+                        <br/> As of Date {{currentDate | date:'dd-MMM-yyyy'}}
+                        <br/>
+                    </div>
+                </div>
+
+                <br/>
+                <br/>
+                <br/>
+
+                <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                              [clrDgLoading]="uiState?.isSearching">
+
+                    <clr-dg-column [clrDgSortBy]="'year'">Year</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'month'">Month</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'branchCode'">Branch Code</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'branchName'">Branch Name</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'employeeNo'">Employee Number</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'employeeName'">Employee Name</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'jobName'">Job</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'couponNumber'">Coupon Number</clr-dg-column>
+                    <clr-dg-column [clrDgSortBy]="'bp'">BP</clr-dg-column>
+
+                    <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                    <clr-dg-row *ngFor="let item of reportSearchList?.dataList">
+                        <clr-dg-cell>{{item?.year}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.month}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.branchCode}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.branchName}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.employeeNo}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.employeeName}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.jobName}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.couponNumber}}</clr-dg-cell>
+                        <clr-dg-cell>{{item?.bp}}%</clr-dg-cell>
+                    </clr-dg-row>
+
+                    <clr-dg-footer>
+                        {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                        {{reportSearchList?.totalCount}}
+                        contents
+
+                        <clr-dg-pagination #pagination
+                                           [clrDgPage]="reportSearchList?.currentPage"
+                                           [clrDgPageSize]="reportSearchList?.pageSize"
+                                           [clrDgTotalItems]="reportSearchList?.totalCount"></clr-dg-pagination>
+
+                    </clr-dg-footer>
+
+                </clr-datagrid>
+
+            </div>
+
+        </main>
+    </div>
+</clr-main-container>

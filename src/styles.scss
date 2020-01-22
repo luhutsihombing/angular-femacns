@@ -1,0 +1,63 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
+@import "~quill/dist/quill.bubble.css";
+@import "~quill/dist/quill.snow.css";
+
+html {
+
+    .datagrid-host {
+        min-height: fit-content;
+    }
+
+    .content-container {
+        .content-area {
+            height: 105vh;
+        }
+    }
+
+    .form-group {
+        padding-left: 7.5rem !important;
+    }
+
+    .radio-hide {
+        .datagrid-fixed-column {
+            display: none;
+        }
+    }
+
+    .tooltip {
+        &.tooltip-validation {
+            &.invalid {
+                .select {
+                    select {
+
+                        border-bottom: 1px solid #c92100;
+                        background: linear-gradient(180deg, transparent 95%, #c92100 0);
+                        transition: none;
+
+                    }
+                }
+
+                .tooltip-content--show {
+
+                    visibility: visible;
+                    opacity: 1;
+                    background: #c92100 !important;
+
+                }
+            }
+        }
+    }
+
+    .col--align-right {
+        text-align: right;
+        padding: 0;
+    }
+
+    .fema__label--fit-content {
+        min-width: 100%;
+        height: fit-content !important;
+    }
+
+}
+

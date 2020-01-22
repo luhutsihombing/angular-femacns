@@ -1,0 +1,271 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+            <h1>Create New Lookup</h1>
+
+            <fema-cms-alert-on-action
+                [responseOnAction]="responseOnSave"
+                [isLoading]="false"
+                [isFailed]="false"
+                (close)="responseOnSave = $event"></fema-cms-alert-on-action>
+
+            <fema-cms-alert-invalid-form [invalid]="showInvalidAlert()"></fema-cms-alert-invalid-form>
+
+            <form [formGroup]="lookupForm" (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+                        <label for="nameField" class="required">Lookup Name</label>
+                        <label
+                            for="nameField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('name')||lookupNameInvalid">
+                            <input
+                                type="text"
+                                id="nameField"
+                                placeholder="Lookup name"
+                                formControlName="name"
+                                maxlength="50"/>
+
+                            <span class="tooltip-content" *ngIf="lookupForm?.get('name')?.errors?.required">
+                                Lookup name must be filled
+                            </span>
+
+                            <span class="tooltip-content" *ngIf="lookupNameInvalid&&saveIsPressed">
+                                Lookup name must be unique
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descriptionField" class="required">Description</label>
+                        <label
+                            for="nameField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('description')"
+                            style="width: 70%">
+                            <textarea
+                                id="descriptionField"
+                                placeholder="Description"
+                                rows="3"
+                                formControlName="description"
+                                maxlength="250"></textarea>
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="lookupForm?.get('description')?.errors?.required">
+                                Description must be filled
+                            </span>
+                        </label>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <div class="form-group">
+                        <label class="required">Data Type</label>
+                        <label
+                            for="dataTypeSelection"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('dataType')">
+                            <div class="select">
+                                <select id="dataTypeSelection" formControlName="dataType">
+                                    <option *ngFor="let dataType of dataTypes" [value]="dataType?.value">
+                                        {{dataType?.label}}
+                                    </option>
+                                </select>
+                            </div>
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="lookupForm?.get('dataType')?.errors?.required&&saveIsPressed">
+                                Data Type must be filled
+                            </span>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="form-block">
+                    <clr-alert
+                        [clrAlertType]="'alert-warning'"
+                        [clrAlertClosable]="false"
+                        *ngIf="isLookupDetail">
+                        <div clr-alert-item="clr-alert-item" class="alert-item">
+                            <span class="alert-text">
+                                Lookup detail must be filled at least one row
+                            </span>
+                        </div>
+                    </clr-alert>
+                    <table class="table table-compact">
+                        <thead>
+                        <tr>
+                            <th>
+                                <clr-checkbox formControlName="selectAllDetails"></clr-checkbox>
+                            </th>
+                            <th>Detail Code</th>
+                            <th>Meaning</th>
+                            <th>Description</th>
+                            <th>Is Active</th>
+                        </tr>
+                        </thead>
+
+                        <tbody formArrayName="details">
+
+                        <tr
+                            *ngFor="let detail of detailsForm?.controls; let i = index;"
+                            [formGroupName]="i">
+
+                            <td>
+                                <clr-checkbox formControlName="selected"></clr-checkbox>
+                            </td>
+
+                            <td>
+
+                                <label [for]="'detailCodeField' + i"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField(['details', i.toString(), 'detailCode'])"
+                                       style="width: 100%;">
+
+                                    <input type="text"
+                                           [id]="'detailCodeField' + i"
+                                           formControlName="detailCode"
+                                           (blur)="checkDetailCode($event, ['details', i.toString(), 'detailCode'])"
+                                           maxlength="30"
+                                           style="width: 100%;"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="lookupForm?.get(['details', i.toString(), 'detailCode'])?.errors?.required">
+                                        Detail Code must be filled & can not be a duplicate
+                                    </span>
+
+                                </label>
+
+                            </td>
+
+                            <td>
+                                <label
+                                    [for]="'meaningField' + i"
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidField(['details', i.toString(), 'meaning'])">
+                                    <input
+                                        type="text"
+                                        [id]="'meaningField' + i"
+                                        formControlName="meaning"
+                                        maxlength="50"/>
+                                    <span
+                                        class="tooltip-content"
+                                        *ngIf="lookupForm?.get(['details', i.toString(), 'meaning'])?.errors?.required">
+                                            Meaning must be filled
+                                        </span>
+
+                                    <span
+                                        class="tooltip-content"
+                                        *ngIf="lookupForm?.get(['details', i.toString(), 'meaning'])?.errors?.pattern">
+
+                                            <ng-container [ngSwitch]="validatorsType">
+                                                <ng-template [ngSwitchCase]="'NUMERIC'">
+                                                    Only numbers are accepted
+                                                </ng-template>
+
+                                                <ng-template [ngSwitchCase]="'TEXT'">
+                                                    Only uppercase and/or lowercase alpahabets are accepted
+                                                </ng-template>
+
+                                                <ng-template [ngSwitchCase]="'DATE'">
+                                                    Date format should be DD-MM-YYYY
+                                                </ng-template>
+                                            </ng-container>
+
+                                        </span>
+
+                                </label>
+                            </td>
+                            <td>
+                                <label
+                                    [for]="'descriptionField' + i"
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidField(['details', i.toString(), 'description'])">
+                                    <input
+                                        type="text"
+                                        [id]="'descriptionField' + i"
+                                        formControlName="description"
+                                        maxlength="250"/>
+                                    <span
+                                        class="tooltip-content"
+                                        *ngIf="lookupForm?.get(['details', i.toString(), 'description'])?.errors?.required">
+                                            Description must be filled
+                                        </span>
+                                </label>
+                            </td>
+                            <td>
+                                <clr-checkbox formControlName="active"></clr-checkbox>
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <br/>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn" (click)="addChild($event)">
+                            <clr-icon shape="add"></clr-icon>
+                            Add Row
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn"
+                            (click)="removeSelected($event)"
+                            [disabled]="disableRemoveSelected()">
+                            <clr-icon shape="remove"></clr-icon>
+                            Delete Row
+                        </button>
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+                    <button type="submit" class="btn" [clrLoading]="isSaving">
+                        <clr-icon shape="floppy"></clr-icon>
+                        Save
+                    </button>
+                    <button type="button" class="btn" (click)="openCancelModal($event)">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="cancelModalOpened"
+                [returnLink]="'/lookup/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save
+                [(isOpen)]="saveModalOpened"
+                [(isOpenSuccess)]="successModalOpened"
+                (save)="save()"
+                [returnLink]="'/lookup/search'"></fema-cms-modal-save>
+
+        </main>
+    </div>
+
+</clr-main-container>

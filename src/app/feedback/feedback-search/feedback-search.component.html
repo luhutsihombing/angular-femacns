@@ -1,0 +1,166 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"   
+             #clrContentArea>
+
+            <h1>Search Feedback</h1>
+
+            <form [formGroup]="feedbackForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label>Form Template Name</label>
+
+                        <input
+                            type="text"
+                            id="eventNameField"
+                            placeholder="Form Template Name"
+                            formControlName="templateName"
+                            size="30"
+                            maxlength="30"/>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-icon"
+                        routerLink="/feedback/create"
+                        routerLinkActive="active">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid>
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'templateName'">Template Name</clr-dg-column>
+
+                <!--<clr-dg-column>Template Category</clr-dg-column>-->
+
+                <clr-dg-column [clrDgSortBy]="'lastUpdateDate'">Last Updated Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'lastUpdateBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *clrDgItems="let feedback of feedbackSearchList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/feedback', feedback?.id]">
+                            View
+                        </a>
+
+                        |
+
+                        <ng-template [ngIf]="!feedback?.enableEdit">
+
+                            <a [routerLink]="['/feedback', feedback?.id]"
+                               [queryParams]="({editable: feedback?.enableEdit})">
+                                Edit
+                            </a>
+
+                            |
+
+                        </ng-template>
+
+                        <ng-template [ngIf]="feedback?.enableEdit">
+
+                            <a [routerLink]="['/feedback/edit', feedback?.id]">
+                                Edit
+                            </a>
+
+                            |
+
+                        </ng-template>
+
+                        <a [routerLink]="['/feedback/sequence', feedback?.id]">
+                            Change Sequence
+                        </a>
+
+                        |
+
+                        <span class="downloadable"
+                              (click)="downloadTemplateUsage($event, feedback)"
+                              [clrLoading]="uiState?.templateIsDownloading">
+                            Template Usage
+                        </span>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{feedback?.templateName || '-'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{feedback?.lastUpdateDate | date:'dd-MMM-yyyy HH:mm:ss'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{feedback?.lastUpdateBy || '-'}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+
+                    <ng-template [ngIf]="pagination?.totalItems > 0">
+
+                        <ng-template [ngIf]="feedbackSearchList?.length > 0">
+                            {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                        </ng-template>
+
+                        {{pagination?.totalItems}} templates
+
+                    </ng-template>
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPageSize]="20"></clr-dg-pagination>
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <button type="button"
+                    class="btn btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [disabled]="downloadIsDisabled"
+                    [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+            <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()"></fema-cms-modal-search>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

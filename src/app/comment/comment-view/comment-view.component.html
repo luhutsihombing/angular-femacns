@@ -1,0 +1,111 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+            <h1>Comment Detail</h1>
+            <fema-cms-alert-on-action
+                [responseOnAction]="responseOnDelete"
+                (close)="responseOnDelete = $event"></fema-cms-alert-on-action>
+
+            <clr-alert
+                *ngIf="!commentDetailList && !title"
+                [clrAlertType]="'alert-danger'"
+                [clrAlertClosable]="false">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                        </div>
+                        <span class="alert-text">No data found</span>
+                        <div class="alert-actions">
+                            <a class="alert-action" (click)="initViewCommentDetails($event)">Retry</a>
+                        </div>
+                    </div>
+                </div>
+            </clr-alert>
+
+            <form>
+                <h3>{{title}}</h3>
+                <clr-datagrid (clrDgRefresh)="clrPage?.next($event)">
+                    <clr-dg-column>Comment</clr-dg-column>
+                    <clr-dg-column>Username</clr-dg-column>
+                    <clr-dg-column>Comment Date</clr-dg-column>
+                    <clr-dg-column>Action</clr-dg-column>
+
+                    <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                    <clr-dg-row *ngFor="let detailComment of commentDetailList?.dataList">
+                        <clr-dg-cell>{{detailComment?.text}}</clr-dg-cell>
+                        <clr-dg-cell>{{detailComment?.commentBy}}</clr-dg-cell>
+                        <clr-dg-cell>{{detailComment?.commentDate | date :'dd-MM-yyyy hh:mm'}}</clr-dg-cell>
+                        <clr-dg-cell>
+                            <button
+                                type="button"
+                                (click)="openDeleteModal(detailComment?.id)"
+                                class="btn btn-icon btn-danger btn-sm"
+                                style="margin: 0;">
+                                <clr-icon shape="trash" size="15"></clr-icon>
+                            </button>
+                        </clr-dg-cell>
+                    </clr-dg-row>
+
+                    <clr-dg-footer>
+                        {{pagination?.firstItem + 1}}
+                        -
+                        {{pagination?.lastItem + 1}}
+                        of
+                        {{commentDetailList?.totalCount}} comments
+
+                        <clr-dg-pagination
+                            #pagination
+                            [clrDgPage]="commentDetailList?.currentPage"
+                            [clrDgPageSize]="commentDetailList?.pageSize"
+                            [clrDgTotalItems]="commentDetailList?.totalCount">
+                        </clr-dg-pagination>
+
+                    </clr-dg-footer>
+
+                </clr-datagrid>
+            </form>
+
+            <button type="button" class="btn btn-primary btn-right" (click)="back($event)">
+                <clr-icon shape="undo"></clr-icon>
+                Cancel
+            </button>
+
+            <clr-modal [(clrModalOpen)]="deleteModalOpened" [clrModalClosable]="false">
+
+                <h3 class="modal-title">Proceed to Delete</h3>
+
+                <div class="modal-body">
+                    <p>Are you sure want to delete this setup?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline" type="button" (click)="closeModal($event)">No</button>
+                    <button class="btn btn-danger" type="button" (click)="delete()">
+                        <clr-icon shape="trash"></clr-icon>
+                        Yes, Delete
+                    </button>
+                </div>
+
+            </clr-modal>
+
+            <clr-modal [(clrModalOpen)]="isOpenSuccess" [clrModalClosable]="false">
+
+                <h3 class="modal-title">Data has been deleted</h3>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline" type="button" (click)="closeModal()">OK</button>
+                </div>
+
+            </clr-modal>
+
+
+        </main>
+
+    </div>
+</clr-main-container>

@@ -1,0 +1,37 @@
+.app-dropzone {
+  display: -webkit-box;
+  justify-content: center;
+  align-items: center;
+
+  width: 9rem;
+  height: 3rem;
+
+  text-align: center;
+
+  background: repeating-linear-gradient(
+    130deg,
+    lavender,
+    lavender 10px,
+    transparent 10px,
+    transparent 20px
+  );
+
+  border: 5px dotted #007cbb;
+
+  .app-dropzone__title {
+    display: inline-block;
+
+    padding: 2px 8px;
+
+    font-weight: bold;
+
+    background-color: #fafafa;
+
+    border-radius: 10%;
+  }
+}
+
+.btn-right{
+  justify-content: flex-end;
+  float: right;
+}

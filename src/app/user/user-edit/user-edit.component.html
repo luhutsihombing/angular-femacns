@@ -1,0 +1,557 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+            <h1>Edit User:
+                {{editForm?.getRawValue()?.username}}</h1>
+
+            <fema-cms-alert-on-action
+                [errorOnInit]="errorOnInit"
+                [responseOnAction]="responseOnSave"
+                [isLoading]="!cmsRespSearchList && !femaRespSearchList"
+                [isFailed]="!cmsRespSearchList || !femaRespSearchList"
+                (retry)="initEditForm()"
+                (close)="responseOnSave = $event"></fema-cms-alert-on-action>
+
+            <form
+                [formGroup]="editForm"
+                (ngSubmit)="checkFormValidity($event)"
+                *ngIf="cmsRespSearchList && femaRespSearchList && !errorOnInit">
+
+                <section class="form-block">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                            <div class="form-group">
+                                <label for="userNameField" class="required">User Name</label>
+                                <input
+                                    type="text"
+                                    id="userNameField"
+                                    placeholder="User name"
+                                    formControlName="username"
+                                    maxlength="50"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="required">Full Name</label>
+                                <label
+                                    for="fullNameField"
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidField('fullName')">
+                                    <input
+                                        type="text"
+                                        id="fullNameField"
+                                        placeholder="Full name"
+                                        formControlName="fullName"
+                                        maxlength="250"/>
+                                    <span class="tooltip-content" *ngIf="fieldRequired('fullName')">
+                                        Full name must be filled
+                                    </span>
+                                    <span
+                                        class="tooltip-content"
+                                        *ngIf="editForm?.get('fullName')?.errors?.maxlength">
+                                        {{editForm?.get('fullName')?.errors?.maxlength?.actualLength}}
+                                        of max.
+                                        {{editForm?.get('fullName')?.errors?.maxlength?.requiredLength}}
+                                        characters
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                            <div class="form-group">
+                                <label for="peopleTypeField" class="required">People Type</label>
+                                <input
+                                    type="text"
+                                    id="peopleTypeField"
+                                    placeholder="People Type"
+                                    formControlName="peopleTypeDescription"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="required">Active</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="activeToggle" formControlName="active"/>
+                                    <label for="activeToggle">{{editForm?.getRawValue()?.active ? 'Yes' : 'No'}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Personal Info</label>
+
+                    <div class="form-group">
+                        <label for="birthDateField" class="required">Birth Date</label>
+                        <label
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('birthDate')">
+
+                            <input
+                                type="text"
+                                (click)="birthDateOpened = true"
+                                [matDatepicker]="domBirthDate"
+                                onkeydown="return false"
+                                placeholder="DD-MMM-YYYY"
+                                formControlName="birthDate"
+                                [max]="currentDate"/>
+
+                            <mat-datepicker
+                                #domBirthDate
+                                [opened]="birthDateOpened"
+                                (closed)="birthDateOpened = false"
+                                disabled="false">
+                            </mat-datepicker>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="editForm?.get('birthDate')?.errors?.required">
+                                Birth Date must be filled
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">Email</label>
+                        <label
+                            for="emailField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('email')">
+                            <input type="text" size="50" id="emailField" placeholder="Email" formControlName="email"/>
+                            <span class="tooltip-content" *ngIf="fieldRequired('email')">
+                                Email must be filled
+                            </span>
+                            <span class="tooltip-content" *ngIf="editForm?.get('email')?.errors?.email">
+                                Email is invalid
+                            </span>
+                            <span class="tooltip-content" *ngIf="editForm?.get('email')?.errors?.maxlength">
+                                {{editForm?.get('email')?.errors?.maxlength?.actualLength}}
+                                of max.
+                                {{editForm?.get('email')?.errors?.maxlength?.requiredLength}}
+                                characters
+                            </span>
+
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">Phone Number</label>
+                        <label
+                            for="phoneNumberField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('phoneNumber')">
+                            <input
+                                type="text"
+                                id="phoneNumberField"
+                                pattern="[+62]{3}[0-9]+"
+                                placeholder="Phone Number"
+                                formControlName="phoneNumber"
+                                size="50"
+                                maxlength="15"/>
+                            <span class="tooltip-content" *ngIf="fieldRequired('phoneNumber')">
+                                Phone Number must be filled
+                            </span>
+                            <span
+                                class="tooltip-content"
+                                *ngIf="editForm?.get('phoneNumber')?.errors?.maxlength">
+                                {{editForm?.get('phoneNumber')?.errors?.maxlength?.actualLength}}
+                                of max.
+                                {{editForm?.get('phoneNumber')?.errors?.maxlength?.requiredLength}}
+                                characters
+                            </span>
+                            <span
+                                class="tooltip-content"
+                                *ngIf="editForm?.get('phoneNumber')?.errors?.pattern">
+                                Phone number is invalid
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="institutionField" class="required">Institution</label>
+                        <label
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('institution')">
+                            <input
+                                type="text"
+                                id="institutionField"
+                                placeholder="Institution"
+                                formControlName="institution"
+                                size="50"
+                                maxlength="150"/>
+                            <span class="tooltip-content" *ngIf="fieldRequired('institution')">
+                                Institution must be filled
+                            </span>
+                        </label>
+                    </div>
+
+                    <datalist id="branchSuggestion">
+                        <option *ngFor="let branch of branchSuggestion" [value]="branch">
+                            {{branch}}
+                        </option>
+                    </datalist>
+                    <div class="form-group">
+                        <label class="required">Location</label>
+                        <label
+                            for="locationField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('branchCode') || (branchInvalid)">
+                            <input
+                                type="text"
+                                id="locationField"
+                                placeholder="Location"
+                                formControlName="branchCode"
+                                maxlength="150"
+                                (blur)="checkBranchSuggestion($event, 'branchCode')"
+                                size="50"
+                                [attr.list]="editForm?.getRawValue()?.branchCode?.length >= autocompMinChar ? 'branchSuggestion' : ''"/>
+                            <span
+                                class="tooltip-content"
+                                *ngIf="editForm?.get('branchCode')?.errors?.required && saveIsPressed">
+                                Location must be filled
+                            </span>
+
+                            <span
+                                class="tooltip-content"
+                                *ngIf="branchInvalid && saveIsPressed">
+                                    Location invalid
+                            </span>
+                            <span
+                                class="tooltip-content"
+                                *ngIf="editForm?.get('branchCode')?.errors?.maxlength">
+                                {{editForm?.get('branchCode')?.errors?.maxlength?.actualLength}}
+                                of max.
+                                {{editForm?.get('branchCode')?.errors?.maxlength?.requiredLength}}
+                                characters
+                            </span>
+                        </label>
+                    </div>
+                    <datalist id="orgSuggestion">
+                        <option *ngFor="let org of orgSuggestion" [value]="org">
+                            {{org}}
+                        </option>
+                    </datalist>
+                    <div class="form-group">
+                        <label for="organizationField" class="required">Organization</label>
+                        <label
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('orgCode') || (orgInvalid && saveIsPressed)">
+                            <input
+                                type="text"
+                                id="organizationField"
+                                placeholder="Organization"
+                                formControlName="orgCode"
+                                maxlength="240"
+                                size="50"
+                                (blur)="checkOrgSuggestion($event, 'orgCode')"
+                                [attr.list]="editForm?.getRawValue()?.orgCode?.length >= autocompMinChar ? 'orgSuggestion' : ''"/>
+                            <span
+                                class="tooltip-content"
+                                *ngIf="editForm?.get('orgCode')?.errors?.required && saveIsPressed">
+                                Organization must be filled
+                            </span>
+
+                            <span
+                                class="tooltip-content"
+                                *ngIf="orgInvalid && saveIsPressed">
+                                    Organization invalid
+                            </span>
+                        </label>
+                    </div>
+                    <datalist id="jobSuggestion">
+                        <option *ngFor="let jobSuggest of jobSuggestion" [value]="jobSuggest">
+                            {{jobSuggest}}
+                        </option>
+                    </datalist>
+                    <div class="form-group">
+                        <label>Job</label>
+                        <label
+                            for="jobField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('jobCode') || (jobInvalid && saveIsPressed)">
+                            <input
+                                type="text"
+                                id="jobField"
+                                placeholder="Job"
+                                formControlName="jobCode"
+                                maxlength="150"
+                                size="50"
+                                (blur)="checkJobSuggestion($event, 'jobCode')"
+                                [attr.list]="editForm?.getRawValue()?.jobCode?.length >= autocompMinChar ? 'jobSuggestion' : ''"/>
+                                <span
+                                    class="tooltip-content"
+                                    *ngIf="jobInvalid && saveIsPressed">
+                                        Job invalid
+                                </span>
+                        </label>
+                    </div>
+                </section>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-8">
+
+                        <clr-tabs>
+
+                            <clr-tab>
+                                <a clrTabLink="clrTabLink">CMS</a>
+                                <clr-tab-content>
+                                    <clr-alert
+                                        [clrAlertType]="'alert-warning'"
+                                        [clrAlertClosable]="saveIsPressed"
+                                        *ngIf="editForm?.get(['userResponsibilitiesWeb', '0']) === null &&  editForm?.get(['userResponsibilitiesMobile', '0']) === null && saveIsPressed">
+                                        <div clr-alert-item="clr-alert-item" class="alert-item">
+                                            <span class="alert-text">
+                                                Requires at least 1 CMS responsibility
+                                            </span>
+                                        </div>
+                                    </clr-alert>
+
+                                    <datalist id="cmsRespNameSelection">
+                                        <option *ngFor="let resp of filteredCmsRespSearchList" [value]="resp?.name">{{resp?.name}}</option>
+                                    </datalist>
+
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <clr-checkbox formControlName="selectAllRespWeb"></clr-checkbox>
+                                                </th>
+                                                <th>Responsibility</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody formArrayName="userResponsibilitiesWeb">
+                                            <tr
+                                                *ngFor="let webForm of webRespForm?.controls; let i = index;"
+                                                [formGroupName]="i">
+                                                <td>
+                                                    <clr-checkbox formControlName="selected"  [clrDisabled]="webForm?.get('selected')?.disabled"></clr-checkbox>
+                                                </td>
+                                                <td>
+                                                    <label
+                                                        [for]="'cmsWebRespNameField' + i"
+                                                        aria-haspopup="true"
+                                                        role="tooltip"
+                                                        class="tooltip tooltip-validation tooltip-md"
+                                                        [class.invalid]="invalidField(['userResponsibilitiesWeb', i.toString(), 'name'])">
+                                                        <input
+                                                            type="text"
+                                                            [id]="'cmsWebRespNameField' + i"
+                                                            list="cmsRespNameSelection"
+                                                            formControlName="name"
+                                                            maxlength="100"
+                                                            (blur)="checkCmsName($event, ['userResponsibilitiesWeb', i?.toString(), 'name'])"/>
+                                                        <span
+                                                            class="tooltip-content"
+                                                            *ngIf="invalidField(['userResponsibilitiesWeb', i.toString(), 'name'])">
+                                                            Responsibility Name must be filled
+                                                        </span>
+                                                        <span
+                                                            class="tooltip-content"
+                                                            *ngIf="editForm?.get(['userResponsibilitiesWeb', i.toString(), 'name'])?.errors?.maxlength">
+                                                            {{editForm?.get(['userResponsibilitiesWeb', i.toString(), 'name'])?.errors?.maxlength?.actualLength}}
+                                                            of max.
+                                                            {{editForm?.get(['userResponsibilitiesWeb',
+                                                            i.toString(), 'name'])?.errors?.maxlength?.requiredLength}}
+                                                            characters
+                                                        </span>
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label
+                                                        [for]="'cmsWebRespDescField' + i"
+                                                        aria-haspopup="true"
+                                                        role="tooltip"
+                                                        class="tooltip tooltip-validation tooltip-md"
+                                                        [class.invalid]="invalidField(['userResponsibilitiesWeb', i.toString(), 'note'])">
+                                                        <input
+                                                            type="text"
+                                                            [id]="'cmsWebRespDescField' + i"
+                                                            formControlName="note"
+                                                            maxlength="250"/>
+
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <br/>
+                                    <div class="btn-group">
+                                        <button type="buttton" class="btn" (click)="addCMSResp($event)">
+                                            <clr-icon shape="add"></clr-icon>
+                                            Add Responsibility
+                                        </button>
+                                        <button type="buttton" class="btn" (click)="removeSelectedCMSResp($event)">
+                                            <clr-icon shape="remove"></clr-icon>
+                                            Remove Selected
+                                        </button>
+                                    </div>
+                                </clr-tab-content>
+
+                            </clr-tab>
+
+                            <clr-tab>
+                                <a clrTabLink="clrTabLink">FEMA</a>
+                                <clr-tab-content>
+
+                                    <clr-alert
+                                        [clrAlertType]="'alert-warning'"
+                                        [clrAlertClosable]="saveIsPressed"
+                                        *ngIf="editForm?.get(['userResponsibilitiesWeb', '0']) === null &&  editForm?.get(['userResponsibilitiesMobile', '0']) === null && saveIsPressed">
+                                        <div clr-alert-item="clr-alert-item" class="alert-item">
+                                            <span class="alert-text">
+                                                Requires at least 1 FEMA responsibility
+                                            </span>
+                                        </div>
+                                    </clr-alert>
+
+                                    <datalist id="femaRespNameSelection">
+                                        <option *ngFor="let resp of filteredFemaRespSearchList" [value]="resp?.name">{{resp?.name}}</option>
+                                    </datalist>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    <clr-checkbox formControlName="selectAllRespMob"></clr-checkbox>
+                                                </th>
+                                                <th>Responsibility</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody formArrayName="userResponsibilitiesMobile">
+                                            <tr
+                                                *ngFor="let mobileForm of mobileRespForm?.controls; let i = index;"
+                                                [formGroupName]="i">
+                                                <td>
+                                                    <clr-checkbox formControlName="selected" [clrDisabled]="mobileForm?.get('selected')?.disabled"></clr-checkbox>
+                                                </td>
+                                                <td>
+                                                    <label
+                                                        [for]="'cmsMobileRespNameField' + i"
+                                                        aria-haspopup="true"
+                                                        role="tooltip"
+                                                        class="tooltip tooltip-validation tooltip-md"
+                                                        [class.invalid]="invalidField(['userResponsibilitiesMobile', i.toString(), 'name'])">
+                                                        <input
+                                                            type="text"
+                                                            [id]="'cmsMobileRespNameField' + i"
+                                                            list="femaRespNameSelection"
+                                                            formControlName="name"
+                                                            maxlength="100"
+                                                            (blur)="checkFemaName($event, ['userResponsibilitiesMobile', i?.toString(), 'name'])"/>
+                                                        <span
+                                                            class="tooltip-content"
+                                                            *ngIf="invalidField(['userResponsibilitiesMobile', i.toString(), 'name'])">
+                                                            Responsibility name must be filled
+                                                        </span>
+                                                        <span
+                                                            class="tooltip-content"
+                                                            *ngIf="editForm?.get(['userResponsibilitiesMobile', i.toString(), 'name'])?.errors?.maxlength">
+                                                            {{editForm?.get(['userResponsibilitiesMobile', i.toString(), 'name'])?.errors?.maxlength?.actualLength}}
+                                                            of max.
+                                                            {{editForm?.get(['userResponsibilitiesMobile',
+                                                            i.toString(), 'name'])?.errors?.maxlength?.requiredLength}}
+                                                            characters
+                                                        </span>
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <label
+                                                        [for]="'cmsMobileRespDescField' + i"
+                                                        aria-haspopup="true"
+                                                        role="tooltip"
+                                                        class="tooltip tooltip-validation tooltip-md"
+                                                        [class.invalid]="invalidField(['userResponsibilitiesMobile', i.toString(), 'note'])">
+                                                        <input
+                                                            type="text"
+                                                            [id]="'cmsMobileRespDescField' + i"
+                                                            formControlName="note"
+                                                            maxlength="250"/>
+
+                                                        <span
+                                                            class="tooltip-content"
+                                                            *ngIf="editForm?.get(['userResponsibilitiesMobile', i.toString(), 'note'])?.errors?.maxlength">
+                                                            {{editForm?.get(['userResponsibilitiesMobile', i.toString(), 'note'])?.errors?.maxlength?.actualLength}}
+                                                            of max.
+                                                            {{editForm?.get(['userResponsibilitiesMobile',
+                                                            i.toString(), 'note'])?.errors?.maxlength?.requiredLength}}
+                                                            characters
+                                                        </span>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <br/>
+
+                                    <div class="btn-group">
+                                        <button type="buttton" class="btn" (click)="addFEMAResp($event)">
+                                            <clr-icon shape="add"></clr-icon>
+                                            Add Responsibility
+                                        </button>
+                                        <button type="buttton" class="btn" (click)="removeSelectedFEMAResp($event)">
+                                            <clr-icon shape="remove"></clr-icon>
+                                            Remove Selected
+                                        </button>
+                                    </div>
+                                </clr-tab-content>
+                            </clr-tab>
+
+                        </clr-tabs>
+                    </div>
+                </div>
+
+                <br/>
+
+                <hr/>
+
+                <div class="btn-group btn-primary btn-right">
+                        <button type="submit" class="btn" [clrLoading]="isSaving">
+                            <clr-icon shape="floppy"></clr-icon>
+                            Save
+                        </button>
+                        <button type="button" class="btn" (click)="openCancelModal($event)">
+                            <clr-icon shape="undo"></clr-icon>
+                            Cancel
+                        </button>
+                    </div>
+            </form>
+
+            <fema-cms-modal-cancel 
+                [(isOpen)]="cancelModalOpened"
+                [returnLink]="'/user/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save
+                [(isOpen)]="saveModalOpened"
+                [(isOpenSuccess)]="successModalOpened"
+                [returnLink]="'/user/search'"
+                (save)="save()"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+</clr-main-container>

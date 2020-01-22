@@ -1,0 +1,14 @@
+.btn-right {
+    justify-content: flex-end;
+    float: right;
+}
+
+.disable-tree {
+
+    input {
+        &:disabled {
+        }
+
+    }
+
+}

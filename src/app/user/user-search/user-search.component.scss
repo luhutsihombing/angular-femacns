@@ -1,0 +1,15 @@
+.text-center{
+  text-align: center
+}
+
+.tooltip>.tooltip-content{
+  background: #c92100;
+  visibility: visible;
+  opacity: 1;
+  width: max-content;
+}
+
+.btn-right{
+  justify-content: flex-end;
+  float: right;
+}

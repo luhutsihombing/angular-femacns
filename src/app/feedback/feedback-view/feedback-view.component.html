@@ -1,0 +1,384 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+            <h1>Feedback: {{feedbackForm?.get('templateName')?.value}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!formOptions"
+                                      [isFailed]="!formOptions"
+                                      (retry)="initialSetup()"></fema-cms-alert-on-action>
+
+            <form *ngIf="formOptions"
+                  [formGroup]="feedbackForm">
+
+                <section class="form-block">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-7">
+
+                            <div class="form-group">
+
+                                <label for="templateName"
+                                       class="required">
+                                    Form Template Name
+                                </label>
+
+                                <input type="text"
+                                       id="templateName"
+                                       formControlName="templateName"
+                                       size="30"
+                                       maxlength="30"/>
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="description">Description</label>
+
+                                <textarea id="description"
+                                          placeholder="Description"
+                                          rows="3"
+                                          formControlName="description"
+                                          maxlength="300"></textarea>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                            <div class="form-group">
+
+                                <label>Need Calculation</label>
+
+                                <div class="toggle-switch">
+
+                                    <input type="checkbox"
+                                           id="needCalculation"
+                                           formControlName="needCalculation"/>
+
+                                    <label for="needCalculation">
+                                        {{feedbackForm?.get('calculation')?.value ? 'Yes' : 'No'}}
+                                    </label>
+
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Scoring Formula</label>
+                                <span class="label label-info">
+                                        <i>Score = Total Points / Number of Questions</i>
+                                    </span>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Question Category List</label>
+
+                    <div class="row flex-items-lg-center flex-items-xl-center">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+
+                            <button class="btn"
+                                    [disabled]="isFirstCategory"
+                                    (click)="prevCategory($event)">
+                                <clr-icon shape="caret left"></clr-icon>
+                                Prev Category
+                            </button>
+
+                            <button class="btn"
+                                    [disabled]="isLastCategory"
+                                    (click)="nextCategory($event)">
+                                <clr-icon shape="caret right"></clr-icon>
+                                Next Category
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <section class="form-block"
+                             formArrayName="categories">
+
+                        <ng-template
+                            ngFor
+                            let-categoryCtrl
+                            [ngForOf]="categoriesForm?.controls"
+                            let-catIdx="index">
+
+                            <div [formGroupName]="catIdx?.toString()"
+                                 *ngIf="isActiveCategory(catIdx)">
+
+                                <div class="form-group">
+
+                                    <label for="questionCategory">Question Category</label>
+
+                                        <span class="select">
+                                            <select [formControlName]="'questionCategory'"
+                                                    [id]="'questionCategory' + catIdx">
+                                                <option *ngFor="let category of formOptions?.questionCategories"
+                                                        [value]="category?.detailCode">{{category?.meaning}}
+                                                </option>
+                                            </select>
+                                        </span>
+
+                                </div>
+
+                                <hr/>
+
+                                <section class="form-block">
+
+                                    <label>Question List</label>
+                                    <div class="row flex-items-lg-center flex-items-xl-center">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                                            <label style="margin-left: 9rem;margin-right: 10rem;">Go To Page</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row flex-items-lg-center flex-items-xl-center">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    [disabled]="isFirstQuestion"
+                                                    (click)="prevQuestion($event)">
+                                                <clr-icon shape="caret left"></clr-icon>
+                                                Prev Question
+                                            </button>
+
+                                            <input type="number"
+                                                   placeholder="Question Page"
+                                                   [value]="uiState?.questionIdx + 1"
+                                                   [formControlName]="'questionPage'"
+                                                   (keydown.enter)="changeQuestionPage($event)"
+                                                   (blur)="resetQuestionPage($event, categoryCtrl)"/>
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    (click)="nextQuestion($event)"
+                                                    [disabled]="isLastQuestion">
+                                                <clr-icon shape="caret right"></clr-icon>
+                                                Next Question
+                                            </button>
+
+                                        </div>
+                                    </div>
+
+                                    <section class="form-block"
+                                             formArrayName="questions">
+
+                                        <ng-template
+                                            ngFor
+                                            let-questionCtrl
+                                            [ngForOf]="questionsForm?.controls"
+                                            let-questionIdx="index">
+
+                                            <div [formGroupName]="questionIdx?.toString()"
+                                                 *ngIf="isActiveQuestion(questionIdx)">
+
+                                                <ng-template [ngIf]="questionCtrl?.get('image')?.value">
+
+                                                    <img [src]="questionCtrl?.get('image')?.value"/>
+
+                                                    <br/>
+
+                                                </ng-template>
+
+                                                <div class="form-group">
+
+                                                    <label for="question">Question</label>
+
+                                                    <textarea id="question"
+                                                              placeholder="Question"
+                                                              rows="3"
+                                                              formControlName="question"></textarea>
+
+                                                </div>
+
+                                                <br/>
+                                                <br/>
+                                                <br/>
+
+                                                <clr-checkbox [formControlName]="'required'"
+                                                              [clrDisabled]="true">
+                                                    Required
+                                                </clr-checkbox>
+
+                                                <br/>
+
+                                                <div class="form-group">
+
+                                                    <label for="typeOfAnswerValue">Answer Type</label>
+
+                                                    <input type="text"
+                                                           id="typeOfAnswerValue"
+                                                           formControlName="typeOfAnswerLabel"/>
+
+                                                </div>
+
+                                                <br/>
+
+                                                <ng-container
+                                                    [ngSwitch]="questionCtrl?.get('typeOfAnswerValue')?.value">
+
+                                                    <ng-template [ngSwitchCase]="'MULTIPLE_CHOICE'">
+
+                                                        <clr-checkbox [formControlName]="'allowFillIn'">
+                                                            Allow "fill-in" choices
+                                                        </clr-checkbox>
+
+                                                        <br/>
+
+                                                        <table class="table table-compact">
+
+                                                            <thead>
+
+                                                            <tr>
+                                                                <th>Choices</th>
+                                                                
+                                                                <th>Action</th>
+                                                            </tr>
+
+                                                            </thead>
+
+                                                            <tbody formArrayName="choices">
+
+                                                            <tr *ngFor="let choiceCtrl of questionCtrl?.get('choices')?.controls; let k = index;">
+                                                                <td>
+                                                                    <input
+                                                                        type="text"
+                                                                        [id]="'choice' + k"
+                                                                        [formControlName]="k?.toString()"
+                                                                        style="width: 100%;"/>
+                                                                </td>
+                                                                <td>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-link" disabled>
+                                                                        <clr-icon shape="trash"></clr-icon>
+                                                                    </button>
+
+                                                                </td>
+                                                            </tr>
+
+                                                            </tbody>
+
+                                                        </table>
+
+                                                    </ng-template>
+
+                                                    <div class="form-group"
+                                                         *ngSwitchCase="'SINGLE_LINE_OF_TEXT'">
+
+                                                        <label for="maxNumCharacters">Max. Num. of Characters</label>
+
+                                                        <input type="number"
+                                                               id="maxNumCharacters"
+                                                               formControlName="maxNumCharacters"/>
+
+                                                    </div>
+
+                                                </ng-container>
+
+                                            </div>
+
+                                        </ng-template>
+
+                                    </section>
+
+                                </section>
+
+                            </div>
+
+                        </ng-template>
+
+                    </section>
+
+                </section>
+
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            (click)="$event?.preventDefault(); uiState.deleteModalIsOpen = true;"
+                            *ngIf="(ar?.queryParams | async)?.hasOwnProperty('editable')">
+                        <clr-icon shape="trash"></clr-icon>
+
+                        Delete
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-icon"
+                        (click)="$event.preventDefault(); this.uiState.cancelModalIsOpen = true;">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                </div>
+            </form>
+
+            <clr-modal [(clrModalOpen)]="uiState.cancelModalIsOpen"
+                       [clrModalClosable]="false">
+
+                <h3 class="modal-title">Cancel Setup</h3>
+
+                <div class="modal-body">
+                    <p>Are you sure want to cancel this setup?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline" type="button" (click)="closeModal($event)">No</button>
+                    <button class="btn btn-primary" type="button" (click)="back($event)">Yes</button>
+                </div>
+
+            </clr-modal>
+
+            <clr-modal [(clrModalOpen)]="uiState.deleteFailedModalIsOpen"
+                       [clrModalClosable]="false">
+
+                <h3 class="modal-title">Failed to Delete</h3>
+
+                <div class="modal-body">
+
+                    <p>Deleting active feedback template is not allowed</p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-outline"
+                            type="button"
+                            (click)="$event?.preventDefault(); uiState.deleteFailedModalIsOpen = false;">
+                        OK
+                    </button>
+
+                </div>
+
+            </clr-modal>
+
+            <fema-cms-modal-delete [(isOpen)]="uiState.deleteModalIsOpen"
+                                   [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                                   (delete)="delete()"
+                                   [returnLink]="'/feedback/search'"></fema-cms-modal-delete>
+
+
+        </main>
+
+    </div>
+
+</clr-main-container>

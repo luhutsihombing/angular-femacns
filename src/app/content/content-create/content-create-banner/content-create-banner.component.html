@@ -1,0 +1,339 @@
+<section class="form-block"
+         [formGroup]="bannerForm">
+
+    <label>
+
+        <clr-checkbox [formControlName]="'selected'"
+                      [clrDisabled]="bannerForm?.get('selected')?.disabled">
+            Banner Setup
+        </clr-checkbox>
+
+    </label>
+
+    <div class="row">
+
+        <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <span class="label label-info">
+                <i>Note: Use *.jpg and *.png with max. file size of {{+contentLookup?.maxBannerSize / 1000}} MB</i>
+            </span>
+
+            <div class="form-group">
+
+                <label class="required">Upload Banner</label>
+
+                <label for="bannerImgFile"
+                       aria-haspopup="true"
+                       role="tooltip"
+                       class="tooltip tooltip-validation tooltip-md"
+                       [class.invalid]="invalidField('imgFile')">
+
+                    <ng-template [ngIf]="bannerForm?.get('imgLocation')?.value">
+
+                        <span class="label label-info">
+                            <i>Existing banner: {{bannerForm?.get('imgLocation')?.value | fileName}}</i>
+                        </span>
+
+                        <br/>
+
+                    </ng-template>
+
+                    <input type="file"
+                           id="bannerImgFile"
+                           multiple="multiple"
+                           size="50"
+                           accept="image/png, image/jpeg"
+                           (change)="selectBannerImage($event)"
+                           [disabled]="!bannerForm?.get('selected')?.value"/>
+
+                    <span class="tooltip-content tooltip-content--show"
+                          *ngIf="invalidField('imgFile', 'maxFileSize')">
+                        Maximum size allowed is {{+showError('imgFile', 'maxFileSize')['maxFileSize'] / 1000}} MB
+                    </span>
+
+                    <span class="tooltip-content tooltip-content--show"
+                          *ngIf="invalidField('imgFile', 'fileTypes')">
+                        Format file invalid
+                    </span>
+
+                    <span class="tooltip-content"
+                          *ngIf="invalidField('imgFile', 'required')">
+                        Banner must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label class="required">Active</label>
+
+                <div class="toggle-switch">
+
+                    <input type="checkbox"
+                           id="bannerActiveToggle"
+                           formControlName="active"/>
+
+                    <label for="bannerActiveToggle">{{bannerForm?.getRawValue()?.active ? 'Yes' : 'No'}}</label>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Set as Default Banner</label>
+
+                <div class="toggle-switch">
+
+                    <input type="checkbox"
+                           id="defaultBannerToggle"
+                           formControlName="defaultBanner"
+                           (click)="defaultBannerSubject.next($event)"/>
+
+                    <label for="defaultBannerToggle">{{bannerForm?.get('defaultBanner')?.value ? 'Yes' : 'No'}}</label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="required">Description</label>
+
+        <label for="descriptionField"
+               aria-haspopup="true"
+               role="tooltip"
+               class="tooltip tooltip-validation tooltip-md"
+               [class.invalid]="invalidField('description')"
+               style="width: 100%">
+
+            <textarea id="descriptionField"
+                      placeholder="Description"
+                      rows="3"
+                      formControlName="description"
+                      [maxlength]="contentLookup?.maxBannerDesc"></textarea>
+
+            <span class="tooltip-content tooltip-content--show"
+                  style="margin-left:1.5cm"
+                  *ngIf="invalidField('description', 'required')">
+                Description must be filled
+            </span>
+
+        </label>
+
+    </div>
+
+    <br/>
+    <br/>
+    <br/>
+
+    <div class="row">
+
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label class="required">Banner Period Start</label>
+
+                <label for="periodStart"
+                       aria-haspopup="true"
+                       role="tooltip"
+                       class="tooltip tooltip-validation tooltip-md"
+                       [class.invalid]="invalidField('periodStart')">
+
+                    <input type="text"
+                           id="periodStart"
+                           (click)="uiState.periodStartIsOpen = true"
+                           [matDatepicker]="domPeriodStart"
+                           [min]="currentDate"
+                           [max]="bannerForm?.getRawValue()?.periodEnd"
+                           placeholder="DD-MMM-YYYY"
+                           formControlName="periodStart"/>
+
+                    <button type="button"
+                            class="btn btn-icon btn-link"
+                            *ngIf="!!bannerForm?.get('periodStart')?.value && bannerForm?.get('periodStart')?.enabled"
+                            (click)="resetCalendar('periodStart')">
+
+                        <clr-icon shape="times"></clr-icon>
+
+                    </button>
+
+                    <mat-datepicker #domPeriodStart
+                                    [opened]="uiState?.periodStartIsOpen"
+                                    (closed)="uiState.periodStartIsOpen = false"
+                                    disabled="false">
+                    </mat-datepicker>
+
+                    <span class="tooltip-content tooltip-content--show"
+                          style="margin-left:1.5cm"
+                          *ngIf="invalidField('periodStart', 'required')">
+                        Banner Period Start must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label class="required">Banner Period End</label>
+
+                <label for="periodEnd"
+                       aria-haspopup="true"
+                       role="tooltip"
+                       class="tooltip tooltip-validation tooltip-md"
+                       [class.invalid]="invalidField('periodEnd')">
+
+                    <input type="text"
+                           id="periodEnd"
+                           (click)="uiState.periodEndIsOpen = true"
+                           [matDatepicker]="domPeriodEnd"
+                           [min]="bannerForm?.get('periodStart')?.value"
+                           placeholder="DD-MMM-YYYY"
+                           formControlName="periodEnd"/>
+
+                    <button type="button"
+                            class="btn btn-icon btn-link"
+                            *ngIf="!!bannerForm?.get('periodEnd')?.value && bannerForm?.get('periodEnd')?.enabled"
+                            (click)="resetCalendar('periodEnd')">
+
+                        <clr-icon shape="times"></clr-icon>
+
+                    </button>
+
+                    <mat-datepicker #domPeriodEnd
+                                    [opened]="uiState?.periodEndIsOpen"
+                                    (closed)="uiState.periodEndIsOpen = false"
+                                    disabled="false">
+                    </mat-datepicker>
+
+                    <span class="tooltip-content tooltip-content--show"
+                          *ngIf="invalidField('periodEnd', 'required')">
+                        Banner Period End must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+
+                <label [class.required]="bannerForm?.get('idLinkedMenu')?.validator">Linked to Menu</label>
+
+                <label for="linkMenuSelect"
+                       aria-haspopup="true"
+                       role="tooltip"
+                       class="tooltip tooltip-validation tooltip-md"
+                       [class.invalid]="invalidField('idLinkedMenu')">
+
+                    <span class="select">
+
+                        <select id="linkMenuSelect"
+                                [formControlName]="'idLinkedMenu'">
+
+                            <option *ngFor="let link of linkMenu"
+                                    [value]="link?.id">
+                                {{link?.detailCode | titlecase}}
+                            </option>
+
+                        </select>
+
+                    </span>
+
+                    <span class="tooltip-content">
+                        Linked to Menu must be filled
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="titleField"
+               [class.required]="bannerForm?.get('title')?.validator">Title</label>
+
+        <label for="titleField"
+               aria-haspopup="true"
+               role="tooltip"
+               class="tooltip tooltip-validation tooltip-md"
+               [class.invalid]="invalidField('title')">
+
+            <input type="text"
+                   id="titleField"
+                   placeholder="Title"
+                   size="55"
+                   [attr.list]="titleDatalist"
+                   formControlName="title"
+                   (blur)="checkTemplate($event)"/>
+
+            <span class="tooltip-content">
+                Title must be filled
+            </span>
+
+            <datalist id="bannerTitleSelection">
+
+                <option *ngFor="let title of suggestion?.titles; trackBy: ngForTracker"
+                        [value]="title?.title || title?.templateName">
+                    {{title?.title || title?.templateName}}
+                </option>
+
+            </datalist>
+
+        </label>
+
+    </div>
+
+</section>
+
+<clr-modal [clrModalOpen]="uiState?.bannerDefaultModalIsOpen"
+           [clrModalClosable]="false">
+
+    <h3 class="modal-title">Set as Default</h3>
+
+    <div class="modal-body">
+        <p>This will override existing default banner. Continue?</p>
+    </div>
+
+    <div class="modal-footer">
+
+        <button type="button"
+                class="btn btn-outline"
+                (click)="removeDefaultBanner($event)">Cancel
+        </button>
+
+        <button type="button"
+                class="btn btn-primary"
+                (click)="setAsDefaultBanner($event)">Set Default
+        </button>
+
+    </div>
+
+</clr-modal>

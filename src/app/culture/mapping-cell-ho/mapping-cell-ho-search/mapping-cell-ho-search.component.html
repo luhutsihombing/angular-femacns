@@ -1,0 +1,166 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+
+            <h1>Search Mapping Head Office</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="cultureForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+                        <label for="nameField">Cell Name</label>
+                        <input
+                            type="text"
+                            id="nameField"
+                            placeholder="Cell Name"
+                            formControlName="cellName"
+                            maxlength="100"
+                            [attr.list]="cellNameDatalist"
+                            size="60"/>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="organizationField">Organization</label>
+
+                        <input
+                            type="text"
+                            id="organizationField"
+                            placeholder="Organization"
+                            formControlName="organization"
+                            maxlength="100"
+                            [attr.list]="organizationDatalist"
+                            size="60"/>
+
+                    </div>
+
+                    <datalist id="orgSuggestion">
+
+                        <option *ngFor="let org of suggestion?.orgs"
+                                [value]="org">
+                            {{org}}
+                        </option>
+
+                    </datalist>
+
+                    <datalist id="hoSuggestion">
+
+                        <option *ngFor="let cell of suggestion?.cells"
+                                [value]="cell">
+                            {{cell}}
+                        </option>
+
+                    </datalist>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSearching">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            routerLink="/culture/mapping-ho/create">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'hoCell'">Cell Name</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'pembinaUtama'">Pembina Utama</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedDate'">Last Updated Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let ho of hoSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/culture/mapping-ho', ho?.id]">View</a>
+
+                        |
+
+                        <a [routerLink]="['/culture/mapping-ho/edit', ho?.id]">Edit</a>
+
+                    </clr-dg-cell>
+
+
+                    <clr-dg-cell>{{ho?.cellName}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{ho?.pembinaUtama}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{ho?.lastUpdatedDate | date:'dd-MMM-yyyy HH:mm:ss'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{ho?.lastUpdatedBy}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+
+                    {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of {{hoSearchList?.totalCount}} cells
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPage]="hoSearchList?.currentPage"
+                                       [clrDgPageSize]="hoSearchList?.pageSize"
+                                       [clrDgTotalItems]="hoSearchList?.totalCount"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <button type="button"
+                    class="btn btn-icon btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [disabled]="downloadIsDisabled"
+                    [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+            <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()"></fema-cms-modal-search>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

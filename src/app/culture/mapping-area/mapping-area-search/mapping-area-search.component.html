@@ -1,0 +1,156 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+
+            <h1>Search Mapping Area</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="mappingAreaForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label>Area Name</label>
+
+                        <input
+                            type="text"
+                            id="eventNameField"
+                            placeholder="Area Name"
+                            formControlName="areaName"
+                            maxlength="100"/>
+
+                    </div>
+
+                    <datalist id="cellSuggestion">
+
+                        <option *ngFor="let branch of suggestion?.branches"
+                                [value]="branch">
+                            {{branch}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+
+                        <label for="cellName">Cell Name</label>
+
+                        <input
+                            type="text"
+                            id="cellName"
+                            placeholder="Cell Name"
+                            formControlName="cellName"
+                            [attr.list]="cellNameDatalist"
+                            maxlength="100"/>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSearching">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        routerLink="/culture/mapping-area/create"
+                        routerLinkActive="active">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'areaName'">Area Name</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedDate'">Last Updated Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let areaSearchItem of areaSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/culture/mapping-area/', areaSearchItem?.id]">View</a>
+
+                        |
+
+                        <a [routerLink]="['/culture/mapping-area/edit/', areaSearchItem?.id]">Edit</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{areaSearchItem?.areaName}}</clr-dg-cell>
+
+                    <clr-dg-cell>
+                        {{areaSearchItem?.lastUpdatedDate ? (areaSearchItem?.lastUpdatedDate | date :'dd-MMM-yyyy hh:mm:ss') : '-'}}
+                    </clr-dg-cell>
+                    <clr-dg-cell>{{areaSearchItem?.lastUpdatedBy || '-'}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+
+                    {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of {{areaSearchList?.totalCount}} areas
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPage]="areaSearchList?.currentPage"
+                                       [clrDgPageSize]="areaSearchList?.pageSize"
+                                       [clrDgTotalItems]="areaSearchList?.totalCount"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <button type="button"
+                    class="btn btn-icon btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [disabled]="downloadIsDisabled"
+                    [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+            <fema-cms-modal-search
+                [(isOpen)]="uiState.openWarningModal"
+                (search)="searchByInput()"></fema-cms-modal-search>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

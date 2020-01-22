@@ -1,0 +1,261 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+
+            <h1>News/Info Detail Report</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!employeeAll"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <ng-template [ngIf]="employeeAll">
+
+                <form [formGroup]="reportForm"
+                      (ngSubmit)="checkSearchParams($event)">
+
+                    <section class="form-block">
+
+                        <datalist id="contentSuggestions">
+
+                            <option *ngFor="let contentSuggestion of contentSuggestions"
+                                    [value]="contentSuggestion?.title">
+                                {{contentSuggestion?.title}}
+                            </option>
+
+                        </datalist>
+
+                        <div class="form-group">
+
+                            <label for="titleField">Title</label>
+
+                            <input type="text"
+                                   id="titleField"
+                                   placeholder="Search by title"
+                                   [attr.list]="titleDatalist"
+                                   formControlName="title"
+                                   size="50"/>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="viewerField">Viewer</label>
+
+                            <input type="text"
+                                   id="viewerField"
+                                   [attr.list]="viewerDatalist"
+                                   placeholder="Search by viewer"
+                                   formControlName="viewer"
+                                   size="50"/>
+
+                        </div>
+
+                        <datalist id="viewerSuggestion">
+
+                            <option *ngFor="let employee of employeeAll?.dataList"
+                                    [value]="employee">
+                                {{employee}}
+                            </option>
+
+                        </datalist>
+
+                        <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                                <div class="form-group">
+
+                                    <label class="required">Access Period From</label>
+
+                                    <label aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField('startDate')">
+
+                                        <input type="text"
+                                               (click)="uiState.startDateIsOpen = true"
+                                               [matDatepicker]="domStartDate"
+                                               [max]="reportForm?.get('endDate')?.value"
+                                               onkeydown="return false"
+                                               placeholder="DD-MMM-YYYY"
+                                               formControlName="startDate"
+                                               size="15"/>
+
+                                        <clr-icon *ngIf="reportForm?.get('startDate')?.value"
+                                                  shape="times"
+                                                  style="height: auto"
+                                                  (click)="resetCalendar = 'startDate'"></clr-icon>
+
+                                        <mat-datepicker #domStartDate
+                                                        [opened]="uiState?.startDateIsOpen"
+                                                        (closed)="uiState.startDateIsOpen = false"
+                                                        disabled="false"></mat-datepicker>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField('startDate', 'required')">
+                                        Access Period From must be filled
+                                    </span>
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                                <div class="form-group">
+
+                                    <label class="required">Access Period To</label>
+
+                                    <label aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField('endDate')">
+
+                                        <input type="text"
+                                               (click)="uiState.endDateIsOpen = true"
+                                               [matDatepicker]="domEndDate"
+                                               [min]="reportForm?.get('startDate')?.value"
+                                               onkeydown="return false"
+                                               placeholder="DD-MMM-YYYY"
+                                               formControlName="endDate"
+                                               size="15"/>
+
+                                        <clr-icon *ngIf="reportForm?.get('endDate')?.value"
+                                                  shape="times"
+                                                  style="height: auto"
+                                                  (click)="resetCalendar = 'endDate'"></clr-icon>
+
+                                        <mat-datepicker #domEndDate
+                                                        [opened]="uiState?.endDateIsOpen"
+                                                        (closed)="uiState.endDateIsOpen = false"
+                                                        disabled="false"></mat-datepicker>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField('endDate', 'required')">
+                                        Access Period To must be filled
+                                    </span>
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <div class="btn-group btn-primary">
+
+                        <button type="submit"
+                                class="btn btn-icon"
+                                [clrLoading]="uiState?.isSearching">
+
+                            <clr-icon shape="search"></clr-icon>
+
+                            Search
+
+                        </button>
+
+                        <button class="btn btn-icon"
+                                [disabled]="downloadIsDisabled"
+                                (click)="downloadReport($event)"
+                                [clrLoading]="uiState?.reportIsDownloading">
+
+                            <clr-icon shape="download"></clr-icon>
+
+                            Download
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <br/>
+
+                <div class="app-report-border">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <img [src]="srcImage | safeUrl"
+                                 style="height: 100px; max-height: 100%;">
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6 text-right">
+
+                            NEWS/INFO DETAIL REPORT
+
+                            <br/> PT. Federal International Finance
+                            <br/> As of Date {{currentDate | date:'dd-MMM-yyyy'}}
+                            <br/>
+
+                            <div> Access Period From {{reportForm?.get('startDate')?.value | date:'dd-MMM-yyyy'}} To
+                                {{reportForm?.get('endDate')?.value | date:'dd-MMM-yyyy'}}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <br/>
+                    <br/>
+                    <br/>
+
+                    <clr-datagrid [clrDgLoading]="uiState?.isSearching">
+
+                        <clr-dg-column *ngFor="let header of reportData?.header">{{header | titlecase}}</clr-dg-column>
+
+                        <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                        <clr-dg-row *clrDgItems="let row of reportData?.entries">
+
+                            <clr-dg-cell *ngFor="let col of row">{{col}}</clr-dg-cell>
+
+                        </clr-dg-row>
+
+                        <clr-dg-footer>
+
+                            <ng-template [ngIf]="pagination?.totalItems > 0">
+
+                                <ng-template [ngIf]="reportData?.entries?.length > 0">
+                                    {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                                </ng-template>
+
+                                {{pagination?.totalItems}} entries
+
+                            </ng-template>
+
+                            <clr-dg-pagination #pagination
+                                               [clrDgPageSize]="lookup?.pageSize"></clr-dg-pagination>
+
+                        </clr-dg-footer>
+
+                    </clr-datagrid>
+
+                </div>
+
+                <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                       (search)="searchByInput()"></fema-cms-modal-search>
+
+            </ng-template>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

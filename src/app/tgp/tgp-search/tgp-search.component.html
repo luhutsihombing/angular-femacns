@@ -1,0 +1,230 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+
+            <h1>Upload T.E.A.M Grand Prize</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="tgpForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label>Process Date From</label>
+
+                                <input type="text"
+                                       (click)="uiState.startDateIsOpen = true"
+                                       [matDatepicker]="domStartActivePeriod"
+                                       [max]="tgpForm?.get('endDate')?.value"
+                                       onkeydown="return false"
+                                       placeholder="DD-MMM-YYYY"
+                                       formControlName="startDate"
+                                       size="15"/>
+
+                                <clr-icon shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar('startDate')"></clr-icon>
+
+                                <mat-datepicker #domStartActivePeriod
+                                                [opened]="uiState?.startDateIsOpen"
+                                                (closed)="uiState.startDateIsOpen = false"
+                                                disabled="false"></mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label>Process Date To</label>
+
+                                <input type="text"
+                                       (click)="uiState.endDateIsOpen = true"
+                                       [matDatepicker]="domEndActivePeriod"
+                                       [min]="tgpForm?.get('startDate')?.value"
+                                       onkeydown="return false"
+                                       placeholder="DD-MMM-YYYY"
+                                       formControlName="endDate"
+                                       size="15"/>
+
+                                <clr-icon shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar('endDate')"></clr-icon>
+
+                                <mat-datepicker #domEndActivePeriod
+                                                [opened]="uiState?.endDateIsOpen"
+                                                (closed)="uiState.endDateIsOpen = false"
+                                                disabled="false"></mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn"
+                            [clrLoading]="uiState?.isSearching">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            routerLink="/tgp/upload">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'processDate'">Process Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'status'">Status</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'totalRecord'">Total Record</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'totalSuccessRecord'">Total Success Record</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'totalFailedRecord'">Total Failed Record</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedBy'">Uploaded By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let tgp of tgpSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/tgp/view/', tgp?.id]"
+                           *ngIf="tgp?.status !== 'OPEN'">
+                            Detail
+                        </a>
+
+                        <ng-template [ngIf]="tgp?.status === 'OPEN'">
+
+                            <a (click)="$event?.preventDefault(); uiState.closeModalIsOpen = true;">
+                                Close
+                            </a>
+
+                            |
+
+                            <a (click)="$event?.preventDefault(); uiState.cancelModalIsOpen = true;">
+                                Cancel
+                            </a>
+
+                            <fema-cms-tgp-modal-cancel [(isOpen)]="uiState.cancelModalIsOpen"
+                                                       [(isOpenSuccess)]="uiState.cancelSuccessModalIsOpen"
+                                                       (cancel)="cancelTgp(tgp?.id)"></fema-cms-tgp-modal-cancel>
+
+                        </ng-template>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{tgp?.processDate | date :'dd-MMM-yyyy'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{tgp?.status}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{tgp?.totalRecord}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{tgp?.totalSuccessRecord}}</clr-dg-cell>
+
+                    <clr-dg-cell>
+
+                        <ng-template [ngIf]="+tgp?.totalFailedRecord > 0">
+
+                            <a (click)="$event?.preventDefault(); uiState.downloadModalIsOpen = true; tgpId = tgp">
+                                {{tgp?.totalFailedRecord}}
+                            </a>
+
+                            <fema-cms-tgp-modal-failed-record [(isOpen)]="uiState.downloadModalIsOpen"
+                                                              (download)="downloadFailedRecord(tgpId)"></fema-cms-tgp-modal-failed-record>
+
+                        </ng-template>
+
+                        <span *ngIf="+tgp?.totalFailedRecord === 0">
+                            {{tgp?.totalFailedRecord}}
+                        </span>
+
+                        <!--<span [class.downloadable]="+tgp?.totalFailedRecord > 0"-->
+                        <!--(click)="$event?.preventDefault(); uiState.downloadModalIsOpen = true;">-->
+                        <!--{{tgp?.totalFailedRecord}}-->
+                        <!--</span>-->
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{tgp?.modifiedBy || '-'}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+                    {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of {{tgpSearchList?.totalCount}} TGPs
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPage]="tgpSearchList?.currentPage"
+                                       [clrDgPageSize]="tgpSearchList?.pageSize"
+                                       [clrDgTotalItems]="tgpSearchList?.totalCount"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <button type="button"
+                    class="btn btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [disabled]="downloadIsDisabled"
+                    [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+            <fema-cms-tgp-modal-close [(isOpen)]="uiState.closeModalIsOpen"
+                                      [(isOpenSuccess)]="uiState.closeSuccessModalIsOpen"
+                                      (close)="closeTgp()"></fema-cms-tgp-modal-close>
+
+            <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()"></fema-cms-modal-search>
+
+
+        </main>
+
+    </div>
+
+</clr-main-container>

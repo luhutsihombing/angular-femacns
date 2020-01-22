@@ -1,0 +1,424 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Edit Channel: {{channelForm?.getRawValue()?.channel}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!channelForm?.get('iconFile')?.validator"
+                                      [isFailed]="!channelForm?.get('iconFile')?.validator"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form [formGroup]="channelForm"
+                  (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+                        <label class="required">Channel</label>
+                        <label
+                            for="channelField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            maxlength="150"
+                            [class.invalid]="invalidField('channel')">
+
+                            <input
+                                type="text"
+                                id="channelField"
+                                placeholder="Channel"
+                                maxlength="150"
+                                size="76"
+                                formControlName="channel"/>
+
+                            <span class="tooltip-content"
+                                  *ngIf="invalidField('channel', 'required')">
+                                Channel must be filled
+                            </span>
+
+                            <span class="tooltip-content"
+                                  *ngIf="invalidField('channel', 'unique')">
+                                Channel must be unique
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <label
+                            for="descriptionField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('description')"
+                            style="width: 50%">
+                                <textarea
+                                    id="descriptionField"
+                                    placeholder="Description"
+                                    rows="3"
+                                    formControlName="description"
+                                    maxlength="250"></textarea>
+
+                        </label>
+                    </div>
+
+                    <br/><br/><br/><br/>
+
+                    <div class="row">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                            <div class="form-group">
+                                <label for="receiverFileField"
+                                       class="required">Icon Channel</label>
+
+                                <label
+                                    for="receiverFileField"
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidField('iconFile')">
+
+                                    <span *ngIf="channelForm?.get('iconChannelPath')?.value"
+                                          class="label label-info">
+                                        <i>Existing icon: {{channelForm?.get('iconChannelPath')?.value?.split('/')[6]}}</i>
+                                    </span>
+
+                                    <br/>
+
+                                    <input type="file"
+                                           id="receiverFileField"
+                                           multiple="multiple"
+                                           size="35"
+                                           accept="image/png, image/jpeg"
+                                           (change)="selectIcon($event)"/>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('iconFile', 'maxFileSize')">
+                                        Maximum size allowed is {{showError('iconFile', 'maxFileSize')['maxFileSize'] /1000}} MB
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('iconFile', 'fileTypes')">
+                                        Format file invalid
+                                    </span>
+
+                                    <span *ngIf="invalidField('iconChannelPath', 'required')"
+                                          class="tooltip-content">
+                                        Icon Channel must be filled
+                                    </span>
+
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <br/>
+                <section class="form-block">
+                    <label>Video</label>
+
+                    <datalist id="videoSuggestions">
+                        <option
+                            *ngFor="let videoSuggestion of videoSuggestions"
+                            [value]="videoSuggestion?.title">
+                            {{videoSuggestion?.title}}
+                        </option>
+                    </datalist>
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>
+                                <clr-checkbox [formControlName]="'selectAllFiftubes'"></clr-checkbox>
+                            </th>
+                            <th>Title</th>
+                            <th>Thumbnail</th>
+                        </tr>
+                        </thead>
+
+                        <tbody formArrayName="fiftubes">
+                        <tr *ngFor="let fiftubeCtrl of fiftubesForm?.controls; let i = index;"
+                            [formGroupName]="i?.toString()">
+
+                            <td>
+                                <clr-checkbox [formControlName]="'selected'"></clr-checkbox>
+                            </td>
+                            <td>
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField(fiftubeCtrl?.get('title'))">
+
+                                    <input type="text"
+                                           id="fiftubeTitleField"
+                                           placeholder="Video title"
+                                           [attr.list]="videoSuggestionsDatalist(fiftubeCtrl)"
+
+                                           formControlName="title"
+                                           (blur)="checkTitle($event, fiftubeCtrl?.get('title'), i)"
+                                           maxlength="250"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(fiftubeCtrl?.get('title'), 'required')">
+                                            Title must be filled
+                                        </span>
+
+                                </label>
+                            </td>
+                            <td>
+                                <img *ngIf="fiftubeCtrl?.get('title')?.value"
+                                     [src]="fiftubeCtrl?.get('title')?.value?.thumbnailUrl | safeUrl"
+                                     [alt]="fiftubeCtrl?.get('title')?.value"
+                                     width="100%"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <br/>
+
+                    <div class="btn-group">
+
+                        <button type="button"
+                                class="btn"
+                                (click)="addVideo($event)">
+                            <clr-icon shape="add"></clr-icon>
+                            Add Video
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn"
+                            (click)="removeVideo($event)"
+                            [disabled]="disableRemoveVideo()">
+                            <clr-icon shape="remove"></clr-icon>
+                            Remove Selected
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Upload Targeted Viewer</label>
+
+                    <div class="form-group">
+                        <label class="required">Targeted Viewer</label>
+                        <label for="viewer"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('viewer')">
+
+                            <span class="select">
+                                <select id="viewer"
+                                        [formControlName]="'viewer'">
+                                    <option *ngFor="let viewer of viewers"
+                                            [value]="viewer?.value">
+                                        {{viewer?.label}}
+                                    </option>
+                                </select>
+                            </span>
+
+                            <span class="tooltip-content tooltip-content--show"
+                                  *ngIf="invalidField('viewer', 'required')">
+                                  Targeted Viewer must be filled
+                            </span>
+
+                        </label>
+                    </div>
+
+                    <ng-template [ngIf]="enableUploadViewer">
+
+                        <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                                <div class="form-group">
+
+                                    <label class="required">Upload File (*.xls)</label>
+
+                                    <label for="participantFile"
+                                           aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField('viewerFile')">
+
+                                        <input type="file"
+                                               id="participantFile"
+                                               multiple="multiple"
+                                               size="50"
+                                               accept="application/vnd.ms-excel"
+                                               (change)="selectFile($event)"/>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField('viewerFile', 'required')">
+                                            File upload must be filled
+                                        </span>
+
+                                        <span
+                                            class="tooltip-content tooltip-content--show"
+                                            *ngIf="invalidField('viewerFile', 'fileTypes')">
+                                            Format file invalid
+                                        </span>
+
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6"
+                                 style="text-align: right;">
+
+                                <button
+                                    class="btn btn-outline"
+                                    (click)="getTargetTemplate($event)"
+                                    [clrLoading]="uiState?.templateIsDownloading">
+                                    <clr-icon shape="download"></clr-icon>
+                                    Download Template
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-primary"
+                                style="width: fit-content;"
+                                (click)="processFile($event)"
+                                [clrLoading]="uiState?.viewerIsProcessing">
+                            Process
+                        </button>
+
+                        <button
+                            *ngIf="viewerSummary?.countError > 0"
+                            type="button"
+                            class="btn btn-icon btn-warning"
+                            style=""
+                            (click)="getFailedRecord($event)"
+                            [clrLoading]="uiState?.failedRecordIsDownloading">
+                            <clr-icon shape="warning-standard" class="is-solid"></clr-icon>
+                            {{viewerSummary?.countError}} failed record(s)
+                        </button>
+
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td width="50%"
+                                    style="text-align: right;">Total Success Record
+                                </td>
+                                <td width="50%"
+                                    style="text-align: left;">{{viewerSummary?.countSuccess || 0}} Row(s)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="50%"
+                                    style="text-align: right;">Total Failed Record
+                                </td>
+                                <td width="50%"
+                                    style="text-align: left;">{{viewerSummary?.countError || 0}} Row(s)
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <br/>
+
+                        <table class="table">
+
+                            <thead>
+
+                            <tr>
+                                <th>Company</th>
+                                <th>People Type</th>
+                                <th>Branch</th>
+                                <th>Organization</th>
+                                <th>Job Group</th>
+                                <th>Job</th>
+                                <th>Username</th>
+                            </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            <tr *ngFor="let item of viewerSummary?.successItems">
+                                <td>{{item?.company || '-'}}</td>
+                                <td>{{item?.peopleType || '-'}}</td>
+                                <td>{{item?.branch || '-'}}</td>
+                                <td>{{item?.organization || '-'}}</td>
+                                <td>{{item?.jobGroup || '-'}}</td>
+                                <td>{{item?.job || '-'}}</td>
+                                <td>{{item?.username || '-'}}</td>
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </ng-template>
+
+                </section>
+
+                <hr/>
+
+                <div class="btn-group btn-primary btn-right">
+                    <button type="submit"
+                            class="btn">
+                        <clr-icon shape="floppy"></clr-icon>
+                        Save
+                    </button>
+                    <button type="button"
+                            class="btn btn-danger"
+                            (click)="openDeleteModal($event)">
+                        <clr-icon shape="trash"></clr-icon>
+                        Delete
+                    </button>
+                    <button type="button"
+                            class="btn"
+                            (click)="openCancelModal($event)">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="uiState.cancelModalIsOpen"
+                [returnLink]="'/channel/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 (save)="save()"
+                                 [isOpenSuccess]="uiState.successModalIsOpen"
+                                 [returnLink]="'/channel/search'"></fema-cms-modal-save>
+
+            <fema-cms-modal-delete
+                [(isOpen)]="uiState.deleteModalIsOpen"
+                (delete)="delete()"
+                [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                [returnLink]="'/channel/search'"></fema-cms-modal-delete>
+
+
+        </main>
+    </div>
+</clr-main-container>

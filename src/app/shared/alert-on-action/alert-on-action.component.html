@@ -1,0 +1,60 @@
+<!-- Loading state; when loading data from server; errorOnInit is undefined, formOptions is undefined -->
+<ng-template [ngIf]="loadingState()">
+
+    <span class="spinner spinner-inline">
+        Loading...
+    </span>
+
+    <span>
+        Loading data...
+    </span>
+
+</ng-template>
+
+<!-- Failed state; when failed loading data from server; errorOnInit is exist, (any) formOptions are undefined -->
+<clr-alert [clrAlertType]="'alert-danger'"
+           [clrAlertClosable]="false"
+           *ngIf="failedState()">
+
+    <div class="alert-items">
+
+        <div class="alert-item static">
+
+            <div class="alert-icon-wrapper">
+                <clr-icon class="alert-icon"
+                          shape="exclamation-circle"></clr-icon>
+            </div>
+
+            <span class="alert-text">{{errorOnInit?.message}}</span>
+
+            <div class="alert-actions">
+                <a class="alert-action"
+                   (click)="retryOnFailure($event)">Retry</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</clr-alert>
+
+<!-- Alert on Save -->
+<clr-alert [clrAlertType]="responseOnAction?.type === 'ErrorResponse' ? 'alert-danger' : 'alert-success'"
+           [clrAlertClosed]="!responseOnAction"
+           (clrAlertClosedChange)="closeResponseOnAction()">
+
+    <div class="alert-item">
+
+        <span class="alert-text"
+              *ngIf="responseOnAction?.type === 'ErrorResponse'">
+            {{responseOnAction?.message || responseOnAction['error']}}
+        </span>
+
+        <span class="alert-text"
+              *ngIf="responseOnAction?.type === 'GenericResponse'">
+            {{responseOnAction?.message}}
+        </span>
+
+    </div>
+
+</clr-alert>

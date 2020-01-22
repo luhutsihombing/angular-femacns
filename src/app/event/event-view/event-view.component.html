@@ -1,0 +1,212 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+
+            <h1>Event :
+                {{event?.eventName}}</h1>
+
+            <form [formGroup]="viewEventForm">
+                <section class="form-block">
+
+                    <div class="form-group">
+                        <label >Event Name</label>
+                        <label>{{event?.eventName}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Event Start Date</label>
+                        <label>{{event?.startDate | date:'dd-MMM-yyyy'}}</label>
+                        <label>{{event?.startTime}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Event End Date</label>
+                        <label>{{event?.endDate | date:'dd-MMM-yyyy'}}</label>
+                        <label>{{event?.endTime}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Event Category</label>
+                        <label>{{event?.category?.split('_').join(' ')}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Event Type</label>
+                        <label>{{event?.type?.split('_').join(' ')}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Is Mandatory Event</label>
+                        <label>{{event?.mandatory ? 'Yes' : 'No'}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Event Place</label>
+                        <label>{{event?.place ? event?.place: '-'}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Form Template</label>
+                        <label>{{feedbackName ? feedbackName : '-'}}</label>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Need Feedback</label>
+                        <label>{{needFeedback ? 'Yes': 'No'}}</label>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Feedback - Material Speaker</label>
+
+                        <table class="table table-compact">
+                            <thead>
+                                <tr>
+                                    <th>Material</th>
+                                    <th>Speaker Type</th>
+                                    <th>Speaker Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let detail of event?.listSpeaker">
+                                    <td>{{detail?.material}}</td>
+                                    <td>{{detail?.speakerType}}</td>
+                                    <td>{{detail?.speakerName}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <button type="buttton" class="btn" disabled="true">
+                            <clr-icon shape="add"></clr-icon>
+                            Add Row
+                        </button>
+                        <button type="buttton" class="btn" disabled="true">
+                            <clr-icon shape="remove"></clr-icon>
+                            Remove Selected
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label >Target Participant</label>
+                        <label>{{event?.targetParticipant}}</label>
+                    </div>
+
+                    <clr-datagrid *ngIf="listMemberIsView">
+                        <clr-dg-column >Company</clr-dg-column>
+                        <clr-dg-column >Employee Type</clr-dg-column>
+                        <clr-dg-column >Branch</clr-dg-column>
+                        <clr-dg-column >Organization</clr-dg-column>
+                        <clr-dg-column >Job Group</clr-dg-column>
+                        <clr-dg-column >Job</clr-dg-column>
+                        <clr-dg-column >Participant</clr-dg-column>
+
+                        <clr-dg-placeholder>No data</clr-dg-placeholder>
+
+                        <clr-dg-row *clrDgItems="let detail of event?.listMember">
+                            <clr-dg-cell>{{detail?.company}}</clr-dg-cell>
+                            <clr-dg-cell>{{detail?.peopleType}}</clr-dg-cell>
+                            <clr-dg-cell>{{detail?.branch}}</clr-dg-cell>
+                            <clr-dg-cell>{{detail?.organization}}</clr-dg-cell>
+                            <clr-dg-cell>{{detail?.jobGroup}}</clr-dg-cell>
+                            <clr-dg-cell>{{detail?.job}}</clr-dg-cell>
+                            <clr-dg-cell>{{detail?.username}}</clr-dg-cell>
+                        </clr-dg-row>
+
+                        <clr-dg-footer>
+                            <ng-template [ngIf]="pagination?.totalItems > 0">
+                                {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                            </ng-template>
+
+                            {{pagination?.totalItems}} targeted participants
+
+                            <clr-dg-pagination #pagination
+                                               [clrDgPageSize]="20"></clr-dg-pagination>
+                        </clr-dg-footer>
+
+                    </clr-datagrid>
+
+                    <div class="form-group">
+                        <label >Event Notification</label>
+                        <clr-checkbox [clrDisabled]="true" [clrChecked]="event?.email">E-mail</clr-checkbox>
+                        <clr-checkbox [clrDisabled]="true" [clrChecked]="event?.pushNotification">Push Notification</clr-checkbox>
+
+                        <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-3">
+                                <clr-checkbox [clrDisabled]="true" [clrChecked]="event?.reminder">Reminder</clr-checkbox>
+                            </div>
+
+                                <div
+                                    class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5"
+                                    *ngIf="event?.reminder"
+                                    formGroupName="listReminder">
+
+                                    <div class="checkbox">
+                                        <input type="checkbox" id="10minutesCheck" formControlName="TENMINUTES_BEFORE"/>
+                                        <label for="10minutesCheck">10 minutes before</label>
+                                    </div>
+
+                                    <div class="checkbox">
+                                        <input type="checkbox" id="1hourCheck" formControlName="ONEHOURS_BEFORE"/>
+                                        <label for="1hourCheck">1 hour before</label>
+                                    </div>
+
+                                    <div class="checkbox">
+                                        <input type="checkbox" id="everyHourCheck" formControlName="EVERYHOUR"/>
+                                        <label for="everyHourCheck">every hour</label>
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-4"
+                                    *ngIf="event?.reminder"
+                                    formGroupName="listReminder">
+
+                                    <label
+                                        aria-haspopup="true"
+                                        role="tooltip"
+                                        class="tooltip tooltip-validation tooltip-md">
+
+                                        <div class="checkbox">
+                                            <input type="checkbox" id="1dayCheck" formControlName="ONEDAY_BEFORE"/>
+                                            <label for="1dayCheck">1 day before</label>
+                                        </div>
+
+                                        <div class="checkbox">
+                                            <input type="checkbox" id="2daysCheck" formControlName="TWODAY_BEFORE"/>
+                                            <label for="2daysCheck">2 day before</label>
+                                        </div>
+
+                                        <div class="checkbox">
+                                            <input type="checkbox" id="everydayCheck" formControlName="EVERYDAY"/>
+                                            <label for="everydayCheck">everyday</label>
+                                        </div>
+
+                                    </label>
+
+                                </div>
+
+                            <!-- </div> -->
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </form>
+
+            <button type="button" class="btn btn-primary btn-right" (click)="back($event)">
+                <clr-icon shape="undo"></clr-icon>
+                Cancel
+            </button>
+
+        </main>
+
+    </div>
+</clr-main-container>

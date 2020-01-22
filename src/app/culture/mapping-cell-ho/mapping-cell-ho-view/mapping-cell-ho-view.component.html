@@ -1,0 +1,118 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Mapping Head Office: {{mappingForm?.get('cellName')?.value}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [isLoading]="!mappingForm?.get('cellId')?.value"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"></fema-cms-alert-on-action>
+
+            <form *ngIf="mappingForm?.get('cellId')?.value"
+                  [formGroup]="mappingForm">
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                            <div class="form-group">
+
+                                <label for="nameField">Cell Name</label>
+
+                                <input type="text"
+                                       id="nameField"
+                                       placeholder="Cell Name"
+                                       formControlName="cellName"
+                                       maxlength="100"/>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                            <div class="form-group">
+
+                                <label for="nameField">Pembina Utama</label>
+
+                                <input
+                                    type="text"
+                                    id="fullnameField"
+                                    placeholder="Pembina Utama"
+                                    formControlName="pembinaUtama"
+                                    maxlength="100"
+                                    size="45"/>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="form-block">
+
+                    <table class="table table-compact">
+
+                        <thead>
+
+                        <tr>
+                            <th align="left">Organization Name</th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody formArrayName="organizations">
+
+                        <tr *ngFor="let detail of organizationsForm?.controls; let i = index;"
+                            [formGroupName]="i">
+
+                            <td>
+
+                                <input type="text"
+                                       id="organizationField"
+                                       placeholder="Organization"
+                                       formControlName="orgCode"
+                                       maxlength="100"
+                                       size="90"/>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <br/>
+
+                </section>
+
+                <button type="button"
+                        class="btn btn-icon btn-primary btn-right"
+                        (click)="$event.preventDefault(); location?.back()">
+
+                    <clr-icon shape="undo"></clr-icon>
+
+                    Cancel
+
+                </button>
+
+            </form>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

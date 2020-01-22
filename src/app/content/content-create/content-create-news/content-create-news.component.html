@@ -1,0 +1,57 @@
+<section class="form-block"
+         [formGroup]="newsForm">
+    <label>
+        <clr-checkbox formControlName="selected"
+                      [clrDisabled]="newsForm?.get('selected')?.disabled">
+            News/Info Setup
+        </clr-checkbox>
+    </label>
+
+    <div class="form-group">
+        <label class="required">News/Info Category</label>
+        <label for="newsCategorySelect"
+               aria-haspopup="true"
+               role="tooltip"
+               class="tooltip tooltip-validation tooltip-md"
+               [class.invalid]="invalidField('idNewsCategory')">
+            <div class="select">
+                <select id="newsCategorySelect"
+                        formControlName="idNewsCategory">
+                    <option *ngFor="let cat of newsCategories"
+                            [value]="cat?.id">{{cat?.meaning}}
+                    </option>
+                </select>
+            </div>
+            <span class="tooltip-content tooltip-content--show"
+                  style="margin-left:1.5cm"
+                  *ngIf="newsForm?.get('idNewsCategory')?.errors?.required && saveIsPressed">
+                News/Info Category must be selected
+            </span>
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label class="required">Content Message</label>
+        <div style="max-width: 1205px; width: 90%;">
+            <label for="contentMessage"
+                   style="width: 100%; height: 50vh;"
+                   aria-haspopup="true"
+                   role="tooltip"
+                   class="tooltip tooltip-validation tooltip-md"
+                   [class.invalid]="invalidField('content')">
+
+                <fema-cms-quill [enabled]="quillState?.enabled"
+                                [imgFolder]="resourcePath?.folder"
+                                (content)="getContent($event)">
+                </fema-cms-quill>
+
+                <span class="tooltip-content tooltip-content--show"
+                      style="margin-left:8cm"
+                      *ngIf="newsForm?.get('content')?.errors?.required && saveIsPressed">
+                    Content Message must be filled
+                </span>
+            </label>
+        </div>
+    </div>
+
+</section>

@@ -1,0 +1,42 @@
+<nav class="sidenav">
+
+    <section class="sidenav-content">
+
+        <ng-template
+            ngFor
+            let-nav
+            [ngForOf]="navList?.dataList">
+
+            <ng-template [ngIf]="isSingleNav(nav)">
+                <a class="nav-link" [routerLink]="[nav?.path]" routerLinkActive="active">{{nav?.functionName |
+                    titlecase}}</a>
+            </ng-template>
+
+            <ng-template [ngIf]="isParentNav(nav)">
+
+                <section class="nav-group collapsible">
+
+                    <input [id]="nav?.name + 'Nav'" type="checkbox"/>
+
+                    <label [for]="nav?.name + 'Nav'">{{nav?.name | titlecase}}</label>
+
+                    <ul class="nav-list">
+                        <li>
+                            <a
+                                class="nav-link"
+                                *ngFor="let child of nav?.children"
+                                [routerLink]="[child?.path]"
+                                routerLinkActive="active">{{child?.functionName | titlecase}}</a>
+                        </li>
+
+                    </ul>
+
+                </section>
+
+            </ng-template>
+
+        </ng-template>
+
+    </section>
+
+</nav>

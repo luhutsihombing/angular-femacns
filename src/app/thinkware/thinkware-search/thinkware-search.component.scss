@@ -1,0 +1,42 @@
+::ng-deep .mat-autocomplete .mat-option{
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.mat-autocomplete mat-option.mat-option {
+    height: unset;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  
+.mat-option-text.mat-option-text {
+    white-space: normal;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.col-xl-5 {
+    max-width: 41%;
+}
+
+.col-xl-7 {
+    max-width: 59%;
+}
+
+.btn-right {
+    justify-content: flex-end;
+    float: left;
+}
+
+.fema__link {
+    color: #007cbb;
+}
+
+.fema__link--downloadable {
+    text-decoration: underline;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+}

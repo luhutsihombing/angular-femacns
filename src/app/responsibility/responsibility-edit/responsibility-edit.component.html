@@ -1,0 +1,393 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Edit Responsibility: {{respForm?.get('name')?.value}}</h1>
+
+            <fema-cms-alert-on-action
+                [errorOnInit]="errorOnInit"
+                [responseOnAction]="responseOnAction"
+                [isLoading]="!initialSetupIsReady"
+                [isFailed]="errorOnInit"
+                (retry)="initialSetup()"
+                (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form [formGroup]="respForm"
+                  (ngSubmit)="checkFormValidity($event)"
+                  *ngIf="initialSetupIsReady">
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label for="activetRespToggle">Active</label>
+
+                                <div class="toggle-switch">
+
+                                    <input type="checkbox"
+                                           id="activetRespToggle"
+                                           formControlName="active"/>
+
+                                    <label for="activetRespToggle">
+                                        {{respForm?.get('active')?.value ? 'Yes' :'No'}}
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="accessTypeField" class="required">Access Type</label>
+
+                                <div class="select">
+
+                                    <select id="accessTypeField"
+                                            [formControlName]="'accessType'">
+
+                                        <option *ngFor="let accessType of accessTypes"
+                                                [ngValue]="accessType">
+                                            {{accessType?.detailCode}}
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="name"
+                                       class="required">
+                                    Responsibility
+                                </label>
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('name')">
+
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        placeholder="Responsibility"
+                                        formControlName="name"
+                                        maxlength="100"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('name', 'required')">
+                                        Responsibility must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('name', 'unique')">
+                                        Responsibility must be unique
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('name', 'maxlength')">
+                                        {{showError('name', 'maxlength')['actualLength']}}
+                                        of max.
+                                        {{showError('name', 'maxlength')['requiredLength']}}
+                                        characters
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                            <div>
+
+                                <section class="form-block">
+
+                                    <div class="form-group"
+                                         style="margin-bottom: 80px;">
+
+                                        <label>Description</label>
+
+                                        <label
+                                            for="descriptionField"
+                                            aria-haspopup="true"
+                                            role="tooltip"
+                                            class="tooltip tooltip-validation tooltip-md"
+                                            [class.invalid]="invalidField('description')">
+
+                                            <textarea id="descriptionField"
+                                                      placeholder="Description"
+                                                      rows="3"
+                                                      formControlName="description"
+                                                      maxlength="500"></textarea>
+
+                                            <span class="tooltip-content"
+                                                  *ngIf="invalidField('description', 'maxlength')">
+                                                {{showError('description', 'maxlength')['actualLength']}}
+                                                of max.
+                                                {{showError('description', 'maxlength')['requiredLength']}}
+                                                characters
+                                            </span>
+
+                                        </label>
+
+                                    </div>
+
+                                </section>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-4">
+
+                            <section class="form-block">
+
+                                <label>Default Responsibility</label>
+
+                                <div class="form-group">
+
+                                    <label>Default</label>
+
+                                    <div class="toggle-switch">
+
+                                        <input type="checkbox" id="defaultRespToggle" formControlName="defaultResp"/>
+
+                                        <label for="defaultRespToggle">
+                                            {{respForm?.get('defaultResp')?.value ? 'Yes' : 'No'}}
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+
+                                    <label [class.required]="respForm?.get('peopleTypeLookupIds')?.validator">
+                                        People Type
+                                    </label>
+
+                                    <label aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField('peopleTypeLookupIds')">
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField('peopleTypeLookupIds', 'required')">
+                                            At least one people type must be selected
+                                        </span>
+
+                                    </label>
+
+                                    <div>
+
+                                        <div class="btn-group">
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    (click)="selectAllPeopleTypes($event)"
+                                                    [disabled]="respForm?.get('peopleTypeLookupIds')?.disabled">
+                                                Select All
+                                            </button>
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    (click)="deselectAllPeopleTypes($event)"
+                                                    [disabled]="respForm?.get('peopleTypeLookupIds')?.disabled">
+                                                Deselect All
+                                            </button>
+
+                                        </div>
+
+                                        <clr-checkbox *ngFor="let peopleType of peopleTypes"
+                                                      [clrChecked]="peopleType?.active"
+                                                      (clrCheckedChange)="selectPeopleTypeLookupIds(peopleType, $event)"
+                                                      [clrDisabled]="respForm?.get('peopleTypeLookupIds')?.disabled">
+                                            {{peopleType?.meaning}}
+                                        </clr-checkbox>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+
+                                    <label [class.required]="respForm?.get('manager')?.validator">
+                                        Set as Manager
+                                    </label>
+
+                                    <div class="toggle-switch">
+
+                                        <input type="checkbox"
+                                               id="managerToggle"
+                                               formControlName="manager"/>
+
+                                        <label for="managerToggle">
+                                            {{respForm?.getRawValue()?.manager ? 'Yes' : 'No'}}
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </section>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-8">
+
+                            <div class="form-group">
+
+                                <label>Select Function</label>
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('functionIds')">
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          *ngIf="invalidField('functionIds', 'required')">
+                                        At least one function must be selected
+                                    </span>
+
+                                </label>
+
+                                <div>
+
+                                    <div class="btn-group">
+
+                                        <button type="button"
+                                                class="btn"
+                                                (click)="selectAllFunctions($event)">
+                                            Select All
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn"
+                                                (click)="deselectAllFunctions($event)">
+                                            Deselect All
+                                        </button>
+
+                                    </div>
+
+                                    <clr-tree-node *ngFor="let func of selectedFunctions"
+                                                   [clrSelected]="func?.functionEnabled"
+                                                   (clrSelectedChange)="selectFunctionIds(func, $event)">
+
+                                        {{func['name'] || func['functionName']}}
+
+                                        <ng-template [clrIfExpanded]="true">
+
+                                            <clr-tree-node *ngFor="let childFunc of func['children']"
+                                                           [clrSelected]="childFunc?.functionEnabled"
+                                                           (clrSelectedChange)="selectFunctionIds(childFunc, $event)">
+                                                {{childFunc?.functionName}}
+                                            </clr-tree-node>
+
+                                        </ng-template>
+
+                                    </clr-tree-node>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon btn-danger"
+                            (click)="openDeleteModal($event)"
+                            [clrLoading]="uiState?.isDeleting">
+
+                        <clr-icon shape="trash"></clr-icon>
+
+                        Delete
+
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            (click)="openCancelModal($event)">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel [(isOpen)]="uiState.cancelModalIsOpen"
+                                   [returnLink]="'/responsibility/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-delete [(isOpen)]="uiState.deleteModalIsOpen"
+                                   [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                                   (delete)="delete()"
+                                   [returnLink]="'/responsibility/search'"></fema-cms-modal-delete>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 (save)="save()"
+                                 [returnLink]="'/responsibility/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>
+
+<!--<clr-modal [(clrModalOpen)]="deleteIsFailed&&isDeletePressed">-->
+
+<!--<h3 class="modal-title">Responsibility has been mapping to user.</h3>-->
+
+<!--<div class="modal-body">-->
+<!--<p>Please inactive user first if you want to delete this responsibility.</p>-->
+<!--</div>-->
+
+<!--<div class="modal-footer">-->
+
+<!--<button-->
+<!--type="button"-->
+<!--class="btn btn-primary"-->
+<!--data-dismiss="modal"-->
+<!--[routerLink]="'/responsibility/search'">-->
+<!--OK-->
+<!--</button>-->
+
+<!--</div>-->
+
+<!--</clr-modal>-->

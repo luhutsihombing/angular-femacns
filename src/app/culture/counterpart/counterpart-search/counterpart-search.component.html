@@ -1,0 +1,214 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Search Counterpart</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="cpForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <datalist id="employeeSuggestion">
+
+                        <option *ngFor="let employee of suggestion?.employees"
+                                [value]="employee">
+                            {{employee}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+
+                        <label for="counterpartName">Counterpart Name</label>
+
+                        <input type="text"
+                               id="counterpartName"
+                               placeholder="Counterpart Name"
+                               formControlName="counterpartName"
+                               size="80%"
+                               (blur)="checkEmployeeSuggestion($event, 'counterpartName')"
+                               [attr.list]="counterpartNameDatalist"
+                               maxlength="200"/>
+
+                    </div>
+
+                    <datalist id="areaSuggestion">
+
+                        <option *ngFor="let area of suggestion?.areas"
+                                [value]="area">
+                            {{area}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+
+                        <label for="areaName">Area</label>
+
+                        <input
+                            type="text"
+                            id="areaName"
+                            placeholder="Area"
+                            formControlName="areaName"
+                            size="80%"
+                            (blur)="checkAreaSuggestion($event, 'areaName')"
+                            [attr.list]="areaNameDatalist"
+                            maxlength="50"/>
+
+                    </div>
+
+                    <datalist id="cellSuggestion">
+
+                        <option *ngFor="let cell of suggestion?.cells"
+                                [value]="cell">
+                            {{cell}}
+                        </option>
+
+                    </datalist>
+
+                    <div class="form-group">
+
+                        <label for="cellName">Cell</label>
+
+                        <input
+                            type="text"
+                            id="cellName"
+                            placeholder="Cell"
+                            formControlName="cellName"
+                            size="80%"
+                            (blur)="checkCellSuggestion($event, 'cellName')"
+                            [attr.list]="cellNameDatalist"
+                            maxlength="50"/>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSearching">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-icon"
+                        routerLink="/culture/counterpart/create"
+                        routerLinkActive="active">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'counterpartNumber'">Counterpart Name</clr-dg-column>
+
+                <clr-dg-column>Area</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedDate'">Last Updated Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let cp of cpSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/culture/counterpart/', cp?.id]">View</a>
+
+                        |
+
+                        <a [routerLink]="['/culture/counterpart/edit/', cp?.id]">Edit</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{cp?.counterpartNumber}}~{{cp?.counterpartName}}
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>
+
+                        <a class="text-link"
+
+                           (click)="openViewAreaModal($event, cp?.id)">View</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{cp?.lastUpdatedDate | date:'dd-MMM-yyyy HH:mm:ss'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{cp?.lastUpdatedBy ? cp?.lastUpdatedBy:'-'}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+
+                    <ng-template [ngIf]="pagination?.totalItems > 0">
+                        {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                    </ng-template>
+
+                    {{pagination?.totalItems}} counterparts
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPage]="cpSearchList?.currentPage"
+                                       [clrDgPageSize]="cpSearchList?.pageSize"
+                                       [clrDgTotalItems]="cpSearchList?.totalCount"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <fema-cms-counterpart-modal-view-area
+                [(isOpen)]="uiState.viewAreaModalIsOpen"
+                [counterpartId]="cpId"></fema-cms-counterpart-modal-view-area>
+
+            <fema-cms-modal-search
+                [(isOpen)]="uiState.searchModalIsOpen"
+                (search)="searchByInput()"></fema-cms-modal-search>
+
+            <button type="button"
+                    class="btn tn-icon btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [disabled]="downloadIsDisabled"
+                    [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

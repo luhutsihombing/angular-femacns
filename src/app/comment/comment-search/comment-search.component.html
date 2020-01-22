@@ -1,0 +1,223 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Search Comment</h1>
+
+            <fema-cms-alert-on-action [responseOnAction]="responseOnAction"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form [formGroup]="commentForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label for="module">Module</label>
+
+                        <div class="select">
+
+                            <select id="module"
+                                    [formControlName]="'module'">
+
+                                <option *ngFor="let module of moduleTypes"
+                                        [value]="module?.value">
+                                    {{module?.name}}
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="titleField">Title</label>
+
+                        <input type="text"
+                               id="titleField"
+                               formControlName="title"
+                               size="30">
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Period From</label>
+
+                                <label
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidField('periodFrom')">
+
+                                    <input
+                                        type="text"
+                                        (click)="uiState.periodFromIsOpen = true"
+                                        [matDatepicker]="domUploadDateFrom"
+                                        [max]="commentForm?.get('periodTo')?.value"
+                                        onkeydown="return false"
+                                        placeholder="DD-MMM-YYYY"
+                                        formControlName="periodFrom"
+                                        size="15"/>
+
+                                    <clr-icon
+                                        *ngIf="commentForm?.get('periodFrom')?.value"
+                                        shape="times"
+                                        style="height: auto"
+                                        (click)="resetCalendar('periodFrom')"></clr-icon>
+
+                                    <mat-datepicker
+                                        #domUploadDateFrom
+                                        [opened]="uiState?.periodFromIsOpen"
+                                        (closed)="uiState.periodFromIsOpen = false"
+                                        disabled="false"></mat-datepicker>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        style="margin-left:1.5cm"
+                                        *ngIf="invalidField('periodFrom', 'required')">
+                                        Period From must be filled
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Period To</label>
+
+                                <label
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    for="periodTo"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidField('periodTo')">
+
+                                    <input
+                                        id="periodTo"
+                                        type="text"
+                                        (click)="uiState.periodeToIsOpen = true"
+                                        [matDatepicker]="domUploadDateTo"
+                                        [min]="commentForm?.get('periodFrom')?.value"
+                                        onkeydown="return false"
+                                        placeholder="DD-MMM-YYYY"
+                                        formControlName="periodTo"
+                                        size="15"/>
+
+                                    <clr-icon
+                                        *ngIf="commentForm?.get('periodTo')?.value"
+                                        shape="times"
+                                        style="height: auto"
+                                        (click)="resetCalendar('periodTo')"></clr-icon>
+
+                                    <mat-datepicker
+                                        #domUploadDateTo
+                                        [opened]="uiState?.periodeToIsOpen"
+                                        (closed)="uiState.periodeToIsOpen = false"
+                                        disabled="false"></mat-datepicker>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        style="margin-left:1.5cm"
+                                        *ngIf="invalidField('periodTo', 'required')">
+                                        Period To must be filled
+
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <button type="submit"
+                        class="btn btn-icon btn-primary">
+
+                    <clr-icon shape="search"></clr-icon>
+
+                    Search
+
+                </button>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column [clrDgSortBy]="'title'">
+
+                    <div style="text-align:center">Title</div>
+
+                </clr-dg-column>
+
+                <clr-dg-column *ngIf="commentForm?.get('module')?.value === 'FIFTUBE'">Video</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let listComment of commentSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a
+                            [routerLink]="['/comment', commentForm?.get('module')?.value, listComment?.id]"
+                            style="cursor: pointer;">
+                            {{listComment?.title}}
+                        </a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell *ngIf="commentForm?.getRawValue()?.module === 'FIFTUBE'">
+
+                        <img [src]="listComment?.thumbnail" style="max-height: 360px;">
+
+                    </clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+                    {{pagination?.firstItem + 1}}
+                    -
+                    {{pagination?.lastItem + 1}}
+                    of
+                    {{commentSearchList?.totalCount}} comments
+
+                    <clr-dg-pagination
+                        #pagination
+                        [clrDgPage]="commentSearchList?.currentPage"
+                        [clrDgPageSize]="commentSearchList?.pageSize"
+                        [clrDgTotalItems]="commentSearchList?.totalCount">
+                    </clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+
+        </main>
+
+    </div>
+
+</clr-main-container>

@@ -1,0 +1,426 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>ThinkWare</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="thinkwareForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label for="thinkwareCodeField">Kode Project</label>
+        
+                        <input type="text"
+                            id="thinkwareCodeField"
+                            placeholder="Kode Project"
+                            formControlName="codeProject"
+                            autocomplete="off"
+                            size="58"
+                            maxlength="150"
+                            [matAutocomplete]="autoCode"/> 
+
+                            <mat-autocomplete #autoCode="matAutocomplete">
+
+                                <mat-option *ngFor="let codeSuggestion of codeSuggestions" [value]="codeSuggestion?.codeProject"  style="font-size: 9pt">
+                                    {{codeSuggestion?.codeProject}}
+                                </mat-option>
+    
+                            </mat-autocomplete>
+        
+                    </div>
+
+                   <div class="form-group">
+
+                        <label for="thinkwareJudulField">Judul</label>
+    
+                        <input type="text"
+                            id="thinkwareJudulField"
+                            placeholder="Judul"
+                            size="58"
+                            autocomplete="off"
+                            formControlName="title"
+                            maxlength="500"
+                            [matAutocomplete]="autoJudul"/>
+
+                            <mat-autocomplete #autoJudul="matAutocomplete">
+
+                                <mat-option *ngFor="let titleSuggestion of titleSuggestions" [value]="titleSuggestion?.title"  style="font-size: 9pt">
+                                    {{titleSuggestion?.title}}
+                                </mat-option>
+    
+                            </mat-autocomplete> 
+    
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="thinkwareCategorySelect">Kategori Project</label>
+                
+                        <span class="select">
+
+                            <select
+                                name="first"
+                                id="thinkwareCategorySelect"
+                                formControlName="category">
+
+                                <option [value]="categoryItem.value" 
+                                    *ngFor="let categoryItem of categoryList">
+
+                                    {{categoryItem.label}} - {{categoryItem.value}}
+
+                                </option>
+                                    
+                            </select>
+    
+                        </span>
+                
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="thinkwareBranchField">Cabang</label>
+        
+                        <input type="text"
+                            id="thinkwareBranchField"
+                            placeholder="Cabang"
+                            formControlName="branch"
+                            size="58"
+                            maxlength="30"
+                            autocomplete="off"
+                            [matAutocomplete]="autoBranch"/> 
+
+                            <mat-autocomplete #autoBranch="matAutocomplete">
+
+                                <mat-option *ngFor="let branchSuggestion of branchSuggestions" [value]="branchSuggestion?.glCode + ' - ' + branchSuggestion?.branchName"  style="font-size: 9pt">
+                                    {{branchSuggestion?.glCode}} - {{branchSuggestion?.branchName}}
+                                </mat-option>
+    
+                            </mat-autocomplete> 
+        
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="thinkwareNameField">Employee</label>
+        
+                        <input type="text"
+                            id="thinkwareNameField"
+                            placeholder="Nama Member"
+                            formControlName="memberName"
+                            autocomplete="off"
+                            size="58"
+                            [matAutocomplete]="auto"
+                            maxlength="30"/> 
+
+                        <mat-autocomplete #auto="matAutocomplete">
+
+                            <mat-option *ngFor="let namaSuggestion of namaSuggestions" [value]="namaSuggestion.username + ' - ' + namaSuggestion.fullName"  style="font-size: 9pt">
+                                {{namaSuggestion.username}} - {{namaSuggestion.fullName}}
+                            </mat-option>
+
+                        </mat-autocomplete>    
+        
+                    </div>
+                    
+                    <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+    
+                                <div class="form-group">
+    
+                                    <label>Periode Proposal</label>
+    
+                                    <input type="text"
+                                           (click)="uiState.startDateProposalIsOpen = true"
+                                           [matDatepicker]="domStartDateProposal"
+                                           [max]="thinkwareForm?.get('endDateProposal')?.value || todayDate"
+                                           onkeydown="return false"
+                                           placeholder="DD-MMM-YYYY"
+                                           formControlName="startDateProposal"/>
+    
+                                    <clr-icon *ngIf="thinkwareForm?.get('startDateProposal')?.value"
+                                              shape="times"
+                                              style="height: auto"
+                                              (click)="resetCalendar($event, 'startDateProposal')"></clr-icon>
+    
+                                    <mat-datepicker #domStartDateProposal
+                                                    [opened]="uiState?.startDateProposalIsOpen"
+                                                    (closed)="uiState.startDateProposalIsOpen = false"
+                                                    disabled="false"></mat-datepicker>
+    
+                                </div>
+    
+                            </div>
+    
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+    
+                                <div class="form-group">
+    
+                                    <label>s.d.</label>
+    
+                                    <input type="text"
+                                           (click)="uiState.endDateProposalIsOpen = true"
+                                           [matDatepicker]="domEndDateProposal"
+                                           [min]="thinkwareForm?.get('startDateProposal')?.value"
+                                           [max]="todayDate"
+                                           onkeydown="return false"
+                                           placeholder="DD-MMM-YYYY"
+                                           formControlName="endDateProposal"/>
+    
+                                    <clr-icon *ngIf="thinkwareForm?.get('endDateProposal')?.value"
+                                              shape="times"
+                                              style="height: auto"
+                                              (click)="resetCalendar($event, 'endDateProposal')"></clr-icon>
+    
+                                    <mat-datepicker #domEndDateProposal
+                                                    [opened]="uiState?.endDateProposalIsOpen"
+                                                    (closed)="uiState.endDateProposalIsOpen = false"
+                                                    disabled="false">
+                                    </mat-datepicker>
+    
+                                </div>
+    
+                            </div>
+    
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+    
+                                <div class="form-group">
+    
+                                    <label>Periode Risalah</label>
+    
+                                    <input type="text"
+                                           (click)="uiState.startDateRisalahIsOpen = true"
+                                           [matDatepicker]="domStartDateRisalah"
+                                           [max]="thinkwareForm?.get('endDateRisalah')?.value || todayDate"
+                                           onkeydown="return false"
+                                           placeholder="DD-MMM-YYYY"
+                                           formControlName="startDateRisalah"/>
+    
+                                    <clr-icon *ngIf="thinkwareForm?.get('startDateRisalah')?.value"
+                                              shape="times"
+                                              style="height: auto"
+                                              (click)="resetCalendar($event, 'startDateRisalah')"></clr-icon>
+    
+                                    <mat-datepicker #domStartDateRisalah
+                                                    [opened]="uiState?.startDateRisalahIsOpen"
+                                                    (closed)="uiState.startDateRisalahIsOpen = false"
+                                                    disabled="false"></mat-datepicker>
+    
+                                </div>
+    
+                            </div>
+    
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+    
+                                <div class="form-group">
+    
+                                    <label>s.d.</label>
+    
+                                    <input type="text"
+                                           (click)="uiState.endDateRisalahIsOpen = true"
+                                           [matDatepicker]="domEndDateRisalah"
+                                           [min]="thinkwareForm?.get('startDateRisalah')?.value"
+                                           [max]="todayDate"
+                                           onkeydown="return false"
+                                           placeholder="DD-MMM-YYYY"
+                                           formControlName="endDateRisalah"/>
+    
+                                    <clr-icon *ngIf="thinkwareForm?.get('endDateRisalah')?.value"
+                                              shape="times"
+                                              style="height: auto"
+                                              (click)="resetCalendar($event, 'endDateRisalah')"></clr-icon>
+    
+                                    <mat-datepicker #domEndDateRisalah
+                                                    [opened]="uiState?.endDateRisalahIsOpen"
+                                                    (closed)="uiState.endDateRisalahIsOpen = false"
+                                                    disabled="false">
+                                    </mat-datepicker>
+    
+                                </div>
+    
+                            </div>
+    
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="thinkwareStatusSelect">Status</label>
+                
+                            <span class="select">
+                                <select
+                                    id="thinkwareStatusSelect"
+                                    [formControlName]="'status'"
+                                    > 
+                                    <option value=""
+                                            selected="selected">- - Please Select - -
+                                    </option>
+                                    <option value="PROPOSAL_SUBMITTED">Proposal Submitted</option>
+                                    <option value="RISALAH_SUBMITTED">Risalah Submitted</option>
+                                </select>
+                            </span>
+                
+                        </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSearching">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            routerLink="/thinkware/create">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column style="width: 200px;">Action</clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'title'"
+                                style="width: 200px;">
+                    Judul
+                </clr-dg-column>
+          
+                <clr-dg-column [clrDgField]="'category'"
+                                style="width: 150px;">
+                    Kategori Project
+                </clr-dg-column>
+          
+                <clr-dg-column [clrDgField]="'branch'"
+                                style="width: 200px;">
+                    Cabang
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'department1'"
+                                style="width: 200px;">
+                    Organization Level 1
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'department2'"
+                                style="width: 200px;">
+                    Organization Level 2
+                </clr-dg-column>
+          
+                <clr-dg-column [clrDgField]="'modified_date'"
+                                style="width: 150px;">
+                    Tanggal Submisi Proposal
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'modified_date_risalah'"
+                                style="width: 150px;">
+                    Tanggal Submisi Risalah
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'status'"
+                                style="width: 150px;">
+                    Status
+                </clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let thinkware of thinkwareSearchList?.dataList; let i=index">
+                    <!-- bukan PROPOSAL DAN RISALAH -->
+
+                    <clr-dg-cell>
+                        
+                        <a [routerLink]="['/thinkware', thinkware?.id]">View </a>
+
+                        <a *ngIf="isProposal[i] == 'true'" [routerLink]="['/thinkware/edit', thinkware?.id]">| Proposal</a>
+
+                        <a *ngIf="isRisalah[i] == 'true'" [routerLink]="['/thinkware/edit', thinkware?.id]">| Risalah</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell style="word-break: break-word">{{thinkware?.title}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{thinkware?.category}}</clr-dg-cell>
+                    
+                    <clr-dg-cell>{{thinkware?.glCode}} - {{thinkware?.branchName}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{thinkware?.department1}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{thinkware?.department2}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{thinkware?.createdDateProposal}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{thinkware?.createdDateRisalah}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{thinkware?.status.split('_').join(' ')}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+
+                    <ng-template [ngIf]="+thinkwareSearchList?.totalCount > 0">
+                        {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                    </ng-template>
+
+                    {{thinkwareSearchList?.totalCount || 0}} thinkwares
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgTotalItems]="thinkwareSearchList?.totalCount"
+                                       [clrDgPageSize]="thinkwareSearchList?.pageSize"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid> 
+
+            <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()"
+                                   [bahasa]="'indonesia'">
+            </fema-cms-modal-search>
+
+            <button
+                class="btn btn-icon btn-primary btn-right"
+                (click)="downloadReport($event)"
+                [disabled]="downloadIsDisabled"
+                [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>   
+
+        </main>
+
+    </div>
+
+</clr-main-container>

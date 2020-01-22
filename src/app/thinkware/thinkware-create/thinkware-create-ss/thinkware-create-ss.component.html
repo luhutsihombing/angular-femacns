@@ -1,0 +1,120 @@
+<div [formGroup]="suggestSystem">
+<div class="form-group">
+
+  <label for="thinkwareMasalahSS" class="required">Problem Statement</label>
+
+  <label for="thinkwareMasalahSS"
+    aria-haspopup="true"
+    role="tooltip"
+    class="tooltip tooltip-validation tooltip-md"
+    [class.invalid]="invalidField('problem')"
+    style="height:auto ;width: 100%">
+
+    <textarea type="text" id="thinkwareMasalahSS" 
+      placeholder="Masalah" 
+      rows="3" 
+      maxlength="5000"
+      (focus)="onFocus('problem')"
+      (blur)="onBlur('problem')"
+      formControlName="problem"></textarea>
+
+      <span 
+      id="problem"
+      class="elementToFadeInAndOut"
+      style="display: none;"
+      >
+      <div id="ToolProblem"> 
+      </div>
+      </span>
+
+    <span class="tooltip-content tooltip-content--show"
+      style="margin-left:17%; top: 3px;bottom: auto"
+      *ngIf="invalidField('problem', 'required')">
+      Problem Statement harus diisi
+    </span>
+        
+  </label>
+
+</div>
+
+<div class="form-group">
+
+  <label for="thinkwarePenyebabSS" class="required">Cause Problem</label>
+
+  <label for="thinkwarePenyebabSS"
+    aria-haspopup="true"
+    role="tooltip"
+    class="tooltip tooltip-validation tooltip-md"
+    [class.invalid]="invalidField('cause')"
+    style="height:auto ;width: 100%">
+
+    <textarea type="text" 
+      id="thinkwarePenyebabSS" 
+      placeholder="Penyebab" 
+      rows="3" 
+      maxlength="5000"
+      (focus)="onFocus('cause')"
+      (blur)="onBlur('cause')"
+      formControlName="cause"></textarea>
+
+      <span 
+      id="cause"
+      class="elementToFadeInAndOut"
+      style="display: none;"
+      >
+      <div id="ToolCause">
+      </div>
+      </span>
+
+
+    <span class="tooltip-content tooltip-content--show"
+      style="margin-left:17%; top: 3px;bottom: auto"
+      *ngIf="invalidField('cause', 'required')">
+      Cause Problem harus diisi
+    </span>
+        
+  </label>
+
+</div>
+
+<div class="form-group">
+
+  <label for="thinkwareSolusiSS" class="required">Solution</label>
+
+  <label for="thinkwareSolusiSS"
+    aria-haspopup="true"
+    role="tooltip"
+    class="tooltip tooltip-validation tooltip-md"
+    [class.invalid]="invalidField('solution')"
+    style="height:auto ;width: 100%">
+
+    <textarea type="text" 
+      id="thinkwareSolusiSS" 
+      placeholder="Solusi" 
+      rows="3" 
+      maxlength="5000"
+      (focus)="onFocus('solution')"
+      (blur)="onBlur('solution')"
+      formControlName="solution"></textarea>
+
+      <span 
+      id="solution"
+      class="elementToFadeInAndOut"
+      style="display: none;"
+      >
+      <div id="ToolSolution">
+      </div>
+      </span>
+
+
+    <span class="tooltip-content tooltip-content--show"
+      style="margin-left:17%; top: 3px;bottom: auto"
+      *ngIf="invalidField('solution', 'required')">
+      Solutions harus diisi
+    </span>
+    
+  </label>
+
+</div>
+
+</div>

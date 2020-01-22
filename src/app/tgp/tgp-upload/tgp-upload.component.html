@@ -1,0 +1,396 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Upload New T.E.A.M. Grand Prize</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (close)="responseOnAction = $event; uiState.processIsPressed = false;"></fema-cms-alert-on-action>
+
+            <clr-alert [clrAlertType]="'alert-warning'"
+                       *ngIf="uiState.alertCloseWarning">
+
+                <div clr-alert-item
+                     class="alert-item">
+
+                    <span class="alert-text">
+                        You have to process upload before close
+                    </span>
+
+                </div>
+
+            </clr-alert>
+
+            
+                <br>
+
+                <button
+                    class="btn btn-outline"
+                    (click)="getTemplate($event)"
+                    [clrLoading]="uiState?.templateIsDownloading">
+                    <clr-icon shape="download"></clr-icon>
+                    Download Template
+                </button>
+
+                <br>
+
+                <hr/>
+
+                <!-- <clr-alert
+                    *ngIf = "!uiState.selectedFileIsValid"
+                    [clrAlertType]="'alert-warning'"
+                    [(clrAlertClosed)]="uiState.selectedFileIsValid">
+
+                    <div clr-alert-item
+                         class="alert-item">
+
+                        <span class="alert-text">
+                            File format is invalid
+                        </span>
+
+                    </div>
+
+                </clr-alert> -->
+
+                <form [formGroup]="tgpForm"
+                      (ngSubmit)="checkFormValidity($event)">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Target National</label>
+
+                                <label for="targetNational"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('targetNational')">
+
+                                    <input
+                                        type="text"
+                                        id="targetNational"
+                                        placeholder="Target National"
+                                        formControlName="targetNational"/>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('targetNational', 'required')">
+                                           Target National must be filled
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('targetNational', 'pattern')&&
+                                        !invalidField('targetNational', 'min')  && !invalidField('targetNational', 'max')">
+                                            Only numbers are accepted
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('targetNational', 'min')">
+                                            Min. value is {{showError('targetNational', 'min')?.min | number}}
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('targetNational', 'max')">
+                                            Max. value is {{showError('targetNational', 'max')?.max | number}}
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label class="required">Achievement National</label>
+
+                                <label for="achievementNational"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('achievementNational')">
+
+                                    <input
+                                        type="text"
+                                        id="achievementNational"
+                                        placeholder="Achievement National"
+                                        formControlName="achievementNational"/>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('achievementNational', 'required')">
+                                             Achievement National must be filled
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('achievementNational', 'pattern') &&
+                                        !invalidField('achievementNational', 'min')  && !invalidField('achievementNational', 'max')">
+                                            Only numbers are accepted
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('achievementNational', 'min')">
+                                            Min. value is {{showError('achievementNational', 'min')?.min | number}}
+                                    </span>
+
+                                    <span
+                                        class="tooltip-content tooltip-content--show"
+                                        *ngIf="invalidField('achievementNational', 'max')">
+                                            Max. value is {{showError('achievementNational', 'max')?.max | number}}
+                                    </span>
+
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="required">Year</label>
+
+                        <label for="year"
+                               aria-haspopup="true"
+                               role="tooltip"
+                               class="tooltip tooltip-validation tooltip-md"
+                               [class.invalid]="invalidField('year')">
+
+                            <input type="text"
+                                   id="year"
+                                   placeholder="Year"
+                                   min="0"
+                                   formControlName="year"/>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="invalidField('year', 'required')">
+                                        Year must be filled
+                            </span>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="invalidField('year', 'pattern') &&
+                                !invalidField('year', 'min')  && !invalidField('year', 'max')">
+                                    Only numbers are accepted
+                            </span>
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="invalidField('year', 'min')">
+                                    Min. value is {{showError('year', 'min')?.min | number}}
+                            </span>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="invalidField('year', 'max')">
+                                    Max. value is {{showError('year', 'max')?.max | number}}
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">Month</label>
+                        <label
+                            for="month"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('month')">
+                            <span class="select">
+                                <select id="month"
+                                        [formControlName]="'month'">
+                                    <option *ngFor="let month of monthSelections"
+                                            [value]="month?.value">
+                                        {{month?.label}}
+                                    </option>
+                                </select>
+                            </span>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="invalidField('month')">
+                                        Month must be filled
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="required">File</label>
+
+                        <label
+                            for="receiverFileField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('file') || uiState.fileUploadInvalid">
+
+                            <input
+                                type="file"
+                                id="receiverFileField"
+                                required="required"
+                                (change)="selectFile($event)"
+                                accept=".xls"/>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="invalidField('file', 'required')">
+                                    File must be uploaded
+                            </span>
+
+                            <span
+                                class="tooltip-content tooltip-content--show"
+                                *ngIf="uiState.fileUploadInvalid">
+                                    Format file is invalid
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        [clrLoading]="uiState?.isProcessing">
+                        <clr-icon shape="floppy"></clr-icon>
+                        Process
+                    </button>
+
+                </form>
+
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <td width="50%"
+                            style="text-align: right;">Total Record
+                        </td>
+                        <td width="50%"
+                            style="text-align: left;">{{processedUpload?.total || 0}}
+                            Row(s)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%"
+                            style="text-align: right;">Total Success Record
+                        </td>
+                        <td width="50%"
+                            style="text-align: left;">{{processedUpload?.countSuccess || 0}}
+                            Row(s)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="50%"
+                            style="text-align: right;">Total Failed Record
+                        </td>
+                        <td width="50%"
+                            style="text-align: left;">{{processedUpload?.countError || 0}}
+                            Row(s)
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+
+                <clr-datagrid>
+                    <clr-dg-column>Row Number</clr-dg-column>
+                    <clr-dg-column>Error Message</clr-dg-column>
+
+                    <clr-dg-placeholder>No error found!</clr-dg-placeholder>
+
+                    <clr-dg-row *clrDgItems="let error of processedUpload?.errorResult">
+                        <clr-dg-cell>{{error?.rowNum}}</clr-dg-cell>
+                        <clr-dg-cell>{{error?.errorMessage}}</clr-dg-cell>
+                    </clr-dg-row>
+
+                    <clr-dg-footer>
+                        <ng-template [ngIf]="pagination?.totalItems > 0">
+                            {{+pagination?.firstItem + 1}}
+                            -
+                            {{+pagination?.lastItem + 1}}
+                            of
+                        </ng-template>
+
+                        {{pagination?.totalItems}}
+                        errors
+
+                        <clr-dg-pagination #pagination
+                                           [clrDgPageSize]="20"></clr-dg-pagination>
+                    </clr-dg-footer>
+
+                </clr-datagrid>
+
+                <br/>
+
+                <div class="row">
+                    <div
+                        class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-2 push-xl-10 col--align-right">
+                        <button
+                            class="btn btn-outline"
+                            (click)="getFailedRecord($event)"
+                            [disabled]="!failedRecordUrl">
+                            <clr-icon shape="download"></clr-icon>
+                            Download
+                        </button>
+                    </div>
+                </div>
+
+                <br/>
+
+                <button
+                    type="button"
+                    class="btn btn-right"
+                    (click)="openCloseModal($event)">
+                    <clr-icon shape="window-close"></clr-icon>
+                    Close
+                </button>
+
+                <hr/>
+                <div class="row">
+                    <div
+                        class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-2 push-xl-10 col--align-right">
+
+                        <div class="btn-primary btn-right">
+                            <button type="button"
+                                    class="btn"
+                                    routerLink="/tgp/search">
+                                <clr-icon shape="undo"></clr-icon>
+                                Cancel
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <fema-cms-tgp-modal-process
+                    [(isOpen)]="uiState.processModalIsOpen"
+                    (process)="processFile()"></fema-cms-tgp-modal-process>
+
+                <fema-cms-tgp-modal-close
+                    [(isOpen)]="uiState.closeModalIsOpen"
+                    [(isOpenSuccess)]="uiState.closeSuccessModalIsOpen"
+                    (close)="closeTgp()"
+                    [returnLink]="'/tgp/search'"></fema-cms-tgp-modal-close>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

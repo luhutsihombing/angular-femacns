@@ -1,0 +1,160 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Feedback Sequence: {{feedbackSequence?.templateName}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!feedbackSequence"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form *ngIf="feedbackSequence"
+                  (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <label>Category List</label>
+
+                    <section class="form-block"
+                             *ngFor="let category of feedbackSequence?.categories; let catIdx = index;">
+
+                        <div class="row">
+
+                            <div class="col-xl-3 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                <label [for]="'category' + catIdx">
+                                    {{category?.questionCategory}}
+                                </label>
+
+                            </div>
+
+                            <div class="col-xl-3 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                <span class="select">
+
+                                    <select [id]="'category' + catIdx"
+                                            [ngModel]="category?.sequenceCategoryNum"
+                                            (ngModelChange)="swapCategory(catIdx, $event)"
+                                            [ngModelOptions]="{standalone: true}"
+                                            (focus)="setActiveCategorySeq($event)">
+
+                                        <option *ngFor="let i of categorySeq"
+                                                [value]="i">
+                                            {{i}}
+                                        </option>
+
+                                    </select>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <br/>
+
+                        <div class="row"
+                             *ngFor="let question of category?.questions; let queIdx = index"
+                             style="padding-left: 0 !important;">
+
+                            <div style="text-align: justify" class="col-xl-3 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                <label [for]="'questionCategory' + catIdx + 'question' + queIdx"
+                                       style="position: relative;">
+                                    {{question?.question}}
+                                </label>
+
+                            </div>
+
+                            <div class="col-xl-3 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                                <span class="select">
+
+                                    <select [id]="'questionCategory' + catIdx + 'question' + queIdx"
+                                            [ngModel]="question?.sequenceNum"
+                                            (ngModelChange)="swapQuestion(category, queIdx, $event)"
+                                            [ngModelOptions]="{standalone: true}"
+                                            (focus)="setActiveQuestionSeq($event)">
+
+                                        <option *ngFor="let i of getQuestionSeq(category)"
+                                                [value]="i">
+                                            {{i}}
+                                        </option>
+
+                                    </select>
+
+                                </span>
+
+                            </div>
+
+                            <br/>
+
+                        </div>
+
+                        <!-- <div class="form-group"
+                             *ngFor="let question of category?.questions; let queIdx = index"
+                             style="padding-left: 0 !important;">
+
+
+                        </div> -->
+
+                    </section>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="submit"
+                            class="btn"
+                            [clrLoading]="uiState?.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            (click)="$event.preventDefault(); this.uiState.cancelModalIsOpen = true;">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-modal [(clrModalOpen)]="uiState.cancelModalIsOpen" [clrModalClosable]="false">
+
+                <h3 class="modal-title">Cancel Setup</h3>
+
+                <div class="modal-body">
+                    <p>Are you sure want to cancel this setup?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline" type="button" (click)="closeModal($event)">No</button>
+                    <button class="btn btn-primary" type="button" (click)="back($event)">Yes</button>
+                </div>
+
+            </clr-modal>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 (save)="save()"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 [returnLink]="'/feedback/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

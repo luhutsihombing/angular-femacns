@@ -1,0 +1,85 @@
+<section class="form-block" [formGroup]="popupForm">
+    <label>Popup Notification Setup</label>
+
+    <div class="row">
+
+        <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+            <div class="form-group">
+                <label>Upload Image</label>
+                <img [src]="popupForm?.getRawValue()?.imgLocation" style="max-height: 180px; max-width: 500px;"></div>
+
+            </div>
+
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="form-group">
+                    <label for="bannerActiveField">Active</label>
+                    <input
+                        type="text"
+                        id="bannerActiveField"
+                        readonly="readonly"
+                        size="50"
+                        formControlName="active"/>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="descriptionField">Description</label>
+            <input
+                type="text"
+                id="descriptionField"
+                readonly="readonly"
+                size="50"
+                formControlName="description"/>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="form-group">
+                    <label for="startPeriodField">Notification Period Start</label>
+                    <label>{{popupForm?.get('periodStart').value | date:'dd-MMM-yyyy'}}</label>
+                </div>
+
+            </div>
+
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="form-group">
+                    <label for="endPeriodField">Notification Period End</label>
+                    <label>{{popupForm?.get('periodEnd').value | date:'dd-MMM-yyyy'}}</label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group">
+                    <label for="linMenuField">Linked to Menu</label>
+                    <input
+                        type="text"
+                        id="linMenuField"
+                        readonly="readonly"
+                        size="50"
+                        formControlName="idLinkedMenu"/>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="titleField">Title</label>
+            <input
+                type="text"
+                id="titleField"
+                readonly="readonly"
+                size="50"
+                formControlName="title"/>
+        </div>
+
+    </section>

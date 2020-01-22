@@ -1,0 +1,97 @@
+<section class="form-block" [formGroup]="bannerForm">
+    <label>Banner Setup</label>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="form-group">
+                <label for="receiverFileField">Upload Banner</label>
+                <img [src]="bannerForm?.getRawValue()?.imgLocation" style="max-height: 180px; max-width: 500px;"></div>
+
+            </div>
+
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group">
+                    <label for="bannerActiveField">Active</label>
+                    <input
+                        type="text"
+                        id="bannerActiveField"
+                        readonly="readonly"
+                        size="50"
+                        formControlName="active"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="defaultBannerField">Set as Default Banner</label>
+                    <input
+                        type="text"
+                        id="defaultBannerField"
+                        readonly="readonly"
+                        size="50"
+                        formControlName="defaultBanner"/>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="descriptionField">Description</label>
+            <textarea id="descriptionField"
+                placeholder="Description"
+                rows="3"
+                formControlName="description"></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="form-group" *ngIf="bannerForm?.getRawValue()?.defaultBanner === 'No'">
+                    <label for="startPeriodField">Banner Period Start</label>
+                    <label>{{bannerForm?.get('periodStart').value | date:'dd-MMM-yyyy'}}</label>
+                </div>
+
+                <div class="form-group" *ngIf="bannerForm?.getRawValue()?.defaultBanner === 'Yes'">
+                    <label for="startPeriodField">Banner Period Start</label>
+                    {{'-'}}
+                </div>
+
+            </div>
+
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                <div class="form-group" *ngIf="bannerForm?.getRawValue()?.defaultBanner === 'No'">
+                    <label for="endPeriodField">Banner Period End</label>
+                    <label>{{bannerForm?.get('periodEnd').value | date:'dd-MMM-yyyy'}}</label>
+                </div>
+
+                <div class="form-group" *ngIf="bannerForm?.getRawValue()?.defaultBanner === 'Yes'">
+                    <label for="endPeriodField">Banner Period End</label>
+                    {{'-'}}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group">
+                    <label for="linMenuField">Linked to Menu</label>
+                    <input
+                        type="text"
+                        id="linMenuField"
+                        readonly="readonly"
+                        size="50"
+                        formControlName="idLinkedMenu"/>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="titleField">Title</label>
+            <input
+                type="text"
+                id="titleField"
+                readonly="readonly"
+                size="50"
+                formControlName="title"/>
+        </div>
+
+    </section>

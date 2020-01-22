@@ -1,0 +1,167 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+            <h1>User: {{user?.username}}</h1>
+
+            <!-- Default state; when loading data from server; error is undefined, formOptions is undefined -->
+            <ng-template [ngIf]="!user && !error">
+                <span class="spinner spinner-inline">
+                    Loading...
+                </span>
+                <span>
+                    Loading data...
+                </span>
+            </ng-template>
+
+            <!-- Error state; when failed loading data from server; error is exist, (any) formOptions are undefined -->
+            <clr-alert [clrAlertType]="'alert-danger'" [clrAlertClosable]="false" *ngIf="error && !user">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                        </div>
+                        <span class="alert-text">No user found</span>
+                        <div class="alert-actions">
+                            <a class="alert-action" (click)="initViewUserDetails($event)">Retry</a>
+                        </div>
+                    </div>
+                </div>
+            </clr-alert>
+
+            <form *ngIf="user && !error">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                        <section class="form-block">
+                            <label>Personal Info</label>
+
+                            <div class="form-group">
+                                <label>Active User</label>
+                                {{user?.active ? 'Yes' : 'No'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>User Name</label>
+                                {{user?.username}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                {{user?.fullName}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>People Type</label>
+                                {{user?.peopleTypeDescription || '-'}}
+                            </div>
+
+                            <div class="form-group" *ngIf="user?.birthDate">
+                                <label>Birth Date</label>
+                                {{user?.birthDate | date: 'dd-MMM-yyyy'}}
+                            </div>
+
+                            <div class="form-group" *ngIf="!user?.birthDate">
+                                    <label>Birth Date</label>
+                                    {{'-'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email</label>
+                                {{user?.email || '-'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                {{user?.phoneNumber || '-'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Institution</label>
+                                {{user?.institution || '-'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Location</label>
+                                {{user?.branchCode || '-'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Organization</label>
+                                {{user?.orgCode || '-'}}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Job</label>
+                                {{user?.jobCode || '-'}}
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-7">
+                        <section class="form-block">
+                            <label>Responsibilities</label>
+
+                            <clr-tabs>
+                                <clr-tab>
+                                    <button clrTabLink id="cms">CMS</button>
+
+                                    <clr-tab-content id="contentCms">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="left">Responsibility</th>
+                                                    <th class="left">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let respWeb of user?.responsibilitiesWeb">
+                                                    <td class="left">{{respWeb?.name}}</td>
+                                                    <td class="left">{{respWeb?.note}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </clr-tab-content>
+
+                                </clr-tab>
+
+                                <clr-tab>
+                                    <button clrTabLink id="fema">FEMA</button>
+                                    <clr-tab-content id="contentFema">
+                                        <table class="table" id="tableFema">
+                                            <thead>
+                                                <tr>
+                                                    <th class="left">Responsibility</th>
+                                                    <th class="left">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let respMobile of user?.responsibilitiesMobile">
+                                                    <td class="left">{{respMobile?.name}}</td>
+                                                    <td class="left">{{respMobile?.note}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </clr-tab-content>
+                                </clr-tab>
+                            </clr-tabs>
+                            <br/>
+                        </section>
+
+                    </div>
+                </div>
+
+            </form>
+
+            <button type="button" class="btn btn-primary btn-right" (click)="back($event)">
+                <clr-icon shape="undo"></clr-icon>
+                Cancel
+            </button>
+
+        </main>
+    </div>
+</clr-main-container>

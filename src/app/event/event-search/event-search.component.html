@@ -1,0 +1,451 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Search Event</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="eventForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label>Event Name</label>
+
+                        <input type="text"
+                               id="eventNameField"
+                               placeholder="Event Name"
+                               formControlName="eventName"
+                               size="58"
+                               maxlength="30"/>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="category">Event Category</label>
+
+                        <span class="select">
+
+                            <select id="category"
+                                    [formControlName]="'category'">
+
+                                <option value=""
+                                        selected="selected">-- Please Select --
+                                </option>
+                                <option value="TRAINING">Training</option>
+                                <option value="NON_TRAINING">Non Training</option>
+
+                            </select>
+
+                        </span>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="type">Event Type</label>
+
+                        <span class="select">
+
+                            <select id="type"
+                                    [formControlName]="'type'">
+
+                                <option value=""
+                                        selected="selected">-- Please Select --
+                                </option>
+                                <option value="SURVEY">Survey</option>
+                                <option value="CULTURE">Culture</option>
+                                <option value="KNOWLEDGE_SHARING">Knowledge Sharing</option>
+                                <option value="OTHERS">Others</option>
+
+                            </select>
+
+                        </span>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label>Event Start Date</label>
+
+                                <input type="text"
+                                       (click)="uiState.startDateIsOpen = true"
+                                       [matDatepicker]="domStartDate"
+                                       [max]="eventForm?.get('endDate')?.value"
+                                       onkeydown="return false"
+                                       placeholder="DD-MMM-YYYY"
+                                       formControlName="startDate"/>
+
+                                <clr-icon *ngIf="eventForm?.get('startDate')?.value"
+                                          shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar($event, 'startDate')"></clr-icon>
+
+                                <mat-datepicker #domStartDate
+                                                [opened]="uiState?.startDateIsOpen"
+                                                (closed)="uiState.startDateIsOpen = false"
+                                                disabled="false"></mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                            <div class="form-group">
+
+                                <label>Event End Date</label>
+
+                                <input type="text"
+                                       (click)="uiState.endDateIsOpen = true"
+                                       [matDatepicker]="domEndDate"
+                                       [min]="eventForm?.get('startDate')?.value"
+                                       onkeydown="return false"
+                                       placeholder="DD-MMM-YYYY"
+                                       formControlName="endDate"/>
+
+                                <clr-icon *ngIf="eventForm?.get('endDate')?.value"
+                                          shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar($event, 'endDate')"></clr-icon>
+
+                                <mat-datepicker #domEndDate
+                                                [opened]="uiState?.endDateIsOpen"
+                                                (closed)="uiState.endDateIsOpen = false"
+                                                disabled="false">
+                                </mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSearching">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            routerLink="/event/create">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column style="width: 200px;">Action</clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'eventName'"
+                               style="width: 200px;">
+                    Event Name
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'category'"
+                               style="width: 150px;">
+                    Event Category
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'type'"
+                               style="width: 200px;">
+                    Event Type
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'startDate'"
+                               style="width: 150px;">
+                    Event Start Date
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'endDate'"
+                               style="width: 150px;">
+                    Event End Date
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'targetedParticipant'">
+                    Targeted Participant
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'totalJoin'">
+                    Total Join
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'totalAttend'">
+                    Total Attend
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'modified_date'"
+                               style="width: 150px;">
+                    Last Updated Date
+                </clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'modified_by'"
+                               style="width: 150px;">
+                    Last Updated By
+                </clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let event of eventSearchList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/event', event?.id]">View</a>
+
+                        |
+
+                        <a [routerLink]="['/event/edit', event?.id]">Edit</a>
+
+                        <ng-template [ngIf]="startDateIsNotPassed(event?.startDate)">
+
+                            |
+
+                            <a (click)="openReminderModal($event, event?.id)">
+                                Send Reminder
+                            </a>
+
+                        </ng-template>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.eventName}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.category?.split('_').join(' ')}}</clr-dg-cell>
+
+                    <clr-dg-cell *ngIf="event?.type === 'KNOWLEDGE_SHARING'">
+
+                        <a (click)="openDetail(event?.id)">{{event?.type?.split('_').join(' ')}}</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell *ngIf="event?.type !== 'KNOWLEDGE_SHARING'">
+                        {{event?.type?.split('_').join('')}}
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.startDate | date :'dd-MMM-yyyy'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.endDate | date :'dd-MMM-yyyy'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.targetedParticipant || '0'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.totalJoin}}</clr-dg-cell>
+
+                    <clr-dg-cell>
+                        <ng-template [ngIf]="+event?.totalAttend > 0 && event?.type === 'KNOWLEDGE_SHARING'">
+
+                            <a class="fema__link fema__link--downloadable"
+                               (click)="downloadKnowledgeSharing(event?.id)">
+                                {{event?.totalAttend}}
+                            </a>
+
+                        </ng-template>
+
+                        <ng-template
+                            [ngIf]="+event?.totalAttend > 0 && (event?.type === 'SURVEY'|| event?.type === 'OTHER')">
+
+                            <a class="fema__link fema__link--downloadable" (click)="downloadSurveyOther(event?.id)">
+                                {{event?.totalAttend}}
+                            </a>
+
+                        </ng-template>
+
+                        <ng-template [ngIf]="+event?.totalAttend === 0 || event?.type === 'CULTURE' || event?.type === 'OTHERS'">
+                            {{event?.totalAttend}}
+                        </ng-template>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.lastUpdateDate | date :'dd-MMM-yyyy HH:mm'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{event?.lastUpdateBy}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+
+                    <ng-template [ngIf]="+eventSearchList?.totalCount > 0">
+                        {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                    </ng-template>
+
+                    {{eventSearchList?.totalCount || 0}} events
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgTotalItems]="eventSearchList?.totalCount"
+                                       [clrDgPageSize]="eventSearchList?.pageSize"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()">
+            </fema-cms-modal-search>
+
+            <clr-modal [(clrModalOpen)]="uiState.reminderModalIsOpen">
+
+                <h3 class="modal-title">Send Notification Reminder</h3>
+
+                <div class="modal-body">
+
+                    <p>Do you want to send notification reminder?</p>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-outline"
+                            (click)="uiState.reminderModalIsOpen = false">
+                        No
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-dismiss="modal"
+                            (click)="sendReminder(eventId)">
+                        Yes
+                    </button>
+
+                </div>
+
+            </clr-modal>
+
+            <clr-modal [(clrModalOpen)]="uiState.detailModalIsOpen"
+                       [clrModalSize]="'xl'">
+
+                <h3 class="modal-title">Knowledge Sharing - Detail Event Sharing</h3>
+
+                <div class="modal-body">
+
+                    <form>
+
+                        <section class="form-block">
+
+                            <label>{{eventDetail?.title}}</label>
+
+                            <br/>
+
+                            <label>
+                                Event Start From {{eventDetail?.startDate | date:'dd-MMM-yyyy HH:mm:ss'}} To
+                                {{eventDetail?.endDate | date:'dd-MMM-yyyy HH:mm:ss'}}
+                            </label>
+
+                            <br/>
+
+                            <label> Total Participant : {{eventDetail?.totalParticipant}}</label>
+
+                            <br/>
+
+                            <button class="btn btn-icon btn-right"
+                                    (click)="downloadDetailEventReport($event)"
+                                    [disabled]="eventDetail?.materialAndSpeakers?.length === 0"
+                                    [clrLoading]="uiState?.reportIsDownloading">
+
+                                <clr-icon shape="download"></clr-icon>
+
+                                Download
+
+                            </button>
+
+                            <br/>
+
+                            <label>Material and Speaker</label>
+
+                            <clr-datagrid>
+
+                                <clr-dg-column [clrDgSortBy]="'Material'">Material</clr-dg-column>
+
+                                <clr-dg-column [clrDgSortBy]="'SpeakerName'">Speaker Name</clr-dg-column>
+
+                                <clr-dg-column [clrDgSortBy]="'SpeakerType'">Speaker Type</clr-dg-column>
+
+                                <clr-dg-column [clrDgSortBy]="'TotalScore'">Total Score</clr-dg-column>
+
+                                <clr-dg-placeholder>No data!</clr-dg-placeholder>
+
+                                <clr-dg-row *ngFor="let matSpeaker of eventDetail?.materialAndSpeakers">
+
+                                    <clr-dg-cell>{{matSpeaker?.Material}}</clr-dg-cell>
+
+                                    <clr-dg-cell>{{matSpeaker?.SpeakerName}}</clr-dg-cell>
+
+                                    <clr-dg-cell>{{matSpeaker?.SpeakerType}}</clr-dg-cell>
+
+                                    <clr-dg-cell>{{matSpeaker?.TotalScore}}</clr-dg-cell>
+
+                                </clr-dg-row>
+
+                            </clr-datagrid>
+
+                        </section>
+
+                    </form>
+
+                </div>
+
+            </clr-modal>
+
+            <clr-modal [(clrModalOpen)]="uiState.reminderSuccessModalIsOpen">
+
+                <h3 class="modal-title">Reminder has been successfully sent</h3>
+
+            </clr-modal>
+
+            <clr-modal [(clrModalOpen)]="uiState.reminderFailModalIsOpen">
+
+                <h3 class="modal-title">Failed to send reminder</h3>
+
+            </clr-modal>
+
+            <button
+                class="btn btn-icon btn-primary btn-right"
+                (click)="downloadReport($event)"
+                [disabled]="downloadIsDisabled"
+                [clrLoading]="uiState?.reportIsDownloading">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

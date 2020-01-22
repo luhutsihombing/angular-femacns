@@ -1,0 +1,14 @@
+.btn-right {
+    justify-content: flex-end;
+    float: right;
+}
+
+.downloadable {
+    color: #007cbb;
+    text-decoration: none;
+
+    &:hover {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+}

@@ -1,0 +1,137 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentAre>
+            <h1>Responsibility:
+                {{resp?.name}}</h1>
+
+            <!-- Default state; when loading data from server; errorOnInit is undefined,
+            formOptions is undefined -->
+            <ng-template [ngIf]="!resp && !errorOnInit">
+                <span class="spinner spinner-inline">
+                    Loading...
+                </span>
+                <span>
+                    Loading data...
+                </span>
+            </ng-template>
+
+            <!-- Error state; when failed loading data from server; errorOnInit is exist,
+            (any) formOptions are undefined -->
+            <clr-alert
+                [clrAlertType]="'alert-danger'"
+                [clrAlertClosable]="false"
+                *ngIf="errorOnInit && !resp">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <clr-icon class="alert-icon" shape="exclamation-circle"></clr-icon>
+                        </div>
+                        <span class="alert-text">{{errorOnInit?.message}}</span>
+                        <div class="alert-actions">
+                            <a class="alert-action" (click)="initEditRespForm($event)">Retry</a>
+                        </div>
+                    </div>
+                </div>
+            </clr-alert>
+
+            <!-- Normal state; when successfully loading data from server; errorOnInit is
+            undefined, formOptions are completed -->
+            <form *ngIf="resp && !errorOnInit">
+
+                <section class="form-block">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                            <div class="form-group">
+                                <label>Active</label>
+                                <label>{{resp?.active ? 'Yes' : 'No'}}</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Access Type</label>
+                                <label>{{resp?.accessTypeDescription || '-'}}</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Responsibility</label>
+                                <label>{{resp?.name}}</label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <label>{{resp?.description || '-'}}</label>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-4">
+                            <section class="form-block">
+                                <label>Default Responsibility</label>
+
+                                <div class="form-group">
+                                    <label>Default</label>
+                                    <label>{{resp?.defaultResp === true ? 'Yes' : 'No'}}</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>People Type</label>
+                                    <ul class="list-unstyled" *ngIf="resp?.peopleTypes?.length > 0">
+                                        <li *ngFor="let peopleType of resp?.peopleTypes">{{peopleType?.meaning}}</li>
+                                    </ul>
+                                    <ul class="list-unstyled" *ngIf="resp?.peopleTypes?.length === 0">
+                                        <li>-</li>
+                                    </ul>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Manager</label>
+                                    <label>{{resp?.manager  ? 'Yes' : 'No'}}</label>
+                                </div>
+                            </section>
+
+                        </div>
+                    </div>
+
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-8">
+                            <div class="form-group">
+                                <label>Active Functions</label>
+
+                                <div>
+                                    <clr-tree-node *ngFor="let func of resp?.functions[resp?.accessType]">
+                                        <clr-checkbox [clrChecked]="func?.functionEnabled" [clrDisabled]="true">
+                                            {{func?.name || func?.functionName}}</clr-checkbox>
+                                        <ng-template [clrIfExpanded]="func?.children && func?.children?.length > 0">
+                                            <clr-tree-node *ngFor="let childFunc of func?.children">
+                                                <clr-checkbox [clrChecked]="childFunc?.functionEnabled" [clrDisabled]="true">
+                                                    {{childFunc?.functionName}}</clr-checkbox>
+                                            </clr-tree-node>
+                                        </ng-template>
+                                    </clr-tree-node>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </form>
+
+            <button type="button" class="btn btn-primary btn-right" (click)="back($event)">
+                <clr-icon shape="undo"></clr-icon>
+                Cancel
+            </button>
+
+        </main>
+    </div>
+
+</clr-main-container>

@@ -1,0 +1,436 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+
+            <!-- json  -->  
+            <!-- save : {{lihatTWSave | json}} -->
+           <!-- value : {{thinkwareForm.value | json}} -->
+            <!-- <br> -->
+            <!-- QCC : {{QCCEmit.value | json}}
+            <br>
+            QCP : {{QCPEmit.value | json}}
+            <br>
+            SS : {{SSEmit.value | json}}
+            <br>
+            II : {{IIEmit.value | json}} 
+            <br>-->
+            <!-- Attachment : {{attachmentEmit?.value | json}}
+            <br> -->
+            <!-- Exist : {{existAttachment?.value | json}}
+	        <br>
+            ID : II {{idMemberII}} QCP {{idMemberQCP}} QCC {{idMemberQCC}} SS {{idMemberSS}}  -->
+            <!-- attachmentLebih : {{attachmentLebihEmit | json}} -->
+
+            <h1>{{checkEdit}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="false"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+                                      <!-- suggestion?.feedbacks?.length === 0 -->
+            <form 
+                  (ngSubmit)="checkFormValidity($event)"
+                  [formGroup]="thinkwareForm"
+                  *ngIf="errorInitialSetup">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label for="thinkwareCodeField">Kode Project</label>
+                        
+                            <input type="text"
+                                id="thinkwareCodeField"
+                                placeholder="Kode Project"
+                                size="30"
+                                maxlength="50"
+                                formControlName="codeProject"
+                                />
+                                            
+                    </div>
+
+                    <!-- input Field Judul-->
+                    <div class="form-group">
+
+                        <label for="thinkwareJudulField" class="required">Judul</label>
+    
+                        <label for="thinkwareJudulField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('title')">
+                        
+                            <input type="text"
+                                id="thinkwareJudulField"
+                                placeholder="Judul"
+                                size="100%"
+                                maxlength="500"
+                                formControlName="title"
+                            />
+                            
+                            <span class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="invalidField('title', 'required')">
+                                Kolom wajib diisi
+                            </span>
+
+                        </label>
+                        
+                    </div>
+                    <!-- Akhir input Field Judul-->
+
+                    <!-- Select Field Kategory -->
+                    <div class="form-group">
+
+                        <label for="thinkwareCategorySelect">Kategori Project</label>
+                
+                        <span class="select">
+    
+                            <select
+                                name="first"
+                                id="thinkwareCategorySelect"
+                                formControlName="category"
+                                (change)="clearData($event.target.value)">
+
+                                <option [value]="categoryItem.value"
+                                    selected="categoryItem.value===thinkw?.category" 
+                                    *ngFor="let categoryItem of categoryList">
+
+                                    {{categoryItem.label}} - {{categoryItem.value}}
+
+                                </option>
+                                    
+                            </select>
+    
+                        </span>
+                
+                    </div>
+                    <!-- Akhir Select Field Kategory -->
+                    
+                    <!-- Input Nama Leader dengan suggestion -->
+                    <div class="form-group" *ngIf="mCategory !== '0' ">
+
+                        <label *ngIf="categoryM == 'QCP' || categoryM == 'QCC' || categoryM == 'II'" for="thinkwareNamaLeaderField" class="required">Nama Team Leader</label>
+                        <label *ngIf="categoryM == 'SS'" for="thinkwareNamaLeaderField" class="required">Nama</label>
+                        
+                        <label for="thinkwareNamaLeaderField"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('leaderName')">
+
+                            <div class="wrap">
+
+                            <input type="text"
+                                id="thinkwareNamaLeaderField"
+                                placeholder="{{placeHolderNamaLeader}}"
+                                size="100%"
+                                formControlName="leaderName"
+                                matInput
+                                [matAutocomplete]="auto"
+                                (focus)="blankTWSuggestion()"
+                                (blur)="resetIfNotInSuggestion('leaderName', 'leader')">
+
+                            <span class="spinner spinner-sm" 
+                                style="position: absolute; bottom: 3px; right: 5px"
+                                *ngIf="uiState?.suggestionLoading">
+                                Loading...
+                            </span>
+
+                            </div>
+
+                            <span class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="invalidField('leaderName', 'required')">
+                                Nama Team Leader harus diisi
+                            </span>
+
+                            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="leaderTerpilih($event)">
+
+                                <mat-option *ngFor="let option of thinkwareSuggestions" [value]="option"  style="font-size: 9pt">
+                                    {{option.username}} - {{option.fullName}}
+                                </mat-option>
+
+                            </mat-autocomplete>
+
+                        </label>
+                            
+                    </div>
+                    <!-- Akhir Input Nama Leader dengan suggestion -->
+
+
+                    <!-- div kondisional apabila project memiliki leader dan Member -->
+                    <div *ngIf="categoryM == 'QCP' || categoryM == 'QCC' || categoryM == 'II'">
+
+                    <!-- label untuk array -->
+                    <div class="form-group">
+
+                        <label for="arrayForm">Nama Project Member</label>
+
+                    </div>
+
+                    <!-- Field Array untuk member dengan increment dinamis -->
+                    <div formArrayName="memberForm" id="arrayForm">
+
+                        <!-- div dinamis member -->
+                        <div class="form-group"  
+                            *ngFor="let ngmember of memberForms.controls; let i=index" 
+                            style="margin-top: -8px"
+                            [formGroupName]="i">
+
+                            <div class="wrap">
+
+                                <label for="thinkwareProjectMemField"
+                                    aria-haspopup="true"
+                                    role="tooltip"
+                                    class="tooltip tooltip-validation tooltip-md"
+                                    [class.invalid]="invalidFieldMember(i, 'memberName')">
+
+                                    <input type="text"
+                                        id="thinkwareProjectMemField"
+                                        placeholder="Nama Project Member"
+                                        size="100%"
+                                        maxlength="50"
+                                        formControlName="memberName"
+                                        matInput
+                                        [matAutocomplete]="auto1"
+                                        (focus)="memberTWSuggestion(i)"
+                                        style="margin-right: 12px"
+                                        (blur)="resetIfNotInSuggestion('memberName', 'member', i)"/>
+ 
+                                    <span class="spinner spinner-sm" 
+                                        style="position: absolute; bottom: 7px; right: 17px"
+                                        *ngIf="suggestionMember[i]">
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                        style="margin-left:1.5cm"
+                                        *ngIf="invalidFieldMember(i, 'memberName', 'required')">
+                                        Nama project member harus diisi
+                                    </span>
+
+                                </label>
+ 
+                            </div>
+
+                            <mat-autocomplete 
+                                #auto1="matAutocomplete" 
+                                (optionSelected)="memberTerpilih($event,i)">
+
+                                <mat-option *ngFor="let option of thinkwareSuggestions" [value]="option"  style="font-size: 9pt">
+                                    {{option.username}} - {{option.fullName}}
+                                </mat-option>
+        
+                            </mat-autocomplete>
+
+                            <button class="close ng-star-inserted"
+                                (click)="deleteMember(i)">
+                                <clr-icon shape="close" size="24"></clr-icon>
+                            </button>
+
+                        </div>
+                        <!-- Akhir div dinamis member -->
+                    
+                        <!-- div untuk tombol tambah agar tidak kena increment -->
+                        <div class="form-group">
+
+                            <label for="tmbltambah">  </label>
+
+                            <button type="button" class="btn" 
+                                id="tmbltambah" 
+                                (click)="addMember()">Tambah Member
+                            </button>
+
+                            <label for="tmbltambah"
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="memberForms.length === 0 && lookup.maxProjectMember !== 0 && uiState?.saveIsPressed && lookup.maxProjectMember < 100000">
+
+                            <span class="tooltip-content tooltip-content--show"
+                                style="margin-left:1.5cm"
+                                *ngIf="memberForms.length === 0">
+                                Nama project member harus diisi
+                            </span>
+
+                            </label>
+
+                        </div>
+                        <!-- Akhir div untuk tombol tambah agar tidak kena increment -->
+                       
+                    </div>
+                    <!-- Akhir Field Array untuk member dengan increment dinamis -->
+
+                    </div>
+                    <!-- Akhir div kondisional apabila project memiliki leader dan Member -->
+                    
+                    <!-- Input Id Branch disable diisi otomatis -->
+                    <div class="form-group">
+
+                        <label for="thinkwareBranchField">Cabang Project</label>
+        
+                        <input type="text"
+                            id="thinkwareBranchField"
+                            placeholder="Cabang"
+                            size="100%"
+                            maxlength="50"
+                            formControlName="branch" >
+        
+                    </div>
+                    <!-- Akhir Input Id Branch disable diisi otomatis -->
+
+                    <div *ngIf="departmentIsVisible" class="form-group">
+                    
+                        <div style="width: 50%">
+                            <textarea id="level1"  class="text-area" (window:resize)="autogrow('level1')" rows="1" formControlName="department1"></textarea>
+                        </div>
+
+                        <div style="width: 50%">
+                            <textarea id="level2" class="text-area" (window:resize)="autogrow('level1')"  rows="1" formControlName="department2" style="margin-left: 5%"></textarea>
+                        </div>
+
+                    </div>
+
+                    <hr/>
+
+                    <div *ngIf="categoryM== 'SS'">
+                        <fema-cms-thinkware-edit-ss 
+                            (SSEmitter) = "SSEmit = $event"
+                            (formValidity) = " SSFormIsValid= $event"
+                            [ss]="thinkw"
+                            *ngIf="uiState.proposalSS"
+                            [lookup] = "lookup"
+                            [uiState] = "uiState" 
+                            [toolTipSS] = "toolTipSS">
+
+                        </fema-cms-thinkware-edit-ss>
+                    </div>
+
+                    <div *ngIf="categoryM == 'QCP'">
+
+                        <fema-cms-thinkware-edit-qcp
+                            (QCPEmitter) = "QCPEmit = $event"
+                            (formValidity) = " QCPFormIsValid= $event"
+                            [qcp]="thinkw"
+                            *ngIf="uiState.proposalQCP && QCPSubCategory"
+                            [lookup] = "lookup"
+                            [uiState] = "uiState"
+                            [subCategory] = "QCPSubCategory"
+                            [toolTipQCP] = "toolTipQCP">
+                        </fema-cms-thinkware-edit-qcp>
+
+                    </div> <!--akhir div ngIf QCP-->
+
+                    <div *ngIf="categoryM == 'QCC'">
+
+                        <fema-cms-thinkware-edit-qcc
+                            (QCCEmitter) = "QCCEmit = $event"
+                            (formValidity) = " QCCFormIsValid= $event"
+                            [qcc]="thinkw"
+                            *ngIf="uiState.proposalQCC && QCCSubCategory"
+                            [lookup] = "lookup"
+                            [uiState] = "uiState"
+                            [subCategory] = "QCCSubCategory"
+                            [toolTipQCC] = "toolTipQCC">
+                        </fema-cms-thinkware-edit-qcc>
+    
+                    </div> <!--akhir div ngIf QCC-->
+
+                    <div *ngIf="categoryM== 'II'">
+
+                        <fema-cms-thinkware-edit-ii
+                            (IIEmitter) = "IIEmit = $event"
+                            (formValidity) = " IIFormIsValid= $event"
+                            [ii]="thinkw"
+                            *ngIf="uiState.proposalII && IISubCategory"
+                            [lookup] = "lookup"
+                            [uiState] = "uiState"
+                            [subCategory] = "IISubCategory"
+                            [toolTipII] = "toolTipII">
+                        </fema-cms-thinkware-edit-ii>
+
+                    </div>
+
+                    <div *ngIf="thinkw">
+
+                        <fema-cms-thinkware-attachment
+                            *ngIf="checkEdit === 'Risalah'"
+                            (attachmentEmitter) = "attachmentEmit = $event"
+                            (existAttachment) = "existAttachment = $event"
+                            (attachmentLebihEmitter) = "attachmentLebihEmit = $event"
+                            (tipeEmitter) = "tipeEmit = $event"
+                            [thinkw]= "thinkw"
+                            [categoryM] = "categoryM"
+                            [lookup] = "lookup"
+                            [uiState] = "uiState">
+                        </fema-cms-thinkware-attachment>
+    
+                    </div>
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSaving"
+                            >
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                    <!-- <button type="button"
+                            class="btn btn-icon btn-danger"
+                            (click)="$event.preventDefault(); uiState.deleteModalIsOpen = true;">
+
+                        <clr-icon shape="trash"></clr-icon>
+
+                        Delete
+
+                    </button> -->
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            (click)="$event.preventDefault(); uiState.cancelModalIsOpen = true;">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel [(isOpen)]="uiState.cancelModalIsOpen"
+                                   [bahasa]="'indonesia'"
+                                   [backward]="'backward'"
+                                   [returnLink]="'/thinkware/search'"></fema-cms-modal-cancel>
+                                   
+            <!-- <fema-cms-modal-delete [(isOpen)]="uiState.deleteModalIsOpen"
+                                   (delete)="delete()"
+                                   [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                                   [returnLink]="'/thinkware/search'"></fema-cms-modal-delete>         -->
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 (save)="save()"
+                                 [bahasa]="'indonesia'"
+                                 [returnLink]="'/thinkware/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

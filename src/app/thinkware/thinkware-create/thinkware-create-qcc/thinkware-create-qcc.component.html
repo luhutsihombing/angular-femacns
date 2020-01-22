@@ -1,0 +1,376 @@
+<div [formGroup]="qualityControlCircle">
+
+<div class="form-group" *ngIf="subCategory.length > 0">
+
+    <label for="subCategoryQCC" class="required">Kategori Quality Control <br> Circle</label>
+
+    <div>
+        <label for="subCategoryQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('categoryQCC', 'required')">
+
+        <clr-checkbox *ngFor="let sub of subCategory"      
+            [clrChecked]="false"
+            (clrCheckedChange)="categorySelected(sub, $event)"  
+            [clrDisabled]="risalah === 'false'"                                          
+        >   
+            {{sub?.label}}
+        </clr-checkbox>
+
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('categoryQCC', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Sub Kategori harus diisi
+        </span>
+
+        </label>
+        
+    </div>
+
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwareProblemStatementQCC" class="required">Problem Statement</label>
+
+    <label for="thinkwareProblemStatementQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('problem')"
+        style="height:auto ;width: 100%">
+    
+        <textarea id="thinkwareProblemStatementQCC"  
+            placeholder="Problem Statement"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('problem')"
+            (blur)="onBlur('problem')"
+            formControlName="problem"></textarea>
+
+            <span 
+            id="problem"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolProblem">
+            </div>
+            </span>
+        
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('problem', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Problem Statement harus diisi
+        </span>
+        
+    </label>
+                  
+</div>
+    
+<div class="form-group">
+
+    <label for="thinkwareGoalQCC" class="required">Goal Statement</label>
+
+    <label for="thinkwareGoalQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('goalStatement')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwareGoalQCC"  
+            placeholder="Goal Statement"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('goalStatement')"
+            (blur)="onBlur('goalStatement')"
+            formControlName="goalStatement"></textarea>
+
+            <span 
+            id="goalStatement"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolGoalStatement">
+            </div>
+            </span>
+
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('goalStatement', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Goal Statement harus diisi
+        </span>
+
+    </label>
+                  
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwareProjectScopeQCC" class="required">Project Scope</label>
+
+    <label for="thinkwareProjectScopeQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('projectScope')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwareProjectScopeQCC"  
+            placeholder="Project Scope"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('projectScope')"
+            (blur)="onBlur('projectScope')"
+            formControlName="projectScope"></textarea>
+
+            <span 
+            id="projectScope"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolProjectScope">
+            </div> 
+            </span>
+    
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('projectScope', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Project Scope
+        </span>
+
+    </label>
+                  
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwarePemetaanProsesQCC" class="required">Pemetaan Proses</label>
+
+    <label for="thinkwarePemetaanProsesQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('processMapping')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwarePemetaanProsesQCC"  
+            placeholder="Pementaan Proses"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('processMapping')"
+            (blur)="onBlur('processMapping')"
+            formControlName="processMapping"></textarea>
+
+            <span 
+            id="processMapping"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolProcessMapping">
+            </div>
+            </span>
+                      
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('processMapping', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Pemetaan Proses harus diisi
+        </span>
+
+    </label>
+
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwarePemetaanPerformanceQCC" class="required">Pemetaan Performance</label>
+
+    <label for="thinkwarePemetaanPerformanceQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('performanceMapping')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwarePemetaanPerformanceQCC"  
+            placeholder="Pemetaan Performance"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('performanceMapping')"
+            (blur)="onBlur('performanceMapping')"
+            formControlName="performanceMapping"></textarea>
+
+            <span 
+            id="performanceMapping"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolPerformanceMapping">
+            </div>        
+            </span>
+
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('performanceMapping', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Pemetaan Performance harus diisi
+        </span>
+
+    </label>
+                          
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwareAnalisaPenyebabQCC" class="required">Analisa Penyebab</label>
+
+    <label for="thinkwareAnalisaPenyebabQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('causeAnalysis')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwareAnalisaPenyebabQCC"  
+            placeholder="Analisa Penyebab"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('causeAnalysis')"
+            (blur)="onBlur('causeAnalysis')"
+            formControlName="causeAnalysis"></textarea>
+            
+            <span 
+            id="causeAnalysis"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolCauseAnalysis">
+            </div>       
+            </span>
+
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('causeAnalysis', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Analisa Penyebab harus diisi
+        </span>
+    
+    </label>
+        
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwareAlternatifSolusiQCC" class="required">Alternatif Solusi</label>
+    
+    <label for="thinkwareAlternatifSolusiQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('alternativeSolution')"
+        style="height:auto ;width: 100%">
+    
+        <textarea id="thinkwareAlternatifSolusiQCC"  
+            placeholder="Alternatif Solusi"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('alternativeSolution')"
+            (blur)="onBlur('alternativeSolution')"
+            formControlName="alternativeSolution"></textarea>
+
+            <span 
+            id="alternativeSolution"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolAlternativeSolution">
+            </div>       
+            </span>
+
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('alternativeSolution', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Alternatif Solusi harus diisi
+        </span>
+
+    </label>
+
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwareSolusiDipilihQCC" class="required">Solusi yang dipilih</label>
+    
+    <label for="thinkwareSolusiDipilihQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('solution')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwareSolusiDipilihQCC"  
+            placeholder="Solusi yang dipilih"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('solution')"
+            (blur)="onBlur('solution')"
+            formControlName="solution"></textarea>
+
+            <span 
+            id="solution"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolSolution">
+            </div>       
+            </span>
+
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('solution', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Solusi yang Dipilih harus diisi
+        </span>
+    
+    </label>
+                                      
+</div>
+
+<div class="form-group">
+
+    <label for="thinkwareDeskripsiQCC" class="required">Deskripsi Solusi</label>
+            
+    <label for="thinkwareDeskripsiQCC"
+        aria-haspopup="true"
+        role="tooltip"
+        class="tooltip tooltip-validation tooltip-md"
+        [class.invalid]="invalidField('solutionDescription')"
+        style="height:auto ;width: 100%">
+
+        <textarea id="thinkwareDeskripsiQCC"  
+            placeholder="Deskripsi Solusi"
+            rows="3"
+            maxlength="5000"
+            (focus)="onFocus('solutionDescription')"
+            (blur)="onBlur('solutionDescription')"
+            formControlName="solutionDescription"></textarea>
+
+            <span 
+            id="solutionDescription"
+            class="elementToFadeInAndOut"
+            style="display: none;"
+            >
+            <div id="ToolSolutionDescription">
+            </div>  
+            </span>
+            
+        <span class="tooltip-content tooltip-content--show"
+            *ngIf="invalidField('solutionDescription', 'required')"
+            style="margin-left:17%; top: 3px;bottom: auto">
+            Deskripsi Solusi harus diisi
+        </span>
+
+    </label>
+                                          
+</div>
+
+</div>

@@ -1,0 +1,227 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Search Channel</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="channelForm"
+                  (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                            <datalist id="channelSuggestions">
+
+                                <option
+                                    *ngFor="let channelSuggestion of channelSuggestions"
+                                    [value]="channelSuggestion?.title">
+                                    {{channelSuggestion?.title}}
+                                </option>
+
+                            </datalist>
+
+                            <div class="form-group">
+
+                                <label for="channelField">Channel</label>
+
+                                <input
+                                    type="text"
+                                    id="channelField"
+                                    placeholder="Channel Name"
+                                    formControlName="channel"
+                                    maxlength="50"
+                                    [attr.list]="channelDatalist"/>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                            <div class="form-group">
+
+                                <label for="createDateFromField">Date From</label>
+
+                                <input
+                                    type="text"
+                                    id="createDateFromField"
+                                    (click)="uiState.createDateFromIsOpen = true"
+                                    [matDatepicker]="domCreateDateFrom"
+                                    [max]="channelForm?.get('createDateTo')?.value"
+                                    onkeydown="return false"
+                                    placeholder="DD-MMM-YYYY"
+                                    formControlName="createDateFrom"/>
+
+                                <clr-icon
+                                    *ngIf="channelForm?.get('createDateFrom')?.value"
+                                    shape="times"
+                                    style="height: auto"
+                                    (click)="resetCalendar($event, 'createDateFrom')"></clr-icon>
+
+                                <mat-datepicker
+                                    #domCreateDateFrom
+                                    [opened]="uiState?.createDateFromIsOpen"
+                                    (closed)="uiState.createDateFromIsOpen = false"
+                                    disabled="false">
+                                </mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                            <div class="form-group">
+
+                                <label for="createDateToField">Date To</label>
+
+                                <input
+                                    type="text"
+                                    id="createDateToField"
+                                    (click)="uiState.createDateToIsOpen = true"
+                                    [matDatepicker]="domCreateDateTo"
+                                    [min]="channelForm?.get('createDateFrom')?.value"
+                                    onkeydown="return false"
+                                    placeholder="DD-MMM-YYYY"
+                                    formControlName="createDateTo"/>
+
+                                <clr-icon
+                                    *ngIf="channelForm?.get('createDateTo')?.value"
+                                    shape="times"
+                                    style="height: auto"
+                                    (click)="resetCalendar($event, 'createDateTo')"></clr-icon>
+
+                                <mat-datepicker
+                                    #domCreateDateTo
+                                    [opened]="uiState?.createDateToIsOpen"
+                                    (closed)="uiState.createDateToIsOpen = false"
+                                    disabled="false">
+                                </mat-datepicker>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+
+                    <button type="submit"
+                            class="btn btn-icon">
+
+                        <clr-icon shape="search"></clr-icon>
+
+                        Search
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon"
+                            routerLink="/channel/create">
+
+                        <clr-icon shape="plus"></clr-icon>
+
+                        New
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState?.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'channel'" style="width: 300px;">Channel</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'createdDate'">Created Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedDate'">Last Updated Date</clr-dg-column>
+
+                <clr-dg-column [clrDgSortBy]="'modifiedBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *ngFor="let channel of channelList?.dataList">
+
+                    <clr-dg-cell>
+
+                        <a [routerLink]="['/channel', channel?.id]">View</a>
+
+                        |
+
+                        <a [routerLink]="['/channel/edit', channel?.id]">Edit</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{channel?.channel}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{channel?.createdDate | date:'dd-MMM-yyyy HH:mm:ss'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{channel?.lastUpdate | date:'dd-MMM-yyyy HH:mm:ss'}}</clr-dg-cell>
+
+                    <clr-dg-cell>{{channel?.lastUpdateBy}}</clr-dg-cell>
+
+                </clr-dg-row>
+
+                <clr-dg-footer>
+                    {{pagination?.firstItem + 1}}
+                    -
+                    {{pagination?.lastItem + 1}}
+                    of
+                    {{channelList?.totalCount}} channels
+
+                    <clr-dg-pagination
+                        #pagination
+                        [clrDgPage]="channelList?.currentPage"
+                        [clrDgPageSize]="channelList?.pageSize"
+                        [clrDgTotalItems]="channelList?.totalCount"></clr-dg-pagination>
+
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+            <button type="button"
+                    class="btn btn-icon btn-primary btn-right"
+                    (click)="downloadReport($event)"
+                    [clrLoading]="uiState?.reportIsDownloading"
+                    [disabled]="downloadIsDisabled">
+
+                <clr-icon shape="download"></clr-icon>
+
+                Download
+
+            </button>
+
+            <fema-cms-modal-search
+                [(isOpen)]="uiState.searchModalIsOpen"
+                (search)="searchByInput()"></fema-cms-modal-search>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

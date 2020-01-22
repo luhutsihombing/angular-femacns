@@ -1,0 +1,149 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+            <h1>Content: {{contentForm?.get('title')?.value}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [isLoading]="!contentReceiverSummaryItems && !contentForm && !content"
+                                      [isFailed]="!contentReceiverSummaryItems || !contentForm || !content"
+                                      (retry)="initialSetup()"></fema-cms-alert-on-action>
+
+            <form *ngIf="contentReceiverSummaryItems && contentForm && content"
+                  [formGroup]="contentForm">
+
+                <section class="form-block">
+                    <div class="form-group">
+                        <label for="titleField">Title</label>
+                        <input
+                            type="text"
+                            id="titleField"
+                            readonly="readonly"
+                            size="50"
+                            formControlName="title"/>
+                    </div>
+                </section>
+
+                <ng-template [ngIf]="content?.newsDto">
+                    <hr/>
+                    <fema-cms-content-view-news [news]="content?.newsDto"></fema-cms-content-view-news>
+                </ng-template>
+
+                <ng-template [ngIf]="content?.bannerDto">
+                    <hr/>
+                    <fema-cms-content-view-banner [banner]="content?.bannerDto"></fema-cms-content-view-banner>
+                </ng-template>
+
+                <ng-template [ngIf]="content?.popupDto">
+                    <hr/>
+                    <fema-cms-content-view-popup [popup]="content?.popupDto"></fema-cms-content-view-popup>
+                </ng-template>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Receiver</label>
+
+                    <div class="form-group">
+                        <label for="contentReceiverTypeField">Content Receiver</label>
+                        <input
+                            type="text"
+                            id="contentReceiverTypeField"
+                            readonly="readonly"
+                            size="50"
+                            formControlName="contentReceiverType"/>
+                    </div>
+
+                    <table *ngIf="contentForm?.get('contentReceiverType')?.value === 'PRIVATE'"
+                           class="table">
+
+                        <thead>
+
+                        <tr>
+                            <th>Company</th>
+                            <th>People Type</th>
+                            <th>Branch</th>
+                            <th>Organization</th>
+                            <th>Job Group</th>
+                            <th>Job</th>
+                            <th>Username</th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr *ngFor="let item of contentReceiverSummaryItems">
+                            <td>{{item?.company || '-'}}</td>
+                            <td>{{item?.peopleType || '-'}}</td>
+                            <td>{{item?.branch || '-'}}</td>
+                            <td>{{item?.organization || '-'}}</td>
+                            <td>{{item?.jobGroup || '-'}}</td>
+                            <td>{{item?.job || '-'}}</td>
+                            <td>{{item?.username || '-'}}</td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+                    <label>Notification</label>
+
+                    <div class="form-group">
+                        <label>Send via</label>
+
+                        <div class="row">
+                            <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <clr-checkbox
+                                    [clrChecked]="contentForm?.getRawValue()?.viaPushNotification"
+                                    [clrDisabled]="true">
+                                    Push Notification
+                                </clr-checkbox>
+                            </div>
+                            <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label for="publishDateField">Publish Date</label>
+                                    <input
+                                        type="text"
+                                        id="publishDateField"
+                                        readonly="readonly"
+                                        size="50"
+                                        formControlName="publishDate"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <clr-checkbox
+                            [clrChecked]="contentForm?.get('viaEmail')?.value"
+                            [clrDisabled]="true">
+                            E-mail
+                        </clr-checkbox>
+
+                    </div>
+
+
+                </section>
+
+                <button type="button"
+                        class="btn btn-primary btn-right"
+                        (click)="back($event)">
+                    <clr-icon shape="undo"></clr-icon>
+                    Cancel
+                </button>
+
+            </form>
+
+        </main>
+
+    </div>
+</clr-main-container>

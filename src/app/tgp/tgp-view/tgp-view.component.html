@@ -1,0 +1,172 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>T.E.A.M. Grand Prize</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      (retry)="initialSetup()"></fema-cms-alert-on-action>
+
+            <form [formGroup]="tgpForm">
+
+                <div class="row">
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                        <div class="form-group">
+
+                            <label for="targetNational">Target National</label>
+
+                            <input type="number"
+                                   id="targetNational"
+                                   formControlName="targetNational"/>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+
+                        <div class="form-group">
+
+                            <label for="achievementNational">Achievement National</label>
+
+                            <input type="number"
+                                   id="achievementNational"
+                                   formControlName="achievementNational"/>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="yearField">Year</label>
+
+                    <input type="number"
+                           id="yearField"
+                           formControlName="year"/>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="month">Month</label>
+
+                    <div class="select">
+
+                        <select id="month"
+                                [formControlName]="'month'">
+
+                            <option *ngFor="let month of monthSelections"
+                                    [value]="month?.value">
+                                {{month?.label}}
+                            </option>
+
+                        </select>
+
+                    </div>
+                </div>
+
+                <br>
+
+                <clr-datagrid>
+
+                    <clr-dg-column [clrDgSortBy]="'seqNo'">Sequence No.</clr-dg-column>
+
+                    <clr-dg-column [clrDgSortBy]="'year'">Year</clr-dg-column>
+
+                    <clr-dg-column [clrDgSortBy]="'month'">Month</clr-dg-column>
+
+                    <clr-dg-column [clrDgSortBy]="'branchCode'">Branch Code</clr-dg-column>
+
+                    <clr-dg-column [clrDgSortBy]="'branchProfability'">Branch Profitability</clr-dg-column>
+
+                    <clr-dg-column [clrDgSortBy]="'couponPeremployee'">Coupon/Employee</clr-dg-column>
+
+                    <clr-dg-column>Error Message</clr-dg-column>
+
+                    <clr-dg-column [clrDgSortBy]="'success'">Success</clr-dg-column>
+
+                    <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                    <clr-dg-row *clrDgItems="let row of tgpDetailContent">
+
+                        <clr-dg-cell>{{row?.seqNo}}</clr-dg-cell>
+
+                        <clr-dg-cell>{{row?.year}}</clr-dg-cell>
+
+                        <clr-dg-cell>{{row?.month}}</clr-dg-cell>
+
+                        <clr-dg-cell>{{row?.branchCode}}</clr-dg-cell>
+
+                        <clr-dg-cell>{{row?.branchProfability}}</clr-dg-cell>
+
+                        <clr-dg-cell>{{row?.couponPeremployee}}</clr-dg-cell>
+
+                        <clr-dg-cell>{{row?.errorMessage}}</clr-dg-cell>
+
+                        <clr-dg-cell>
+
+                            <ng-template [ngIf]="row?.success">
+
+                                <clr-icon shape="check"
+                                          style="color: green;"></clr-icon>
+
+                            </ng-template>
+
+                            <ng-template [ngIf]="!row?.success">
+
+                                <clr-icon shape="times"
+                                          style="color: red;"></clr-icon>
+
+                            </ng-template>
+
+                        </clr-dg-cell>
+
+                    </clr-dg-row>
+
+                    <clr-dg-footer>
+
+                        <ng-template [ngIf]="pagination?.totalItems > 0">
+                            {{+pagination?.firstItem + 1}} - {{+pagination?.lastItem + 1}} of
+                        </ng-template>
+
+                        {{pagination?.totalItems}} messages
+
+                        <clr-dg-pagination #pagination [clrDgPageSize]="20"></clr-dg-pagination>
+
+                    </clr-dg-footer>
+
+                </clr-datagrid>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="button"
+                            class="btn"
+                            (click)="backToPreviousPage($event)">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

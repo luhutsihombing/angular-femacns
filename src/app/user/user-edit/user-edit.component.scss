@@ -1,0 +1,22 @@
+.align-right{
+  float: right;
+}
+
+.search-result li {
+  padding: 5px;
+  background-color: white;
+  cursor: pointer;
+  list-style-type: none;
+}
+
+.tooltip>.tooltip-content{
+  background: #c92100;
+  visibility: visible;
+  opacity: 1;
+  width: max-content;
+}
+
+.btn-right{
+  justify-content: flex-end;
+  float: right;
+}

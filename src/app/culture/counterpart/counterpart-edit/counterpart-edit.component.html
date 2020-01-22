@@ -1,0 +1,178 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+
+            <h1>Edit Counterpart : {{counterpartForm?.get('counterpartName')?.value}}</h1>
+
+            <fema-cms-alert-on-action
+                [responseOnAction]="responseOnAction"
+                [isLoading]="false"
+                [isFailed]="false"
+                (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form
+                [formGroup]="counterpartForm"
+                (ngSubmit)="checkFormValidity($event)">
+                <section class="form-block">
+
+                    <datalist id="employeeSuggestion">
+                        <option
+                            *ngFor="let employee of suggestion?.employees"
+                            [value]="employee">
+                            {{employee}}
+                        </option>
+                    </datalist>
+
+                    <div class="form-group">
+
+                        <label class="required">Counterpart Name</label>
+
+                        <label
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('counterpartName')">
+
+                            <input
+                                type="text"
+                                id="counterpartNameField"
+                                placeholder="Counterpart Name"
+                                formControlName="counterpartName"
+                                size="80%"
+                                (change)="checkEmployeeSuggestion($event, 'counterpartName')"
+                                [attr.list]="counterpartNameDatalist"
+                                maxlength="200"/>
+
+                            <span
+                                class="tooltip-content"
+                                *ngIf="invalidField('counterpartName', 'required')">
+                                Counterpart Name must be filled
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="form-group"
+                         formGroupName="branchCode"
+                         *ngIf="branchCodeForm?.controls">
+
+                        <label class="required">Area</label>
+
+                        <div #domAreaTree>
+
+                            <clr-alert
+                                [clrAlertType]="'alert-warning'"
+                                [clrAlertClosable]="false"
+                                *ngIf="uiState?.areasValidate">
+
+                                <div clr-alert-item
+                                     class="alert-item">
+                                    <span class="alert-text">Area must be filled</span>
+                                </div>
+
+                            </clr-alert>
+
+                            <clr-tree-node *ngFor="let cellArea of suggestion?.cellAreas"
+                                           [formGroupName]="cellArea?.code">
+
+                                <clr-checkbox style="margin-left: 36px;"
+                                              [formControlName]="'checked'"
+                                              [clrIndeterminate]="branchCodeForm?.get([cellArea?.code, 'checked'])?.value === 'Indeterminate'"
+                                              (click)="checkboxSubject.next($event)">
+
+                                    {{cellArea?.name}}
+
+                                </clr-checkbox>
+
+                                <ng-template [clrIfExpanded]="true"
+                                             [ngIf]="cellArea?.cell">
+
+                                    <ng-container formGroupName="cell">
+
+                                        <clr-tree-node *ngFor="let cell of cellArea?.cell"
+                                                       [formGroupName]="cell?.code">
+
+                                            <clr-checkbox style="margin-left: 36px;"
+                                                          [clrDisabled]="!branchCodeForm?.get([cellArea?.code, 'cell', cell?.code, 'enabled'])?.value"
+                                                          [formControlName]="'checked'"
+                                                          (click)="checkboxSubject.next($event)">
+
+                                                {{cell?.name}}
+
+                                            </clr-checkbox>
+
+                                        </clr-tree-node>
+
+                                    </ng-container>
+
+                                </ng-template>
+
+                            </clr-tree-node>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="button"
+                            class="btn"
+                            (click)="openCancelModal($event)">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-danger"
+                            (click)="openDeleteModal($event)">
+
+                        <clr-icon shape="trash"></clr-icon>
+
+                        Delete
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn"
+                            [clrLoading]="uiState?.isSaving">
+                        <clr-icon shape="floppy"></clr-icon>
+                        Save
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="uiState.cancelModalIsOpen"
+                [returnLink]="'/culture/counterpart/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-delete
+                [(isOpen)]="uiState.deleteModalIsOpen"
+                [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                (delete)="delete()"
+                [returnLink]="'/culture/counterpart/search'"></fema-cms-modal-delete>
+
+            <fema-cms-modal-save
+                [(isOpen)]="uiState.saveModalIsOpen"
+                [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                (save)="save()"
+                [returnLink]="'/culture/counterpart/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

@@ -1,0 +1,60 @@
+<div
+     *ngIf="bahasa==='indonesia';else elseBlock">
+
+    <clr-modal [(clrModalOpen)]="isOpen" [clrModalClosable]="false">
+
+        <h3 class="modal-title">Peringatan</h3>
+
+        <div class="modal-body">
+
+            <p>Pencarian akan berjalan lambat tanpa parameter. Apakah anda yakin?</p>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button type="button" class="btn btn-outline" (click)="closeModal($event)">Tidak</button>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-dismiss="modal"
+                (click)="doSearch($event)">
+                Ya
+            </button>
+
+        </div>
+
+    </clr-modal>
+
+</div>
+
+<ng-template #elseBlock>
+
+    <clr-modal [(clrModalOpen)]="isOpen" [clrModalClosable]="false">
+
+        <h3 class="modal-title">Warning</h3>
+    
+        <div class="modal-body">
+    
+            <p>Search might be slow without any parameters. Do you want to proceed?</p>
+    
+        </div>
+    
+        <div class="modal-footer">
+    
+            <button type="button" class="btn btn-outline" (click)="closeModal($event)">No</button>
+    
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-dismiss="modal"
+                (click)="doSearch($event)">
+                Yes
+            </button>
+    
+        </div>
+    
+    </clr-modal>
+
+</ng-template>

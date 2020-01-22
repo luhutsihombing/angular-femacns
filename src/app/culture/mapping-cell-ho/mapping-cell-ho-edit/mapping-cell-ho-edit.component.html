@@ -1,0 +1,273 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Edit Mapping Head Office: {{mappingForm?.get('cellName')?.value}}</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!lookup?.minChar || !suggestion?.employees || !suggestion?.organizations || !mappingForm?.get('cellId')?.value"
+                                      [isFailed]="errorOnInit"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.saveIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form
+                *ngIf="lookup?.minChar && suggestion?.employees && suggestion?.organizations && mappingForm?.get('cellId')?.value"
+                [formGroup]="mappingForm"
+                (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                            <div class="form-group">
+
+                                <label for="nameField"
+                                       class="required">
+                                    Cell Name
+                                </label>
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('cellName')">
+
+                                    <input type="text"
+                                           id="nameField"
+                                           placeholder="Cell Name"
+                                           formControlName="cellName"
+                                           maxlength="100"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('cellName', 'required')">
+                                        Cell name must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('cellName', 'unique')">
+                                        Cell name must be unique
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                            <datalist id="employeeSuggestion">
+
+                                <option *ngFor="let employee of suggestion?.employees; trackBy: ngForTracker"
+                                        [value]="employee?.value">
+                                    {{employee?.label}}
+                                </option>
+
+                            </datalist>
+
+                            <div class="form-group">
+
+                                <label for="fullnameField"
+                                       class="required">
+                                    Pembina Utama
+                                </label>
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('pembinaUtama')">
+
+                                    <input type="text"
+                                           id="fullnameField"
+                                           placeholder="Pembina Utama"
+                                           formControlName="pembinaUtama"
+                                           maxlength="100"
+                                           size="45"
+                                           [attr.list]="employeeDatalist"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('pembinaUtama', 'required')">
+                                        Pembina Utama must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('pembinaUtama', 'unique')">
+                                          Pembina utama has already Registered
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <section class="form-block">
+
+                    <table class="table table-compact">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                <clr-checkbox [formControlName]="'selectAllOrganizations'"></clr-checkbox>
+                            </th>
+
+                            <th>Organization Name</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody formArrayName="organizations">
+
+                        <tr *ngFor="let orgCtrl of organizationsForm?.controls; let i = index;"
+                            [formGroupName]="i">
+
+                            <td>
+                                <clr-checkbox [formControlName]="'selected'"></clr-checkbox>
+                            </td>
+
+                            <td>
+
+                                <datalist id="orgSuggestion">
+
+                                    <option *ngFor="let org of suggestion?.organizations; trackBy: ngForTracker"
+                                            [value]="org?.orgCode + '-' + org?.orgName">
+                                        {{org?.orgName}}
+                                    </option>
+
+                                </datalist>
+
+                                <label aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       style="width:30rem;"
+                                       [class.invalid]="invalidField(['organizations', i, 'orgCode'])">
+
+                                    <input type="text"
+                                           id="organizationField"
+                                           placeholder="Organization Name"
+                                           formControlName="orgCode"
+                                           maxlength="100"
+                                           size="90"
+                                           list="orgSuggestion"
+                                           (blur)="checkOrganizationName($event, ['organizations', i, 'orgCode'])"/>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(['organizations', i, 'orgCode'], 'required')">
+                                        Organization Name must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField(['organizations', i, 'orgCode'], 'unique')">
+                                          Duplicate Organization
+                                    </span>
+
+                                </label>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <br/>
+
+                    <div class="btn-group">
+
+                        <button type="button"
+                                class="btn"
+                                (click)="addChild($event)">
+
+                            <clr-icon shape="add"></clr-icon>
+
+                            Add Row
+
+                        </button>
+
+                        <button type="button"
+                                class="btn"
+                                (click)="removeSelected($event)"
+                                [disabled]="disableRemoveSelected">
+
+                            <clr-icon shape="remove"></clr-icon>
+
+                            Delete Row
+
+                        </button>
+
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="button"
+                            class="btn"
+                            (click)="$event.preventDefault(); uiState.cancelModalIsOpen = true;">
+
+                        <clr-icon shape="undo"></clr-icon>
+
+                        Cancel
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-icon btn-danger"
+                            (click)="$event.preventDefault(); uiState.deleteModalIsOpen = true;"
+                            [clrLoading]="uiState?.isDeleting">
+
+                        <clr-icon shape="trash"></clr-icon>
+
+                        Delete
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel [(isOpen)]="uiState.cancelModalIsOpen"
+                                   [returnLink]="'/culture/mapping-ho/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-delete [(isOpen)]="uiState.deleteModalIsOpen"
+                                   (delete)="delete()"
+                                   [(isOpenSuccess)]="uiState.deleteSuccessModalIsOpen"
+                                   [returnLink]="'/culture/mapping-ho/search'"></fema-cms-modal-delete>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 (save)="save()"
+                                 [returnLink]="'/culture/mapping-ho/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>

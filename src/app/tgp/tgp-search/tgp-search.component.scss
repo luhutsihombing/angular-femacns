@@ -1,0 +1,14 @@
+.downloadable {
+    color: #007cbb;
+    font-weight: bold;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+
+.btn-right{
+    justify-content: flex-end;
+    float: right;
+  }

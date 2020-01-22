@@ -1,0 +1,25 @@
+.col-xl-5 {
+    max-width: 41%;
+}
+
+.col-xl-7 {
+    max-width: 59%;
+}
+
+.btn-right {
+    justify-content: flex-end;
+    float: right;
+}
+
+.fema__link {
+    color: #007cbb;
+}
+
+.fema__link--downloadable {
+    text-decoration: underline;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+}

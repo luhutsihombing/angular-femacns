@@ -1,0 +1,77 @@
+<clr-modal
+    [(clrModalOpen)]="isOpen"
+    [clrModalClosable]="false"
+    [clrModalSize]="'xl'">
+
+    <div class="progress loop">
+
+        <progress></progress>
+
+    </div>
+
+    <h3 class="modal-title">
+        Counterpart Name: {{counterpart?.counterpartNumber}}~{{counterpart?.counterpartName}}
+    </h3>
+
+    <div class="modal-body">
+
+        <section class="form-block">
+
+            <table class="table .table-compact" border="1">
+
+                <thead>
+
+                <tr>
+                    <th>Area</th>
+                    <th>Cell</th>
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <ng-container *ngFor="let area of counterpart?.areaCell">
+
+                    <tr *ngIf="area.checked">
+
+                        <td>{{area?.name}}</td>
+
+                        <td>
+
+                            <ul class="list">
+
+                                <ng-container *ngFor="let childCell of area?.cell">
+
+                                    <li *ngIf="childCell.checked">
+                                        {{childCell?.name}}
+                                    </li>
+
+                                </ng-container>
+
+                            </ul>
+
+                        </td>
+
+                    </tr>
+
+                </ng-container>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </div>
+
+    <div class="modal-footer">
+
+        <button type="button"
+                class="btn btn-outline"
+                (click)="closeModal($event)">
+            Ok
+        </button>
+
+    </div>
+
+</clr-modal>

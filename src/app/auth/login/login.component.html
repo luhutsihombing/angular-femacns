@@ -1,0 +1,46 @@
+<div class="login-wrapper">
+
+    <form class="login"
+          [formGroup]="loginForm"
+          (ngSubmit)="doLogin($event)">
+
+        <div class="title">
+
+            <h3 class="welcome">Welcome to</h3>
+
+            FEMA CMS
+
+            <h5 class="hint">Please sign-in using your credential</h5>
+
+        </div>
+
+        <div class="login-group">
+
+            <input type="text"
+                   class="username"
+                   placeholder="Username"
+                   formControlName="username"/>
+
+            <input type="password"
+                   class="password"
+                   placeholder="Password"
+                   formControlName="password"/>
+
+            <div class="error active"
+                 *ngIf="errorOnLogin">
+                {{errorOnLogin?.error?.message || errorOnLogin?.message}}
+            </div>
+
+            <button type="submit"
+                    class="btn btn-icon btn-primary"
+                    [clrLoading]="isLoggingIn">
+                SIGN IN
+            </button>
+
+        </div>
+
+        <span>build dev.20190520.1617</span>
+
+    </form>
+
+</div>

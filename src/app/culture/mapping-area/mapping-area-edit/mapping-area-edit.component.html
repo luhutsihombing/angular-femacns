@@ -1,0 +1,194 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+
+            <fema-cms-alert-on-action
+                [responseOnAction]="responseOnAction"
+                [isLoading]="false"
+                [isFailed]="false"
+                (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <h1>Edit Mapping Area : {{area?.data?.areaName}}</h1>
+
+
+            <form
+                [formGroup]="editMappingAreaForm"
+                (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+                        <label class="required">Area Name</label>
+                        <label
+                            aria-haspopup="true"
+                            role="tooltip"
+                            class="tooltip tooltip-validation tooltip-md"
+                            [class.invalid]="invalidField('areaName')">
+                            <input
+                                type="text"
+                                id="areaNameField"
+                                placeholder="Area Name"
+                                formControlName="areaName"
+                                maxlength="100"/>
+                            <span
+                                class="tooltip-content"
+                                *ngIf="editMappingAreaForm?.get('areaName')?.errors?.required">
+                                Area Name must be filled
+                            </span>
+                        </label>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-5">
+
+                            <label>Cell</label>
+
+                            <br/>
+
+                            <div class="row">
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-9">
+                                    <input
+                                        type="text"
+                                        id="cellField"
+                                        size="29"
+                                        formControlName="cellName"
+                                        maxlength="100"/>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-2">
+                                    <button class="btn" (click)="searchcellName($event)">
+                                        <clr-icon shape="search" ></clr-icon>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <clr-datagrid  (clrDgRefresh)="refresh($event)" [(clrDgSingleSelected)]="selectedBranch" [clDgRowSelection]="true" class="radio-hide">
+                                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                                <clr-dg-row *clrDgItems="let resp of branch" [clrDgItem]="resp">
+
+                                    <clr-dg-cell>{{resp.branchName}}</clr-dg-cell>
+                                </clr-dg-row>
+
+                                <clr-dg-footer>
+                                    <ng-template [ngIf]="pagination?.totalItems > 0">
+                                        {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                                    </ng-template>
+                                    {{pagination?.totalItems}}
+                                    <clr-dg-pagination #pagination
+                                                       [clrDgPageSize]="20">
+                                    </clr-dg-pagination>
+
+                                </clr-dg-footer>
+
+                            </clr-datagrid>
+                            <br/>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-1">
+
+                            <br/><br/><br/><br/><br/><br/><br/><br/>
+
+                            <button type="button" class="btn btn-outline btn-block" (click)="add($event)">
+                                {{'>'}}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-block"
+                                (click)="remove($event)">
+                                {{'<'}}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-block"
+                                (click)="addAll($event)">
+                                {{'>>'}}</button>
+                            <button
+                                type="button"
+                                class="btn btn-outline btn-block"
+                                (click)="removeAll($event)">
+                                {{'<<'}}</button>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-5">
+                            <label>List of Cell</label>
+                            <br/>
+                            <clr-datagrid (clrDgRefresh)="refreshSelectedBranches($event)" [(clrDgSingleSelected)]="unSelectedBranch" [clDgRowSelection]="true" class="radio-hide">
+                                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                                <clr-dg-row *clrDgItems="let respSelected of selectedBranches" [clrDgItem]="respSelected">
+
+                                    <clr-dg-cell>{{respSelected.branchName}}</clr-dg-cell>
+                                </clr-dg-row>
+
+                                <clr-dg-footer>
+                                    <ng-template [ngIf]="pagination1?.totalItems > 0">
+                                        {{pagination1?.firstItem + 1}} - {{pagination1?.lastItem + 1}} of
+                                    </ng-template>
+
+                                    {{pagination1?.totalItems}}
+
+                                    <clr-dg-pagination #pagination1
+                                                       [clrDgPageSize]="20">
+                                    </clr-dg-pagination>
+
+                                </clr-dg-footer>
+
+                            </clr-datagrid>
+                            <br/>
+
+
+                        </div>
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary btn-right">
+                    <button type="button" class="btn" (click)="openCancelModal($event)">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+                    <button type="button"
+                            class="btn btn-danger"
+                            (click)="openDeleteModal($event)">
+                        <clr-icon shape="trash"></clr-icon>
+                        Delete
+                    </button>
+                    <button type="submit" class="btn">
+                        <clr-icon shape="floppy"></clr-icon>
+                        Save
+                    </button>
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="uiState.cancelModalOpened"
+                [returnLink]="'/culture/mapping-area/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-delete
+                [(isOpen)]="uiState.deleteModalOpened"
+                [(isOpenSuccess)]="uiState.successModalDelete"
+                (delete)="delete()"
+                [returnLink]="'/culture/mapping-area/search'"></fema-cms-modal-delete>
+
+            <fema-cms-modal-save
+                [(isOpen)]="uiState.saveModalOpened"
+                [(isOpenSuccess)]="uiState.successModalOpened"
+                (save)="save()"
+                [returnLink]="'/culture/mapping-area/search'"></fema-cms-modal-save>
+
+
+        </main>
+
+    </div>
+
+</clr-main-container>

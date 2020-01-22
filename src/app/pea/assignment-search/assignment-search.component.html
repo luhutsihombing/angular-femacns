@@ -1,0 +1,99 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+            <h1>Search Upload Assignment</h1>
+
+            <form [formGroup]="peaForm"
+                  (ngSubmit)="checkSearchParams($event)">
+                <section class="form-block">
+
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                            <div class="form-group">
+                                <label>Process Date From</label>
+                                <input type="date"
+                                       clrDate
+                                       formControlName="processDateFrom"
+                                       placeholder="dd-MMM-yyyy"
+                                       [value]="peaForm?.get('processDateFrom')?.value | date:'dd-MMM-yyyy'">
+
+                                <clr-icon shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar('processDateFrom')"></clr-icon>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6 col-sm-12 col-md-12 col-lg-12 col-xl-6">
+                            <div class="form-group">
+                                <label>Process Date To</label>
+                                <input type="date"
+                                       clrDate
+                                       formControlName="processDateTo"
+                                       placeholder="dd-MMM-yyyy"
+                                       [value]="peaForm?.get('processDateTo')?.value | date:'dd-MMM-yyyy'">
+
+                                <clr-icon shape="times"
+                                          style="height: auto"
+                                          (click)="resetCalendar('processDateTo')"></clr-icon>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <div class="btn-group btn-primary">
+                    <button type="submit"
+                            class="btn">
+                        <clr-icon shape="search"></clr-icon>
+                        Search
+                    </button>
+                    <button type="button"
+                            class="btn"
+                            routerLink="/content/create">
+                        <clr-icon shape="plus"></clr-icon>
+                        New
+                    </button>
+                </div>
+            </form>
+
+            <clr-datagrid>
+                <clr-dg-column *ngFor="let header of assignmentData?.header">{{header | titlecase}}</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+
+                <clr-dg-row *clrDgItems="let row of assignmentData?.entries">
+                    <clr-dg-cell *ngFor="let col of row">{{col}}</clr-dg-cell>
+                </clr-dg-row>
+
+                <clr-dg-footer>
+                    <ng-template [ngIf]="pagination?.totalItems > 0">
+
+                        <ng-template [ngIf]="assignmentData?.entries?.length > 0">
+                            {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of
+                        </ng-template>
+
+                        {{pagination?.totalItems}} entries
+                    </ng-template>
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPageSize]="pageSize"></clr-dg-pagination>
+                </clr-dg-footer>
+            </clr-datagrid>
+
+            <button class="btn btn-primary"
+                    disabled="disabled">
+                <clr-icon shape="download"></clr-icon>
+                Download
+            </button>
+
+            <fema-cms-modal-search [(isOpen)]="openWarningModal"
+                                   (search)="searchByInput()"></fema-cms-modal-search>
+
+        </main>
+    </div>
+
+</clr-main-container>

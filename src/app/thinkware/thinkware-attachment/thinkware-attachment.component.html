@@ -1,0 +1,102 @@
+<!-- <hr>
+Attachment : {{attachment?.value | json}}
+
+<br>
+{{existAttachments?.value | json}}
+
+<br> -->
+<div [formGroup]="attachment" *ngIf="attachmentIsReady">
+
+  <!-- awaludin -->
+  <div class="form-group" *ngFor="let tipeAttachment of tipe; let indexTipe=index">
+
+    <label for="array{{toTitleCase(tipeAttachment)}}" [class.required]="tipeAttachment === 'pdf'">Attachment {{toTitleCase(tipeAttachment)}} (*.{{tipeAttachment}})</label>
+
+    <div formArrayName="attachment{{toTitleCase(tipeAttachment)}}" id="array{{toTitleCase(tipeAttachment)}}" style="height: auto; width: 100%">
+
+      <div style="width: 100%"
+        *ngFor="let apalah of attachment.get('attachment'+toTitleCase(tipeAttachment)).controls; let i=index" 
+        [formGroupName]="i">
+
+        <div 
+        *ngIf="existAttachments.get('existAttachment'+toTitleCase(tipeAttachment)).value[i]; else elseBlock"
+          style="width: 100%" >
+
+          <span class="attach" id="attachmentInBox" style="display: inline-block;">
+
+            <a [href]="existAttachments.get('existAttachment'+toTitleCase(tipeAttachment)).value[i].fullPath"
+              target="_blank"
+              rel="noopener noreferrer">
+
+              <u><b>{{existAttachments.get('existAttachment'+toTitleCase(tipeAttachment)).value[i].fileName}}</b></u>
+
+            </a>
+
+            <button
+              style = "background-color: Transparent; background-repeat:no-repeat;border: none; cursor:pointer;overflow: hidden;"
+              (click)="deleteAttachment(i, toTitleCase(tipeAttachment))">
+              
+              <clr-icon  
+                shape="close" 
+                size="12" 
+                style="margin-left: -3 px;top: .25rem;float: right">
+              </clr-icon>
+              <!-- style="margin-left: -3 px;top: .25rem;float: right"> -->
+
+            </button>
+
+          </span>
+
+        </div>
+
+        <ng-template #elseBlock>
+        <label for="attachment{{toTitleCase(tipeAttachment)}}File{{i}}"
+          aria-haspopup="true"
+          role="tooltip"
+          class="tooltip tooltip-validation tooltip-md"
+          [class.invalid]="invalidFieldAttachment(i, toTitleCase(tipeAttachment), 'file')
+                          || checkValidFile(i, tipeAttachment,'file')"
+          style="height:auto ;width: 100%">
+          
+          <div>
+            <input type="button" class="btn"  (click)="callFileChooser('attachment' + toTitleCase(tipeAttachment) + 'File' +i)" 
+              value="Browse" />
+            <span class ="spanAttachment" id="{{tipeAttachment.toLowerCase()}}{{i}}"> Tidak ada file terpilih </span>
+            
+            <span class ="spanAttachment" id="ren{{toTitleCase(tipeAttachment)}}{{i}}">.</span>
+          </div>
+
+          <input id="attachment{{toTitleCase(tipeAttachment)}}File{{i}}"
+            hidden="hidden" 
+            type="file"
+            accept=".{{tipeAttachment}}"
+            (change)="selectAttachment($event, i, toTitleCase(tipeAttachment))"/>
+          
+          <span class="tooltip-content tooltip-content--show"
+            style="margin-bottom: 0px"
+            *ngIf="invalidFieldAttachment(i, toTitleCase(tipeAttachment), 'file', 'maxFileSize')">
+            Maksimum size yang diperbolehkan adalah {{maxFileSizes[indexTipe]}} KB
+          </span>
+
+          <span class="tooltip-content tooltip-content--show"
+            style="margin-bottom: 0px"
+            *ngIf="checkValidFile(i, tipeAttachment,'file')">
+            File yang diperbolehkan hanya '.{{tipeAttachment}}'
+          </span>
+
+        </label>
+        </ng-template>
+
+      </div>
+      
+      <button type="button" class="btn" 
+        id="tmbltambah"
+        *ngIf="jumlahFiles[indexTipe] > 4 && formArray(toTitleCase(tipeAttachment)) < jumlahFiles[indexTipe]" 
+        (click)="pushAttachment(tipeAttachment, maxFileSizes[indexTipe], mimeFile[indexTipe])">Tambah
+      </button>
+
+    </div>
+
+  </div>
+  
+</div>

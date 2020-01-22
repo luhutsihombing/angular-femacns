@@ -1,0 +1,159 @@
+<div [formGroup]="innovationIdea">
+
+    <div class="form-group" *ngIf="subCategory.length > 1">
+
+        <label for="subCategoryII" class="required">Kategori Innovation Idea</label>
+
+        <label for="subCategoryII"
+                aria-haspopup="true"
+                role="tooltip"
+                class="tooltip tooltip-validation tooltip-md"
+                [class.invalid]="invalidField('categoryII', 'required')">
+                
+                <span class="select">
+            
+                    <select
+                        id="subCategoryII" 
+                        formControlName="categoryII"
+                        (change)="categorySelected($event.target.value)">
+                        
+                        <option *ngFor="let item of subCategory" 
+                                [value]="item.value"
+                                selected="item.value=='ii?.detailII?.categoryII'">
+                            {{item.label}}
+                        </option>
+                        
+                    </select>
+            
+                </span>
+
+                <span class="tooltip-content tooltip-content--show"
+                        style="margin-left:1.5cm"
+                        *ngIf="invalidField('categoryII', 'required')">
+                        Sub kategori harus diisi
+                </span>
+                
+        </label>
+                
+    </div>
+                
+    <div class="form-group">
+
+        <label for="thinkwareLatarII" class="required">Latar Belakang</label>
+
+        <label for="thinkwareLatarII"
+                aria-haspopup="true"
+                role="tooltip"
+                class="tooltip tooltip-validation tooltip-md"
+                [class.invalid]="invalidField('businessCase')"
+                style="height:auto ;width: 100%">
+
+        <textarea type="text" 
+                id="thinkwareLatarII" 
+                placeholder="Latar Belakang" 
+                rows="3" 
+                (focus)="onFocus('businessCase')"
+                (blur)="onBlur('businessCase')"    
+                maxlength="5000"
+                formControlName="businessCase"></textarea>
+
+                <span 
+                id="businessCase"
+                class="elementToFadeInAndOut"
+                style="display: none;"
+                >
+                <div id="ToolBusinessCase">
+                </div>    
+                </span>
+        
+        <span  class="tooltip-content tooltip-content--show"
+                style="margin-left:17%; top: 3px;bottom: auto"
+                *ngIf="invalidField('businessCase', 'required')">
+                Latar Belakang harus diisi
+        </span>
+
+        </label>
+
+    </div>
+
+    <div class="form-group">
+
+        <label for="thinkwareDescII" class="required">Deskripsi Ide</label>
+
+        <label for="thinkwareDescII"
+                aria-haspopup="true"
+                role="tooltip"
+                class="tooltip tooltip-validation tooltip-md"
+                [class.invalid]="invalidField('description')"
+                style="height:auto ;width: 100%">
+    
+        <textarea type="text" 
+                id="thinkwareDescII" 
+                placeholder="Deskripsi" 
+                rows="3"
+                (focus)="onFocus('description')"
+                (blur)="onBlur('description')" 
+                maxlength="5000"
+                formControlName="description"></textarea>
+
+                <span 
+                id="description"
+                class="elementToFadeInAndOut"
+                style="display: none;"
+                >
+                <div id="ToolDescription">
+                </div>    
+                </span>
+        
+        <span class="tooltip-content tooltip-content--show"
+                style="margin-left:17%; top: 3px;bottom: auto"
+                *ngIf="invalidField('description', 'required')">
+                Deskripsi Innovation Idea harus diisi
+        </span>
+
+        </label>   
+    
+    </div>
+
+    <div class="form-group">
+
+        <label for="thinkwareCostII" class="required">
+                Cost & Benefit Analysis
+        </label>
+
+        <label for="thinkwareCostII"
+                aria-haspopup="true"
+                role="tooltip"
+                class="tooltip tooltip-validation tooltip-md"
+                [class.invalid]="invalidField('costAndBenefit')"
+                style="height:auto ;width: 100%">
+
+        <textarea type="text" 
+                id="thinkwareCostII" 
+                placeholder="Cost & Benefit Analysis" 
+                rows="3" 
+                (focus)="onFocus('costAndBenefit')"
+                (blur)="onBlur('costAndBenefit')" 
+                maxlength="5000"
+                formControlName="costAndBenefit"></textarea>
+
+                <span 
+                id="costAndBenefit"
+                class="elementToFadeInAndOut"
+                style="display: none;"
+                >
+                <div id="ToolCostAndBenefit">
+                </div>    
+                </span>
+
+        <span class="tooltip-content tooltip-content--show"
+                style="margin-left:17%; top: 3px;bottom: auto"
+                *ngIf="invalidField('costAndBenefit', 'required')">
+                Cost & Benefit Analysis harus diisi
+        </span>
+
+        </label>
+
+    </div>
+
+</div>

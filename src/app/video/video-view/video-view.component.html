@@ -1,0 +1,85 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+            <h1>Video {{viewForm?.getRawValue()?.title}}</h1>
+
+            <form
+                [formGroup]="viewForm"
+                (ngSubmit)="checkFormValidity($event)"
+                *ngIf="videoIsLoaded && !errorOnInit">
+
+                <div class="row">
+
+                    <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label for="video">Video</label>
+
+                            <iframe #domVideo
+                                [src]="viewForm?.getRawValue()?.url | safeUrl"
+                                allowtransparency="true"
+                                frameborder="0"
+                                scrolling="no"
+                                class="wistia_embed"
+                                name="wistia_embed"
+                                allowfullscreen="allowfullscreen"
+                                mozallowfullscreen="mozallowfullscreen"
+                                webkitallowfullscreen="webkitallowfullscreen"
+                                oallowfullscreen="oallowfullscreen"
+                                msallowfullscreen="msallowfullscreen"
+                                width="100%"
+                                [height]="videoHeight"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label for="viewableField">Viewable</label>
+                            <input type="text" id="viewableField" readonly formControlName="viewable"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="showOnHomeField">Show on FIFTUBE Home</label>
+                            <input type="text" id="showOnHomeField" readonly formControlName="showOnHome"/>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="urlField">URL</label>
+                    <input type="text" id="urlField" placeholder="URL" size="100" readonly formControlName="url"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="titleField">Video Title</label>
+                    <input type="text" id="titleField" placeholder="Video title" size="100" readonly formControlName="title"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="descriptionField">Description</label>
+                    <input type="text" id="descriptionField" placeholder="Description" size="100" readonly formControlName="description"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryField" class="required">Category</label>
+                    <input type="text" id="categoryField" placeholder="Category" size="100" readonly formControlName="category"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedbackField">Feedback</label>
+                    <input type="text" id="feedbackField" placeholder="Feedback" size="100" readonly formControlName="feedback" />
+                </div>
+
+            </form>
+
+            <button type="button" class="btn btn-primary btn-right" (click)="back($event)">
+                <clr-icon shape="undo"></clr-icon>
+                Cancel
+            </button>
+        </main>
+    </div>
+</clr-main-container>

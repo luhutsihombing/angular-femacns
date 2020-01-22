@@ -1,0 +1,24 @@
+<section class="form-block" [formGroup]="newsForm">
+    <label>News/Info Setup</label>
+
+    <div class="form-group">
+        <label for="newsCategoryField">News/Info Category</label>
+        <input
+            type="text"
+            id="newsCategoryField"
+            readonly="readonly"
+            size="50"
+            formControlName="idNewsCategory">
+    </div>
+
+    <div class="form-group">
+        <label>Content Message</label>
+        <iframe
+            [src]="newsForm?.getRawValue()?.contentPath | safeUrl"
+            scrolling="auto"
+            width="100%"
+            height="500px">
+        </iframe>
+    </div>
+
+</section>

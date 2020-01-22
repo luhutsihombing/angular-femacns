@@ -1,0 +1,32 @@
+.attach{
+    top: .25rem;
+    border-radius: 3px;
+    // margin-left: 2px;
+    // padding-left: 3px;
+    padding-right: 3px;
+    width: 100%;
+    // width: calc(100% - 40px);
+    // border:1px solid #ccc;
+    font: bold;
+    // background-color: white;
+  }
+
+  .spanAttachment {
+    margin-left: 10px;
+  }
+
+  .fileAttachment {
+    position: absoulte;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0
+  }
+
+  .upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+  

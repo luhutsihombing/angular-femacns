@@ -1,0 +1,258 @@
+<clr-main-container>
+    <fema-cms-header></fema-cms-header>
+    <div class="content-container">
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area" #clrContentArea>
+            <h1>Upload New Video</h1>
+
+            <fema-cms-alert-on-action
+                [responseOnAction]="this.errorOnAction || responseOnAction"
+                (close)="this.errorOnAction = $event || responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <fema-cms-alert-invalid-form
+                [responseInvalidForm]="responseInvalid"
+                [invalid]="invalid"></fema-cms-alert-invalid-form>
+
+            <form [formGroup]="createForm" (ngSubmit)="checkFormValidity($event)">
+
+                <div class="row">
+
+                    <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+                        <clr-alert [clrAlertType]="'alert-warning'" [(clrAlertClosed)]="videoIsValid">
+                            <div clr-alert-item class="alert-item">
+                                <span class="alert-text">
+                                    {{uploadValidationMessage}}
+                                </span>
+                            </div>
+                        </clr-alert>
+
+                        <br *ngIf="!videoIsValid"/>
+
+                        <div class="form-group">
+                            <label for="uploadDropzone">Upload video</label>
+
+                            <div
+                                *ngIf="videoIsNotUploaded() || videoIsUploading()"
+                                class="app-dropzone"
+                                id="uploadDropzone"
+                                dropzone="copy"
+                                accept="video/*"
+                                draggable="true"
+                                (dragstart)="$event.preventDefault(); $event.dataTransfer.items.clear();"
+                                (dragover)="$event.preventDefault()"
+                                (dragend)="$event.preventDefault(); $event.dataTransfer.clearData();"
+                                (drop)="uploadVideo($event)">
+
+                                <h4 *ngIf="videoIsNotUploaded() && !videoIsDropped && !videoIsUploading()"
+                                    class="app-dropzone__title">drag &amp; drop video here</h4>
+
+                                <span class="spinner" *ngIf="videoIsDropped && !videoIsUploading()">
+                                    Loading...
+                                </span>
+
+                                <div *ngIf="videoIsDropped && videoIsUploading()" class="app-uploading-progress">
+                                    <h4 class="app-uploading-progress__title">
+                                        uploading...
+                                        {{uploadPercentage}}% completed
+                                    </h4>
+                                    <div class="progress">
+                                        <progress [max]="uploadProgress?.total"
+                                                  [value]="uploadProgress?.loaded"></progress>
+                                    </div>
+                                    <button class="btn btn-warning-outline" type="button"
+                                            (click)="abortVideoUpload($event)">
+                                        <clr-icon shape="times"></clr-icon>
+                                        Abort
+                                    </button>
+                                </div>
+                            </div>
+
+                            <iframe
+                                #domVideo
+                                *ngIf="videoIsUploaded()"
+                                [src]="createForm?.getRawValue()?.url | safeUrl"
+                                allowtransparency="true"
+                                frameborder="0"
+                                scrolling="no"
+                                class="wistia_embed"
+                                name="wistia_embed"
+                                allowfullscreen="allowfullscreen"
+                                mozallowfullscreen="mozallowfullscreen"
+                                webkitallowfullscreen="webkitallowfullscreen"
+                                oallowfullscreen="oallowfullscreen"
+                                msallowfullscreen="msallowfullscreen"
+                                width="100%"
+                                [height]="videoResolution?.height"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group">
+                            <label>Viewable</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="viewableToggle" formControlName="viewable"/>
+                                <label for="viewableToggle">{{createForm?.getRawValue()?.viewable ? 'Yes' :
+                                    'No'}}</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Show on FIFTUBE Home</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="showOnHomeToggle" formControlName="showOnHome"/>
+                                <label for="showOnHomeToggle">{{createForm?.getRawValue()?.showOnHome ? 'Yes' :
+                                    'No'}}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="required">URL</label>
+                    <label for="urlField" aria-haspopup="true" role="tooltip"
+                           class="tooltip tooltip-validation tooltip-md" [class.invalid]="invalidField('url')">
+                        <input
+                            type="text"
+                            id="urlField"
+                            placeholder="URL"
+                            size="100"
+                            readonly
+                            formControlName="url"/>
+                        <span class="tooltip-content">
+                            URL will be automatically generated by uploaded video
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Video Title</label>
+                    <label for="videoTitleField" aria-haspopup="true" role="tooltip"
+                           class="tooltip tooltip-validation tooltip-md"
+                           [class.invalid]="invalidField('title') || videoIsUnique">
+                        <input
+                            type="text"
+                            id="videoTitleField"
+                            placeholder="Video Title"
+                            size="100"
+                            maxlength="250"
+                            formControlName="title"/>
+
+                        <span
+                            class="tooltip-content"
+                            *ngIf="createForm?.get('title')?.errors?.required">
+                            Title must be filled
+                        </span>
+                        <span
+                            class="tooltip-content"
+                            *ngIf="videoIsUnique">
+                                Title must be unique
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Description</label>
+                    <label for="descriptionField" aria-haspopup="true" role="tooltip"
+                           class="tooltip tooltip-validation tooltip-md"
+                           [class.invalid]="invalidField('descriptionVideo')">
+                        <input
+                            type="text"
+                            id="descriptionField"
+                            placeholder="Description"
+                            size="100"
+                            maxlength="300"
+                            formControlName="descriptionVideo"/>
+                        <span class="tooltip-content">
+                            Description must be filled
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Category</label>
+                    <label for="categorySelect" aria-haspopup="true" role="tooltip"
+                           class="tooltip tooltip-validation tooltip-md" [class.invalid]="invalidField('category')">
+                        <div class="select">
+                            <select id="categorySelect" formControlName="category">
+                                <option *ngFor="let category of categories" [value]="category?.value">
+                                    {{category?.label}}
+                                </option>
+                            </select>
+                        </div>
+
+                        <span
+                            class="tooltip-content tooltip-content--show"
+                            style="margin-left:1.5cm"
+                            *ngIf="createForm?.get('category')?.errors?.required && saveIsPressed">
+                            Category must be filled
+                        </span>
+                    </label>
+                </div>
+
+                <datalist id="feedbackSuggestion" >
+                    <option *ngFor="let feedbackList of feedbackSuggestion"
+                            [value]="feedbackList?.templateName">
+                        {{feedbackList?.templateName}}
+                    </option>
+                </datalist>
+
+                <div class="form-group">
+                    <label for="feedbackField">Feedback</label>
+                    <input
+                        type="text"
+                        id="feedbackField"
+                        placeholder="Feedback"
+                        size="100"
+                        (change)="checkFeeback($event, 'feedback')"
+                        formControlName="feedback"
+                        size="30"
+                        [attr.list]="createForm?.getRawValue()?.feedback?.length >= autocompMinChar
+                        ? 'feedbackSuggestion' : ''"/>
+                </div>
+
+                <div class="btn-group btn-primary btn-right">
+                    <button
+                        type="submit"
+                        class="btn">
+                        <clr-icon shape="floppy"></clr-icon>
+                        Save
+                    </button>
+                    <button type="button" class="btn" (click)="openCancelModal($event)">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+
+            <fema-cms-modal-cancel
+                [(isOpen)]="cancelModalOpened"
+                [returnLink]="'/video/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save
+                [(isOpen)]="saveModalOpened"
+                (save)="save(createForm?.getRawValue())"
+                [(isOpenSuccess)]="saveSuccessModalOpened"
+                [returnLink]="'/video/search'"></fema-cms-modal-save>
+
+            <clr-modal [(clrModalOpen)]="cancelUpload" [clrModalClosable]="false">
+
+                <h3 class="modal-title">Cancel Upload Confirm</h3>
+
+                <div class="modal-body">
+                    <p>Are you sure want to cancel the upload for {{title}}?</p>
+                    <p>Press OK to Confirm.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline" type="button" (click)="cancelUploadModal($event)">No</button>
+                    <button class="btn btn-primary" type="button" (click)="abort($event)">Ok</button>
+                </div>
+
+            </clr-modal>
+        </main>
+    </div>
+</clr-main-container>

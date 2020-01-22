@@ -1,0 +1,138 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area">
+            <h1>Search Approval Setup</h1>
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event; uiState.searchIsPressed = false;"></fema-cms-alert-on-action>
+
+            <form [formGroup]="searchApprovalForm" (ngSubmit)="checkSearchParams($event)">
+
+                <section class="form-block">
+
+                    <div class="form-group">
+
+                        <label for="workflowNameField">Workflow Name</label>
+
+                        <input
+                            type="text"
+                            id="workflowNameField"
+                            placeholder="Search by Name"
+                            formControlName="avmName"
+                            maxlength="100"/>
+
+                    </div>
+                    <div class="form-group">
+                        <label for="transactionTypeField">Transaction Type</label>
+                        <span class="select">
+
+                            <select id="transactionTypeField"
+                                    [formControlName]="'transactionType'">
+
+                                <option *ngFor="let transaction of option?.transactions"
+                                        [value]="transaction?.value">
+                                    {{transaction?.label}}
+                                </option>
+
+                            </select>
+
+                        </span>
+                        
+                    </div>
+
+                    <div class="btn-group btn-primary">
+                        <button type="submit"
+                                class="btn btn-icon"
+                                [clrLoading]="uiState?.isSearching">    
+                            <clr-icon shape="search"></clr-icon>
+    
+                            Search
+    
+                        </button>
+    
+                        <button
+                            type="button"
+                            class="btn"
+                            routerLink="/workflow/create"
+                            routerLinkActive="active">
+    
+                            <clr-icon shape="plus"></clr-icon>
+    
+                            New
+    
+                        </button>
+    
+                    </div>
+                   
+              </section>  
+              </form>
+            <clr-datagrid (clrDgRefresh)="clrPage?.next($event)"
+                          [clrDgLoading]="uiState.isSearching">
+
+                <clr-dg-column>Action</clr-dg-column>
+
+                <clr-dg-column [clrDgField]="'avmName'">Workflow Name</clr-dg-column>
+                <clr-dg-column [clrDgField]="'transactionType'">Transaction Type</clr-dg-column>
+                <clr-dg-column [clrDgField]="'effectiveStartDate'">Start Date</clr-dg-column>
+                <clr-dg-column [clrDgField]="'effectiveEndDate'">End Date</clr-dg-column>
+                <clr-dg-column [clrDgField]="'modifiedDate'">Last Updated Date</clr-dg-column>
+                
+                <clr-dg-column [clrDgField]="'modifiedBy'">Last Updated By</clr-dg-column>
+
+                <clr-dg-placeholder>No data found!</clr-dg-placeholder>
+                
+                <clr-dg-row *ngFor="let wf of workflowList?.content">
+
+                    <clr-dg-cell>
+                        
+                        <a [routerLink]="['/workflow/', wf?.id]">View</a>
+                        |
+                        <a [routerLink]="['/workflow/edit', wf?.id]">Edit</a>
+
+                    </clr-dg-cell>
+
+                    <clr-dg-cell>{{wf?.avmName}}</clr-dg-cell>
+                    <clr-dg-cell>{{wf?.avmVersionEntities.transactionType}}</clr-dg-cell>
+                    <clr-dg-cell>{{wf?.effectiveStartDate | date :'dd-MMM-yyyy'}}</clr-dg-cell>
+                    <clr-dg-cell>{{wf?.avmVersionEntities.effectiveEndDate | date :'dd-MMM-yyyy'}}</clr-dg-cell>
+                    <clr-dg-cell>
+                        {{wf?.modifiedDate ? (wf?.modifiedDate | date :'dd-MMM-yyyy hh:mm:ss') : '-'}}
+                    </clr-dg-cell>
+                    <clr-dg-cell>{{wf?.modifiedBy || '-'}}</clr-dg-cell>
+                    
+                </clr-dg-row>
+
+                <clr-dg-footer>
+                    {{pagination?.firstItem + 1}} - {{pagination?.lastItem + 1}} of {{workflowList?.totalCount}}
+                    templates
+
+                    <clr-dg-pagination #pagination
+                                       [clrDgPage]="workflowList?.currentPage"
+                                       [clrDgPageSize]="workflowList?.pageSize"
+                                       [clrDgTotalItems]="workflowList?.totalCount">
+                    </clr-dg-pagination>
+                
+                </clr-dg-footer>
+
+            </clr-datagrid>
+
+              <!-- <fema-cms-modal-search [(isOpen)]="uiState.searchModalIsOpen"
+                                   (search)="searchByInput()"
+                                   [bahasa]="'indonesia'">
+            </fema-cms-modal-search> -->
+            <fema-cms-modal-search
+                [(isOpen)]="uiState.openWarningModal"
+                (search)="searchByInput()"></fema-cms-modal-search>
+        </main>
+
+    </div>
+
+</clr-main-container>
+

@@ -1,0 +1,630 @@
+<clr-main-container>
+
+    <fema-cms-header></fema-cms-header>
+
+    <div class="content-container">
+
+        <fema-cms-nav></fema-cms-nav>
+
+        <main class="content-area"
+              #clrContentArea>
+
+            <h1>Create New Feedback</h1>
+
+            <fema-cms-alert-on-action [errorOnInit]="errorOnInit"
+                                      [responseOnAction]="responseOnAction"
+                                      [isLoading]="!formOptions"
+                                      [isFailed]="!formOptions"
+                                      (retry)="initialSetup()"
+                                      (close)="responseOnAction = $event"></fema-cms-alert-on-action>
+
+            <form *ngIf="formOptions"
+                  [formGroup]="feedbackForm"
+                  (ngSubmit)="checkFormValidity($event)">
+
+                <section class="form-block">
+
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-7">
+
+                            <div class="form-group">
+
+                                <label class="required">Form Template Name</label>
+
+                                <label for="templateNameField"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       class="tooltip tooltip-validation tooltip-md"
+                                       [class.invalid]="invalidField('templateName')">
+
+                                    <input type="text"
+                                           id="templateNameField"
+                                           formControlName="templateName"
+                                           size="30"/>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          *ngIf="invalidField('templateName', 'required')">
+                                        Form Template name must be filled
+                                    </span>
+
+                                    <span class="tooltip-content"
+                                          *ngIf="invalidField('templateName', 'unique')">
+                                        Template name must be unique
+                                    </span>
+
+                                    <span class="tooltip-content tooltip-content--show"
+                                          *ngIf="invalidField('templateName', 'maxlength')">
+                                       Maximum length is {{showError(feedbackForm?.get('templateName'), 'maxlength')?.requiredLength}}
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Description</label>
+
+                                <label for="descriptionField"
+                                       aria-haspopup="true"
+                                       role="tooltip"
+                                       style="width: 20rem;"
+                                       class="tooltip tooltip-validation tooltip-md fema__label--fit-content"
+                                       [class.invalid]="invalidField('description')">
+
+                                    <textarea id="descriptionField"
+                                              style="height: 4rem;"
+                                              placeholder="Description"
+                                              formControlName="description"
+                                              [maxlength]="lookup?.maxDescLength"></textarea>
+
+                                    <span class="tooltip-content tooltip-content--show">
+                                        Maximum length is {{showError(feedbackForm?.get('description'), 'maxlength')?.requiredLength}}
+                                     </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-5">
+
+                            <div class="form-group">
+
+                                <label>Need Calculation</label>
+
+                                <div class="toggle-switch">
+
+                                    <input type="checkbox"
+                                           id="calcToggle"
+                                           formControlName="needCalculation"/>
+
+                                    <label for="calcToggle">
+                                        {{feedbackForm?.get('calculation')?.value ? 'Yes' : 'No'}}
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Scoring Formula</label>
+
+                                <span class="label label-info">
+                                    <i>Score = Total Points / Number of Questions</i>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <hr/>
+
+                <section class="form-block">
+
+                    <label>Question Category List</label>
+
+                    <div class="row flex-items-lg-center flex-items-xl-center">
+
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                            <button type="button"
+                                    class="btn"
+                                    [disabled]="isFirstCategory"
+                                    (click)="prevCategory($event)">
+
+                                <clr-icon shape="caret left"></clr-icon>
+
+                                Prev Category
+
+                            </button>
+
+                            <button type="button"
+                                    class="btn"
+                                    (click)="$event?.preventDefault; uiState.deleteCategoryModalIsOpen = true">
+
+                                <clr-icon shape="trash"></clr-icon>
+
+                                Delete Category
+
+                            </button>
+
+                            <button type="button"
+                                    class="btn"
+                                    (click)="nextCategory($event)">
+
+                                <clr-icon shape="caret right"></clr-icon>
+
+                                Next Category
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <section class="form-block"
+                             formArrayName="categories">
+
+                        <ng-template
+                            ngFor
+                            let-categoryCtrl
+                            [ngForOf]="categoriesForm?.controls"
+                            let-catIdx="index"
+                            [ngForTrackBy]="ngForTracker">
+
+                            <div [formGroupName]="catIdx?.toString()"
+                                 *ngIf="isActiveCategory(catIdx)">
+
+                                <div class="form-group">
+
+                                    <label class="required">Question Category</label>
+
+                                    <label [for]="'questionCategory' + catIdx"
+                                           aria-haspopup="true"
+                                           role="tooltip"
+                                           class="tooltip tooltip-validation tooltip-md"
+                                           [class.invalid]="invalidField(categoryCtrl?.get('questionCategory'), 'required')">
+
+                                        <span class="select">
+
+                                            <select [formControlName]="'questionCategory'"
+                                                    [id]="'questionCategory' + catIdx">
+
+                                                <option
+                                                    *ngFor="let category of formOptions?.questionCategories; trackBy: ngForTracker"
+                                                    [value]="category?.detailCode">
+                                                    {{category?.meaning}}
+                                                </option>
+
+                                            </select>
+
+                                        </span>
+
+                                        <span class="tooltip-content tooltip-content--show"
+                                              *ngIf="invalidField(categoryCtrl?.get('questionCategory'), 'required')">
+                                            Question Category must be filled
+                                        </span>
+
+                                    </label>
+
+                                </div>
+
+                                <hr/>
+
+                                <section class="form-block">
+
+                                    <label>Question List</label>
+
+                                    <div class="row flex-items-lg-center flex-items-xl-center">
+
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+
+                                            <label style="margin-left: 9rem;margin-right: 10rem;">Go To Page</label>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row flex-items-lg-center flex-items-xl-center">
+
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-7 col-xl-7">
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    [disabled]="isFirstQuestion"
+                                                    (click)="prevQuestion($event)">
+
+                                                <clr-icon shape="caret left"></clr-icon>
+
+                                                Prev Question
+
+                                            </button>
+
+                                            <label [for]="'questionCategory' + catIdx"
+                                                   aria-haspopup="true"
+                                                   role="tooltip"
+                                                   class="tooltip tooltip-validation tooltip-md"
+                                                   [class.invalid]="uiState.goToPageFieldInvalid">
+
+                                                <input type="text"
+                                                       placeholder="Question Page"
+                                                       [formControlName]="'questionPage'"
+                                                       (keydown.enter)="changeQuestionPage($event)"
+                                                       (blur)="resetQuestionPage($event, categoryCtrl)"/>
+
+                                                <span class="tooltip-content tooltip-content--show"
+                                                      *ngIf="uiState.goToPageFieldInvalid">
+                                                    Only numbers accepted
+                                                </span>
+                                            </label>
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    (click)="nextQuestion($event)">
+                                                <clr-icon shape="caret right"></clr-icon>
+                                                Next Question
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row flex-items-lg-center flex-items-xl-center">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-7 col-xl-7">
+
+                                            <button type="button"
+                                                    class="btn"
+                                                    (click)="$event?.preventDefault(); uiState.deleteQuestionModalIsOpen = true;">
+                                                <clr-icon shape="trash"></clr-icon>
+                                                Delete Question
+                                            </button>
+
+                                        </div>
+                                    </div>
+
+                                    <section class="form-block"
+                                             formArrayName="questions">
+
+                                        <ng-template
+                                            ngFor
+                                            let-questionCtrl
+                                            [ngForOf]="questionsForm?.controls"
+                                            let-questionIdx="index"
+                                            [ngForTrackBy]="ngForTracker">
+
+                                            <div [formGroupName]="questionIdx?.toString()"
+                                                 *ngIf="isActiveQuestion(questionIdx)">
+
+                                                <div class="form-group">
+
+                                                    <label>Add Image</label>
+
+                                                    <label [for]="'imageFile' + questionIdx"
+                                                           aria-haspopup="true"
+                                                           role="tooltip"
+                                                           class="tooltip tooltip-validation tooltip-md fema__label--fit-content"
+                                                           [class.invalid]="invalidField(questionCtrl?.get('imageFile'))"
+                                                           style="width: 100%">
+
+                                                        <ng-template [ngIf]="questionCtrl?.get('imageFile')?.value">
+
+                                                            <span class="label label-info">
+                                                                <i>Existing image: {{questionCtrl?.get('imageFile')?.value['name']}}</i>
+                                                            </span>
+
+                                                            <br/>
+
+                                                        </ng-template>
+
+                                                        <input type="file"
+                                                               [id]="'imageFile' + questionIdx"
+                                                               multiple="multiple"
+                                                               size="50"
+                                                               accept="image/jpeg, image/png"
+                                                               (change)="selectImage($event, questionCtrl)"/>
+
+                                                        <span class="tooltip-content"
+                                                              *ngIf="invalidField(questionCtrl?.get('imageFile'), 'fileTypes')">
+                                                            Image format must be .jpg/.png
+                                                        </span>
+
+                                                        <span class="tooltip-content tooltip-content--show"
+                                                              *ngIf="invalidField(questionCtrl?.get('imageFile'), 'maxFileSize')">
+                                                            Maximum size allowed is {{+showError(questionCtrl?.get('imageFile'), 'maxFileSize')['maxFileSize'] / 1000}} MB
+                                                        </span>
+
+                                                    </label>
+
+                                                </div>
+
+                                                <div class="form-group">
+
+                                                    <label class="required">Question</label>
+
+                                                    <label [for]="'question' + questionIdx"
+                                                           aria-haspopup="true"
+                                                           role="tooltip"
+                                                           class="tooltip tooltip-validation tooltip-md fema__label--fit-content"
+                                                           [class.invalid]="invalidField(questionCtrl?.get('question'), 'required')">
+
+                                                    <textarea [id]="'question' + questionIdx"
+                                                              placeholder="Question"
+                                                              rows="3"
+                                                              formControlName="question"
+                                                              [maxlength]="lookup?.maxQuestionLength"></textarea>
+
+                                                        <span class="tooltip-content tooltip-content--show"
+                                                              *ngIf="invalidField(questionCtrl?.get('question'), 'required')">
+                                                            Question must be filled
+                                                        </span>
+
+                                                    </label>
+
+                                                </div>
+
+                                                <clr-checkbox [formControlName]="'required'">
+                                                    Required
+                                                </clr-checkbox>
+
+                                                <br/>
+
+                                                <div class="form-group">
+
+                                                    <label class="required">Type of Answer</label>
+
+                                                    <label [for]="'typeOfAnswerValue' + questionIdx"
+                                                           aria-haspopup="true"
+                                                           role="tooltip"
+                                                           class="tooltip tooltip-validation tooltip-md"
+                                                           [class.invalid]="invalidField(questionCtrl?.get('typeOfAnswerValue'), 'required')">
+
+                                                        <span class="select">
+
+                                                            <select [id]="'typeOfAnswerValue' + questionIdx"
+                                                                    [formControlName]="'typeOfAnswerValue'">
+                                                                <option
+                                                                    *ngFor="let answerType of formOptions?.answerTypes"
+                                                                    [value]="answerType?.detailCode">
+                                                                    {{answerType?.meaning}}
+                                                                </option>
+
+                                                            </select>
+
+                                                        </span>
+
+                                                        <span class="tooltip-content tooltip-content--show"
+                                                              *ngIf="invalidField(questionCtrl?.get('typeOfAnswerValue'), 'required')">
+                                                        Type of Answer must be filled
+                                                    </span>
+
+                                                    </label>
+
+                                                </div>
+
+                                                <br/>
+
+                                                <ng-container
+                                                    [ngSwitch]="questionCtrl?.get('typeOfAnswerValue')?.value">
+
+                                                    <ng-template [ngSwitchCase]="'MULTIPLE_CHOICE'">
+
+                                                        <div class="row">
+
+                                                            <div
+                                                                class="col-xl-10 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                <clr-checkbox [formControlName]="'allowFillIn'">
+                                                                    Allow "Fill-in" Choice
+                                                                </clr-checkbox>
+                                                            </div>
+
+                                                            <div
+                                                                class="col-xl-2 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                <button type="button"
+                                                                        class="btn"
+                                                                        (click)="addChoice($event, questionCtrl)">
+                                                                    <clr-icon shape="add"></clr-icon>
+                                                                    Add Row
+                                                                </button>
+                                                            </div>
+
+                                                        </div>
+
+                                                        <br/>
+
+                                                        <div class="alert alert-danger"
+                                                             *ngIf="invalidField(questionCtrl?.get('allowFillIn'), 'minChoices')">
+
+                                                            <div class="alert-items">
+
+                                                                <div class="alert-item static">
+
+                                                                    <div class="alert-icon-wrapper">
+
+                                                                        <clr-icon class="alert-icon"
+                                                                                  shape="exclamation-circle"></clr-icon>
+
+                                                                    </div>
+
+                                                                    <span class="alert-text">
+                                                                        Minimum choices are 2
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        <table class="table table-compact">
+
+                                                            <thead>
+
+                                                            <tr>
+
+                                                                <th>Choices</th>
+
+                                                                <th>Action</th>
+
+                                                            </tr>
+
+                                                            </thead>
+
+                                                            <tbody formArrayName="choices">
+
+                                                            <tr *ngFor="let choiceCtrl of questionCtrl?.get('choices')?.controls; let k = index;">
+
+                                                                <td>
+
+                                                                    <label
+                                                                        [for]="'choice' + k"
+                                                                        aria-haspopup="true"
+                                                                        role="tooltip"
+                                                                        class="tooltip tooltip-validation tooltip-md"
+                                                                        [class.invalid]="invalidField(choiceCtrl, 'required')"
+                                                                        style="width: 100%;">
+
+                                                                        <input
+                                                                            type="text"
+                                                                            [id]="'choice' + k"
+                                                                            [formControlName]="k?.toString()"
+                                                                            maxlength="250"
+                                                                            style="width: 100%;"/>
+
+                                                                        <span class="tooltip-content"
+                                                                              *ngIf="invalidField(choiceCtrl, 'required')">
+                                                                            Choice must be filled & can not be a duplicate
+                                                                        </span>
+
+                                                                    </label>
+
+                                                                </td>
+
+                                                                <td>
+
+                                                                    <button type="button"
+                                                                            class="btn btn-sm btn-link"
+                                                                            (click)="deleteChoice($event, questionCtrl, k)">
+                                                                        <clr-icon shape="trash"></clr-icon>
+                                                                    </button>
+
+                                                                </td>
+
+                                                            </tr>
+
+                                                            </tbody>
+
+                                                        </table>
+
+                                                        <br/>
+
+                                                    </ng-template>
+
+                                                    <div class="form-group"
+                                                         *ngSwitchCase="'SINGLE_LINE_OF_TEXT'">
+
+                                                        <label class="required">Maximum Number of Characters</label>
+
+                                                        <label for="maxNumCharacters"
+                                                               aria-haspopup="true"
+                                                               role="tooltip"
+                                                               class="tooltip tooltip-validation tooltip-md"
+                                                               [class.invalid]="invalidField(questionCtrl?.get('maxNumCharacters'))">
+
+                                                            <input type="text"
+                                                                   id="maxNumCharacters"
+                                                                   formControlName="maxNumCharacters"/>
+
+                                                            <span class="tooltip-content tooltip-content--show"
+                                                                  *ngIf="invalidField(questionCtrl?.get('maxNumCharacters'), 'required')">
+                                                                Maximum Number of Characters must be filled
+                                                            </span>
+
+                                                            <span
+                                                                class="tooltip-content tooltip-content--show"
+                                                                *ngIf="invalidField(questionCtrl?.get('maxNumCharacters'), 'pattern')">
+                                                                    Only numbers are accepted
+                                                            </span>
+
+                                                            <span
+                                                                class="tooltip-content tooltip-content--show"
+                                                                *ngIf="invalidField(questionCtrl?.get('maxNumCharacters'), 'min')
+                                                                        &&(!(invalidField(questionCtrl?.get('maxNumCharacters'), 'pattern')))">
+                                                                Maximum Number of Characters must greater than 0
+                                                            </span>
+
+
+                                                        </label>
+
+                                                    </div>
+
+                                                </ng-container>
+
+                                            </div>
+
+                                        </ng-template>
+
+                                    </section>
+
+                                </section>
+
+
+                            </div>
+
+                        </ng-template>
+
+                    </section>
+
+                </section>
+
+
+                <div class="btn-group btn-primary btn-right">
+
+                    <button type="button"
+                            class="btn"
+                            (click)="$event?.preventDefault(); uiState.cancelModalIsOpen = true;">
+                        <clr-icon shape="undo"></clr-icon>
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-icon"
+                            [clrLoading]="uiState?.isSaving">
+
+                        <clr-icon shape="floppy"></clr-icon>
+
+                        Save
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <fema-cms-feedback-modal-delete-category [(isOpen)]="uiState.deleteCategoryModalIsOpen"
+                                                     [(isOpenSuccess)]="uiState.deleteCategorySuccessModalIsOpen"
+                                                     (action)="deleteCategory()"></fema-cms-feedback-modal-delete-category>
+
+            <fema-cms-feedback-modal-delete-question [(isOpen)]="uiState.deleteQuestionModalIsOpen"
+                                                     [(isOpenSuccess)]="uiState.deleteQuestionSuccessModalIsOpen"
+                                                     (action)="deleteQuestion()"></fema-cms-feedback-modal-delete-question>
+
+            <fema-cms-modal-cancel [(isOpen)]="uiState.cancelModalIsOpen"
+                                   [returnLink]="'/feedback/search'"></fema-cms-modal-cancel>
+
+            <fema-cms-modal-save [(isOpen)]="uiState.saveModalIsOpen"
+                                 [(isOpenSuccess)]="uiState.saveSuccessModalIsOpen"
+                                 (save)="save()"
+                                 [returnLink]="'/feedback/search'"></fema-cms-modal-save>
+
+        </main>
+
+    </div>
+
+</clr-main-container>
